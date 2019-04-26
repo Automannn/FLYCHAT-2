@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    tools:context=".signUp.SignUpActivity">
+
+    <android.support.constraint.Guideline
+        android:id="@+id/phone_edit_line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.34"/>
+
+    <android.support.constraint.Guideline
+        android:id="@+id/sign_up_btn_line"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.59"/>
+
+    <EditText
+        android:id="@+id/phone_edit"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_54"
+        android:layout_marginStart="@dimen/dp_30"
+        android:layout_marginEnd="@dimen/dp_30"
+        android:background="@drawable/login_et_bg"
+        android:hint="@string/phone_str"
+        android:inputType="phone"
+        android:paddingRight="@dimen/dp_20"
+        android:paddingLeft="@dimen/dp_20"
+        android:textColor="@color/login_edit_text_selector_color"
+        android:textColorHint="@color/colorLightGray"
+        android:textCursorDrawable="@drawable/cursor_dra"
+        app:layout_constraintTop_toBottomOf="@id/phone_edit_line"
+        tools:ignore="Autofill,RtlSymmetry"/>
+
+    <EditText
+        android:id="@+id/pwd_edit"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_54"
+        android:layout_marginStart="@dimen/dp_30"
+        android:layout_marginTop="@dimen/dp_5"
+        android:layout_marginEnd="@dimen/dp_30"
+        android:background="@drawable/login_et_bg"
+        android:hint="@string/password_text"
+        android:inputType="textPassword"
+        android:paddingRight="@dimen/dp_20"
+        android:paddingLeft="@dimen/dp_20"
+        android:textColor="@color/login_edit_text_selector_color"
+        android:textColorHint="@color/colorLightGray"
+        android:textCursorDrawable="@drawable/cursor_dra"
+        app:layout_constraintTop_toBottomOf="@id/phone_edit"
+        tools:ignore="Autofill,RtlSymmetry"/>
+
+    <Button
+        android:id="@+id/sign_up_btn"
+        android:layout_width="@dimen/dp_280"
+        android:layout_height="@dimen/dp_54"
+        android:background="@drawable/dark_gray_light_blue_rip"
+        android:text="@string/sign_up_str"
+        android:textColor="@color/colorWhite"
+        android:textSize="?normalFont"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sign_up_btn_line"/>
+
+</android.support.constraint.ConstraintLayout>

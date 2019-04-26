@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/user_info_constraint"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorMineBack"
+    android:orientation="vertical"
+    tools:context=".userInfo.UserInfoActivity">
+
+    <com.gameex.dw.justtalk.titleBar.TitleBarView
+        android:id="@+id/title_bar_user_info"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_54"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </com.gameex.dw.justtalk.titleBar.TitleBarView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorMineBack"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/basic_info_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorMineBack"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/mine_icon_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_110"
+                android:layout_marginTop="@dimen/dp_25"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <com.github.siyamed.shapeimageview.CircularImageView
+                    android:id="@+id/mine_icon_info"
+                    android:layout_width="@dimen/dp_85"
+                    android:layout_height="@dimen/dp_85"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_marginRight="@dimen/dp_20"
+                    android:src="@drawable/icon_user"
+                    app:siBorderColor="@color/colorWhite"/>
+
+                <TextView
+                    android:id="@+id/mine_nick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/mine_icon_info"
+                    android:layout_toRightOf="@id/mine_icon_info"
+                    android:text="@string/username"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?normalFont"
+                    tools:ignore="RelativeOverlap"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <TextView
+                android:id="@+id/change_icon_text"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_70"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/change_icon_str"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"/>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <RelativeLayout
+                android:id="@+id/mine_qr_code_layout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_70"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/mine_qr_code_str"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <ImageView
+                    android:layout_width="@dimen/dp_30"
+                    android:layout_height="@dimen/dp_30"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_20"
+                    android:layout_marginRight="@dimen/dp_20"
+                    android:padding="@dimen/dp_5"
+                    android:src="@drawable/qr_code"
+                    tools:ignore="ContentDescription"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <RelativeLayout
+                android:id="@+id/fly_code_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_70"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/fly_code_str"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <TextView
+                    android:id="@+id/fly_code_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:layout_toStartOf="@id/fly_code_edit_img"
+                    android:layout_toLeftOf="@id/fly_code_edit_img"
+                    android:text="@string/not_set_str"
+                    android:textColor="@color/colorLightGray"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <ImageView
+                    android:id="@+id/fly_code_edit_img"
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:src="@drawable/set"
+                    tools:ignore="ContentDescription"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <RelativeLayout
+                android:id="@+id/fly_sign_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_70"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/fly_sign_str"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <TextView
+                    android:id="@+id/fly_sign_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:layout_toStartOf="@id/fly_sign_edit_img"
+                    android:layout_toLeftOf="@id/fly_sign_edit_img"
+                    android:text="@string/not_set_str"
+                    android:textColor="@color/colorLightGray"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <ImageView
+                    android:id="@+id/fly_sign_edit_img"
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:src="@drawable/set"
+                    tools:ignore="ContentDescription"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/mine_num_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_70"
+                android:layout_marginTop="@dimen/dp_25"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/user_num_str"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <TextView
+                    android:id="@+id/mine_num_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:layout_toStartOf="@id/user_num_edit_img"
+                    android:layout_toLeftOf="@id/user_num_edit_img"
+                    android:text="@string/user_num_eg"
+                    android:textColor="@color/colorLightGray"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <ImageView
+                    android:id="@+id/user_num_edit_img"
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:src="@drawable/set"
+                    tools:ignore="ContentDescription"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <TextView
+                android:id="@+id/share_card_text"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_70"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/share_card_str"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"/>
+
+            <TextView
+                android:id="@+id/login_out_text"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_70"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:layout_marginBottom="@dimen/dp_70"
+                android:layout_marginTop="@dimen/dp_25"
+                android:text="@string/login_out_str"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"/>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="rem_checkbox" parent="@android:style/Widget.Material.CompoundButton.CheckBox">
+        <item name="android:colorControlActivated">@color/colorPrimaryDark</item>
+        <item name="android:colorControlNormal">@color/colorDarkGray</item>
+    </style>
+</resources>

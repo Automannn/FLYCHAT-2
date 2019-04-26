@@ -1,0 +1,120 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Base application theme. -->
+    <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- Customize your theme here. -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorAccent">@color/colorAccent</item>
+        <item name="smallSuperFont">@dimen/sp_12</item>
+        <item name="smallFont">@dimen/sp_16</item>
+        <item name="normalFont">@dimen/sp_20</item>
+        <item name="largeFont">@dimen/sp_24</item>
+        <item name="largeSuperFont">@dimen/sp_28</item>
+    </style>
+
+    <style name="AppTheme.SmallSuperFont" parent="AppTheme">
+        <item name="smallSuperFont">@dimen/sp_12</item>
+        <item name="smallFont">@dimen/sp_16</item>
+        <item name="normalFont">@dimen/sp_20</item>
+        <item name="largeFont">@dimen/sp_24</item>
+        <item name="largeSuperFont">@dimen/sp_28</item>
+    </style>
+
+    <style name="AppTheme.SmallFont" parent="AppTheme">
+        <item name="smallSuperFont">@dimen/sp_16</item>
+        <item name="smallFont">@dimen/sp_20</item>
+        <item name="normalFont">@dimen/sp_24</item>
+        <item name="largeFont">@dimen/sp_28</item>
+        <item name="largeSuperFont">@dimen/sp_32</item>
+    </style>
+
+    <style name="AppTheme.NormalFont" parent="AppTheme">
+        <item name="smallSuperFont">@dimen/sp_20</item>
+        <item name="smallFont">@dimen/sp_24</item>
+        <item name="normalFont">@dimen/sp_28</item>
+        <item name="largeFont">@dimen/sp_32</item>
+        <item name="largeSuperFont">@dimen/sp_36</item>
+    </style>
+
+    <style name="AppTheme.LargeFont" parent="AppTheme">
+        <item name="smallSuperFont">@dimen/sp_24</item>
+        <item name="smallFont">@dimen/sp_28</item>
+        <item name="normalFont">@dimen/sp_32</item>
+        <item name="largeFont">@dimen/sp_36</item>
+        <item name="largeSuperFont">@dimen/sp_40</item>
+    </style>
+
+    <style name="AppTheme.LargeSuperFont" parent="AppTheme">
+        <item name="smallSuperFont">@dimen/sp_28</item>
+        <item name="smallFont">@dimen/sp_32</item>
+        <item name="normalFont">@dimen/sp_36</item>
+        <item name="largeFont">@dimen/sp_40</item>
+        <item name="largeSuperFont">@dimen/sp_44</item>
+    </style>
+
+    <!--Starting app theme-->
+    <style name="AppTheme.Launcher" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/layer_launcher</item>
+        <item name="windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+        <item name="android:windowTranslucentNavigation" tools:targetApi="kitkat">true</item>
+    </style>
+
+    <!--弹出窗style-->
+    <style name="pop_anim" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/popup_title_in</item>
+        <item name="android:windowExitAnimation">@anim/popup_title_out</item>
+    </style>
+
+    <!-- Checkbox style -->
+    <style name="rem_checkbox" parent="@android:style/Widget.Material.CompoundButton.CheckBox" tools:targetApi="lollipop">
+        <item name="android:colorControlActivated">@color/colorAccent</item>
+        <item name="android:colorControlNormal">@color/colorDarkGray</item>
+    </style>
+
+    <!-- QR code dialog style -->
+    <style name="qr_code_dialog_style" parent="Theme.AppCompat.Dialog">
+        <!-- 五标题栏 -->
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="windowNoTitle">true</item>
+        <!-- 背景半透明 -->
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:background">@android:color/transparent</item>
+        <item name="android:backgroundDimEnabled">true</item>
+    </style>
+
+    <!-- material搜索控件style-->
+    <style name="MaterialSearchViewStyle">
+        <!-- Background for the search bar -->
+        <item name="searchBackground">@color/colorPrimaryDark</item>
+
+        <!-- Change voice icon -->
+        <item name="searchVoiceIcon">@drawable/ic_action_voice_search_inverted</item>
+
+        <!-- Change clear text icon -->
+        <item name="searchCloseIcon">@drawable/ic_action_navigation_close_inverted</item>
+
+        <!-- Change up icon -->
+        <item name="searchBackIcon">@drawable/ic_action_navigation_arrow_back_inverted</item>
+
+        <!-- Change icon for the suggestions -->
+        <item name="searchSuggestionIcon">@drawable/ic_suggestion</item>
+
+        <!-- Change background for the suggestions list view -->
+        <item name="searchSuggestionBackground">@android:color/white</item>
+
+        <!-- Change text color for edit text. This will also be the color of the cursor -->
+        <item name="android:textColor">@color/colorWhite</item>
+
+        <!-- Change hint text color for edit text -->
+        <item name="android:textColorHint">@color/colorLightGray</item>
+
+        <!-- Hint for edit text -->
+        <item name="android:hint">@string/search</item>
+    </style>
+
+</resources>

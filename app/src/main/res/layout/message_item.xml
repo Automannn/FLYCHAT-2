@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <android.support.v7.widget.CardView
+        android:id="@+id/message_card"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <android.support.constraint.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/light_gray_white_underline_rip">
+
+            <android.support.constraint.Guideline
+                android:id="@+id/message_time_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                app:layout_constraintGuide_percent="0.8"/>
+
+            <com.github.siyamed.shapeimageview.CircularImageView
+                android:id="@+id/user_icon"
+                android:layout_width="@dimen/dp_50"
+                android:layout_height="@dimen/dp_50"
+                android:layout_marginStart="@dimen/dp_5"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:src="@drawable/icon_user"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:siBorderColor="@color/colorWhite"
+                tools:ignore="ContentDescription"/>
+
+            <TextView
+                android:id="@+id/user_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/dp_20"
+                android:layout_marginLeft="@dimen/dp_20"
+                android:layout_marginTop="@dimen/dp_10"
+                android:text="@string/username"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?normalFont"
+                app:layout_constraintStart_toEndOf="@id/user_icon"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <TextView
+                android:id="@+id/msg_last"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dp_5"
+                android:text="@string/last_massage"
+                android:textColor="@color/colorLightGray"
+                android:textSize="?smallFont"
+                app:layout_constraintStart_toStartOf="@id/user_name"
+                app:layout_constraintTop_toBottomOf="@id/user_name"/>
+
+            <TextView
+                android:id="@+id/msg_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_6"
+                android:text="@string/msg_data"
+                android:textColor="@color/colorLightGray"
+                android:textSize="?smallFont"
+                app:layout_constraintStart_toEndOf="@id/message_time_line"
+                app:layout_constraintTop_toTopOf="parent"/>
+
+            <ImageView
+                android:id="@+id/notify_off"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_10"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/msg_time"
+                app:srcCompat="@drawable/ic_notifications_off_black_24dp"
+                tools:ignore="ContentDescription"/>
+        </android.support.constraint.ConstraintLayout>
+
+    </android.support.v7.widget.CardView>
+
+</android.support.constraint.ConstraintLayout>

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="titleBarView">
+        <attr name="centerText" format="string"/>
+        <attr name="centerTextColor" format="color"/>
+    </declare-styleable>
+    
+    <declare-styleable name="ThemeFontSize">
+        <attr name="smallSuperFont" format="reference|dimension"/>
+        <attr name="smallFont" format="reference|dimension"/>
+        <attr name="normalFont" format="reference|dimension"/>
+        <attr name="largeFont" format="reference|dimension"/>
+        <attr name="largeSuperFont" format="reference|dimension"/>
+    </declare-styleable>
+</resources>

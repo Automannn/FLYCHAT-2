@@ -1,0 +1,82 @@
+<resources>
+    <string name="author_name">Dennil_Wei</string>
+    <string name="app_name">飞聊</string>
+
+    <string name="login_str">登录</string>
+    <string name="sign_up_str">注册</string>
+    <string name="phone_str">手机号</string>
+    <string name="quick_sign_up_str">快速注册</string>
+    <string name="forgot_pwd_str">忘记密码?</string>
+
+    <string name="title_activity_bottom_bar">BottomBarActivity</string>
+    <string name="title_home">飞聊</string>
+    <string name="title_dashboard">联系人</string>
+    <string name="title_notifications">我</string>
+    <string name="search">搜索</string>
+    <string name="username">用户名</string>
+    <string name="remember_pwd">记住密码</string>
+
+    <string name="user_personal_signed">这个人很佛，什么都没有留下......</string>
+    <string name="loose_change_str">零钱</string>
+    <string name="fly_chat_store_str">飞聊商城</string>
+    <string name="my_favorite_str">我的收藏</string>
+    <string name="setting_str">设置</string>
+    <string name="online_customer_service_str">在线客服</string>
+    <string name="change_icon_str">修改头像</string>
+    <string name="mine_qr_code_str">我的二维码</string>
+    <string name="fly_code_str">飞聊号</string>
+    <string name="fly_sign_str">个性签名</string>
+    <string name="not_set_str">未设置</string>
+    <string name="user_num_str">手机</string>
+    <string name="share_card_str">分享我的名片</string>
+    <string name="password_text">密码</string>
+    <string name="other_info_text">其他</string>
+
+    <string name="talk_ground_text">发起群聊</string>
+    <string name="add_friends_text">添加朋友</string>
+    <string name="SQ_text">扫一扫</string>
+    <string name="help_back_up_text">帮助与反馈</string>
+
+    <string name="click_outside_out_str">点击其他地方退出</string>
+
+    <string name="xml_space">&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;</string>
+    <string name="choose_from_lib">从图库中选择</string>
+    <string name="take_photo">拍照</string>
+    <string name="sure_str">确定</string>
+    <string name="cancel_str">取消</string>
+    <string name="chat_edit_hint_str">请输入...</string>
+    <string name="send_btn_text_str">发&#160;&#160;&#160;&#160;送</string>
+    <string name="set_font_size_str">字体大小</string>
+
+    <string name="invite_by_message_str">短信邀请</string>
+    <string name="invite_by_wechat_str">邀请微信好友</string>
+    <string name="invite_by_wezone_str">分享朋友圈</string>
+    <string name="invite_by_qq_str">邀请QQ好友</string>
+    <string name="invite_by_qzone_str">分享至QQ空间</string>
+
+    <string name="last_massage">最后一条信息或通知</string>
+    <string name="msg_data">8月14号</string>
+    <string name="msg_time">16:59</string>
+    <string name="other_text">敬请期待</string>
+    <string name="user_num_eg">16500736578</string>
+    <string name="password_eg">flyxia.cn</string>
+    <string name="test1_str">Test</string>
+    <string name="test2_str">This is message from you friend, please check.
+    这是&#160;&#160;&#160;&#160;一条&#160;&#160;&#160;&#160;测试&#160;&#160;&#160;&#160;数据。
+        &amp;……&amp;……*%&amp;（（*））GJGGKHjhHKHKkHhkk</string>
+
+
+    <string-array name="tick_text_str_arr">
+        <item>小</item>
+        <item> </item>
+        <item>中</item>
+        <item> </item>
+        <item>大</item>
+    </string-array>
+    <string name="login_out_str">退出登录</string>
+    <string-array name="query_suggestions">
+        <item>搜索建议1</item>
+        <item>搜索建议2</item>
+        <item>搜索建议3</item>
+    </string-array>
+</resources>

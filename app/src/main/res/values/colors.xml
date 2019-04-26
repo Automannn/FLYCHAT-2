@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#495261</color>
+    <color name="colorPrimaryDark">#232937</color>
+    <color name="colorAccent">#00BCD4</color>
+    <color name="colorLightBlue">#00BCD4</color>
+
+    <color name="colorDarkGray">#46454B</color>
+    <color name="colorWhite">#ffffff</color>
+    <color name="colorLightGray">#B4B2C3</color>
+    <color name="colorGray">#707070</color>
+    <color name="colorBlue">#1296db</color>
+    <color name="colorLightGreen">#37CDA8</color>
+    <color name="colorBlack">#000000</color>
+    <color name="colorLightPrimary">#00B9AB</color>
+    <color name="colorRed">#FF0000</color>
+
+    <color name="colorTabChecked">#04adfe</color>
+    <color name="colorTabUnCheckedIcon">#a0a0a0</color>
+
+    <color name="colorLoginEditUnderlineUnfocused">#677577</color>
+    <color name="colorLoginTextOther">#a7bbbd</color>
+
+    <color name="colorMineThemeText">#4b4b4b</color>
+    <color name="colorMineText">#a7a7a7</color>
+    <color name="colorMineBack">#eeeeee</color>
+    <color name="colorMineLine">#efefef</color>
+    <color name="colorChatBack">#ececec</color>
+
+</resources>

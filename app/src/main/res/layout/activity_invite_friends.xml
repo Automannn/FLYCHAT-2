@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".inviteFriends.InviteFriendsActivity">
+
+    <com.gameex.dw.justtalk.titleBar.TitleBarView
+        android:id="@+id/title_bar_invite"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_54">
+
+    </com.gameex.dw.justtalk.titleBar.TitleBarView>
+
+    <LinearLayout
+        android:id="@+id/invite_by_msg_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:layout_marginTop="@dimen/dp_20"
+        android:background="@drawable/light_gray_white_underline_rip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.github.siyamed.shapeimageview.CircularImageView
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:src="@drawable/icon_message"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:text="@string/invite_by_message_str"
+            android:textAlignment="center"
+            android:textColor="@color/colorDarkGray"
+            android:textSize="?normalFont"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/invite_by_wechat_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:background="@drawable/light_gray_white_underline_rip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.github.siyamed.shapeimageview.CircularImageView
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:src="@drawable/icon_wechat"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:text="@string/invite_by_wechat_str"
+            android:textAlignment="center"
+            android:textColor="@color/colorDarkGray"
+            android:textSize="?normalFont"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/invite_by_wezone_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:background="@drawable/light_gray_white_underline_rip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.github.siyamed.shapeimageview.CircularImageView
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:src="@drawable/icon_wezone"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:text="@string/invite_by_wezone_str"
+            android:textAlignment="center"
+            android:textColor="@color/colorDarkGray"
+            android:textSize="?normalFont"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/invite_by_qq_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:background="@drawable/light_gray_white_underline_rip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.github.siyamed.shapeimageview.CircularImageView
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:src="@drawable/icon_qq"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:text="@string/invite_by_qq_str"
+            android:textAlignment="center"
+            android:textColor="@color/colorDarkGray"
+            android:textSize="?normalFont"/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/invite_by_qzone_layout"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_60"
+        android:background="@drawable/light_gray_white_underline_rip"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <com.github.siyamed.shapeimageview.CircularImageView
+            android:layout_width="@dimen/dp_50"
+            android:layout_height="@dimen/dp_50"
+            android:src="@drawable/icon_qzone"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:text="@string/invite_by_qzone_str"
+            android:textAlignment="center"
+            android:textColor="@color/colorDarkGray"
+            android:textSize="?normalFont"/>
+    </LinearLayout>
+
+</LinearLayout>

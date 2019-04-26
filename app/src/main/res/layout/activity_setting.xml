@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".userInfo.SettingActivity">
+
+    <com.gameex.dw.justtalk.titleBar.TitleBarView
+        android:id="@+id/title_bar_setting"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_54"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </com.gameex.dw.justtalk.titleBar.TitleBarView>
+
+    <HorizontalScrollView
+        android:id="@+id/set_font_scroll"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_46"
+        android:layout_marginTop="@dimen/dp_10"
+        android:scrollbars="none"
+        app:layout_constraintTop_toBottomOf="@id/title_bar_setting">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+            <TextView
+                android:layout_width="@dimen/dp_310"
+                android:layout_height="@dimen/dp_45"
+                android:gravity="center_vertical"
+                android:paddingLeft="20dp"
+                android:paddingRight="20dp"
+                android:text="@string/set_font_size_str"
+                android:textSize="?smallFont"/>
+
+            <ImageView
+                android:layout_width="@dimen/dp_50"
+                android:layout_height="@dimen/dp_50"
+                android:padding="@dimen/dp_16"
+                android:src="@drawable/left_arrow"
+                tools:ignore="ContentDescription"/>
+
+            <com.warkiz.widget.IndicatorSeekBar
+                android:id="@+id/seek_bar_font_size"
+                android:layout_width="@dimen/dp_310"
+                android:layout_height="wrap_content"
+                app:isb_indicator_color="@color/colorPrimaryDark"
+                app:isb_progress="25"
+                app:isb_show_indicator="circular_bubble"
+                app:isb_show_tick_marks_type="oval"
+                app:isb_show_tick_texts="true"
+                app:isb_thumb_color="@color/thumb_selector_color"
+                app:isb_thumb_size="15dp"
+                app:isb_tick_marks_color="@color/tick_marks_selector_color"
+                app:isb_tick_texts_array="@array/tick_text_str_arr"
+                app:isb_tick_texts_color="@color/tick_text_selector_color"
+                app:isb_ticks_count="5"
+                app:isb_track_progress_color="@color/colorPrimary"/>
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <TextView
+        android:id="@+id/test_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:gravity="center"
+        android:text="@string/test1_str"
+        android:textSize="?smallFont"
+        app:layout_constraintTop_toBottomOf="@id/set_font_scroll"/>
+
+</android.support.constraint.ConstraintLayout>
