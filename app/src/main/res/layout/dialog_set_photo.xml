@@ -24,7 +24,7 @@
             android:text="@string/take_photo"
             android:textAlignment="center"
             android:textColor="@color/colorMineThemeText"
-            android:textSize="?normalFont"/>
+            android:textSize="?smallFont"/>
 
         <TextView
             android:id="@+id/black_line"
@@ -44,7 +44,7 @@
             android:text="@string/choose_from_lib"
             android:textAlignment="center"
             android:textColor="@color/colorMineThemeText"
-            android:textSize="?normalFont"/>
+            android:textSize="?smallFont"/>
 
     </LinearLayout>
 

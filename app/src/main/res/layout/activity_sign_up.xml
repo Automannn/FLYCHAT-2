@@ -1,72 +1,98 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
+    android:gravity="center"
+    android:orientation="vertical"
     tools:context=".signUp.SignUpActivity">
 
-    <android.support.constraint.Guideline
-        android:id="@+id/phone_edit_line"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.34"/>
+        android:layout_height="wrap_content">
 
-    <android.support.constraint.Guideline
-        android:id="@+id/sign_up_btn_line"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.59"/>
+        <EditText
+            android:id="@+id/phone_edit"
+            android:layout_width="match_parent"
+            android:layout_height="?heightC"
+            android:layout_centerInParent="true"
+            android:layout_marginStart="@dimen/dp_30"
+            android:layout_marginEnd="@dimen/dp_30"
+            android:background="@drawable/login_et_bg"
+            android:hint="@string/phone_str"
+            android:inputType="phone"
+            android:paddingLeft="@dimen/dp_20"
+            android:paddingRight="@dimen/dp_20"
+            android:textColor="@color/login_edit_text_selector_color"
+            android:textColorHint="@color/colorLightGray"
+            android:textCursorDrawable="@drawable/cursor_dra"
+            android:textSize="?smallFont"
+            tools:ignore="Autofill,RtlSymmetry"/>
+
+        <TextView
+            android:id="@+id/verification_code_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/dp_260"
+            android:layout_marginLeft="@dimen/dp_260"
+            android:background="@drawable/primary_border_white_rip"
+            android:paddingLeft="@dimen/dp_5"
+            android:paddingTop="@dimen/dp_2"
+            android:paddingRight="@dimen/dp_5"
+            android:paddingBottom="@dimen/dp_2"
+            android:text="@string/verification_code_str"
+            android:textColor="@color/colorPrimary"
+            android:textSize="?smallFont"/>
+
+    </RelativeLayout>
 
     <EditText
-        android:id="@+id/phone_edit"
+        android:id="@+id/verification_code_edit"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_54"
+        android:layout_height="?heightC"
         android:layout_marginStart="@dimen/dp_30"
+        android:layout_marginTop="@dimen/dp_5"
         android:layout_marginEnd="@dimen/dp_30"
         android:background="@drawable/login_et_bg"
-        android:hint="@string/phone_str"
-        android:inputType="phone"
-        android:paddingRight="@dimen/dp_20"
+        android:hint="@string/verification_code_str"
+        android:inputType="number"
         android:paddingLeft="@dimen/dp_20"
+        android:paddingRight="@dimen/dp_20"
         android:textColor="@color/login_edit_text_selector_color"
         android:textColorHint="@color/colorLightGray"
         android:textCursorDrawable="@drawable/cursor_dra"
-        app:layout_constraintTop_toBottomOf="@id/phone_edit_line"
+        android:textSize="?smallFont"
         tools:ignore="Autofill,RtlSymmetry"/>
 
     <EditText
         android:id="@+id/pwd_edit"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_54"
+        android:layout_height="?heightC"
         android:layout_marginStart="@dimen/dp_30"
         android:layout_marginTop="@dimen/dp_5"
         android:layout_marginEnd="@dimen/dp_30"
         android:background="@drawable/login_et_bg"
         android:hint="@string/password_text"
         android:inputType="textPassword"
-        android:paddingRight="@dimen/dp_20"
         android:paddingLeft="@dimen/dp_20"
+        android:paddingRight="@dimen/dp_20"
         android:textColor="@color/login_edit_text_selector_color"
         android:textColorHint="@color/colorLightGray"
         android:textCursorDrawable="@drawable/cursor_dra"
-        app:layout_constraintTop_toBottomOf="@id/phone_edit"
+        android:textSize="?smallFont"
         tools:ignore="Autofill,RtlSymmetry"/>
 
     <Button
         android:id="@+id/sign_up_btn"
-        android:layout_width="@dimen/dp_280"
-        android:layout_height="@dimen/dp_54"
+        android:layout_width="?widthD"
+        android:layout_height="?heightC"
+        android:layout_marginTop="@dimen/dp_30"
         android:background="@drawable/dark_gray_light_blue_rip"
         android:text="@string/sign_up_str"
         android:textColor="@color/colorWhite"
-        android:textSize="?normalFont"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/sign_up_btn_line"/>
+        android:textSize="?normalFont"/>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

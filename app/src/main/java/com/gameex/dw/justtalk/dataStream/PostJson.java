@@ -1,16 +1,25 @@
 package com.gameex.dw.justtalk.dataStream;
 
+import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.signUp.SignUpActivity;
+import com.gameex.dw.justtalk.util.LogUtil;
+import com.google.gson.JsonObject;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.api.BasicCallback;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.MediaType;
@@ -23,14 +32,16 @@ import okhttp3.Response;
  * 向服务器发送注册信息
  */
 public class PostJson extends AsyncTask {
+    private static final String TAG = "POST_JSON";
 
     private String phone, pwd, url;
+    @SuppressLint("StaticFieldLeak")
     private Context mContext;
 
     public PostJson() {
     }
 
-    public PostJson(String phone, String pwd, String url, Context context) {
+    PostJson(String phone, String pwd, String url, Context context) {
         this.phone = phone;
         this.pwd = pwd;
         this.url = url;
@@ -63,28 +74,37 @@ public class PostJson extends AsyncTask {
                 .build();
         client.newCall(request).enqueue(new Callback() {
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
 
             }
 
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                String string = response.body().toString();
-                if (string != null) {
-                    try {
-                        JSONObject jsonObject = new JSONObject(string);
-                        int status = jsonObject.getInt("status");
-                        if (status == 0) {
-                            Toast.makeText(SignUpActivity.sSignUpActivity, "status=0", Toast.LENGTH_SHORT).show();
-                        } else if (status == -2) {
-                            final String message = jsonObject.getString("message");
-                            Toast.makeText(SignUpActivity.sSignUpActivity, message + "", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(SignUpActivity.sSignUpActivity, "status=" + status, Toast.LENGTH_SHORT).show();
-                        }
-                    } catch (JSONException e) {
-                        e.printStackTrace();
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                assert response.body() != null;
+                String string = response.body().string();
+                try {
+                    JSONObject jsonObject = new JSONObject(string);
+                    boolean isSuccess = jsonObject.getBoolean("success");
+                    if (isSuccess) {
+                        Toast.makeText(SignUpActivity.sSignUpActivity, "注册成功", Toast.LENGTH_SHORT).show();
+                        JMessageClient.register(phone, pwd, new BasicCallback() {
+                            @Override
+                            public void gotResult(int responseCode, String registerDesc) {
+                                LogUtil.i("JMESSAGE", "JMessageClient.register " + ", responseCode = " + responseCode + " ; registerDesc = " + registerDesc);
+                            }
+                        });
+                        Intent intent = new Intent();
+                        intent.putExtra("phone", phone);
+                        SignUpActivity.sSignUpActivity.setResult(Activity.RESULT_OK, intent);
+                        SignUpActivity.sSignUpActivity.finish();
+                    } else {
+                        final JSONObject jObject = jsonObject.getJSONObject("data");
+                        final String message = jObject.getString("message");
+                        Toast.makeText(SignUpActivity.sSignUpActivity, message + "", Toast.LENGTH_SHORT).show();
+
                     }
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
             }
         });
@@ -93,7 +113,6 @@ public class PostJson extends AsyncTask {
 
     @Override
     protected void onPostExecute(Object o) {
-        super.onPostExecute(o);
         Toast.makeText(mContext, "注册成功", Toast.LENGTH_SHORT).show();
     }
 }

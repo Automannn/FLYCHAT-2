@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.userInfo;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
@@ -31,6 +32,7 @@ import com.warkiz.widget.SeekParams;
  * 设置界面activity
  */
 public class SettingActivity extends BaseActivity implements View.OnClickListener {
+    @SuppressLint("StaticFieldLeak")
     public static SettingActivity sSettingActivity;
 
     private Integer mCurrentFontState;
@@ -57,7 +59,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
     private void initView() {
         mTest = findViewById(R.id.test_text);
         pref = PreferenceManager.getDefaultSharedPreferences(sSettingActivity);
-        mCurrentFontState = pref.getInt("font_state", 25);
+        mCurrentFontState = pref.getInt("ui_state", 25);
         mSeekBar = findViewById(R.id.seek_bar_font_size);
         mSeekBar.setProgress(mCurrentFontState);
         mSeekBar.setOnSeekChangeListener(new OnSeekChangeListener() {
@@ -145,6 +147,7 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
                     @Override
                     public void run() {
                         Intent launchIntent = getPackageManager().getLaunchIntentForPackage(getApplication().getPackageName());
+                        assert launchIntent != null;
                         launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
                         startActivity(launchIntent);
                     }

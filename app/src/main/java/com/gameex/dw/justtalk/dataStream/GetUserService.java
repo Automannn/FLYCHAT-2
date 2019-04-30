@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.dataStream;
 
+import android.annotation.SuppressLint;
 import android.app.Service;
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -23,6 +24,7 @@ import okhttp3.Response;
 
 public class GetUserService extends Service {
     private static String url = "http://117.50.57.86:8060/user/queryAll";
+    private static String mPhone;
 
     public GetUserService() {
     }
@@ -35,13 +37,15 @@ public class GetUserService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        mPhone=intent.getStringExtra("phoneNumber");
         new GetAllUserTask().execute();
         return super.onStartCommand(intent, flags, startId);
     }
 
+    @SuppressLint("StaticFieldLeak")
     class GetAllUserTask extends AsyncTask {
 
-        public GetAllUserTask() {
+        GetAllUserTask() {
         }
 
         @Override
@@ -58,6 +62,7 @@ public class GetUserService extends Service {
             Call call = client.newCall(request);
             try {
                 Response response = call.execute();
+                assert response.body() != null;
                 String userDataStr = response.body().string();
                 JSONObject jsonObject = new JSONObject(userDataStr);
                 int status = jsonObject.getInt("isStatus");
@@ -75,9 +80,9 @@ public class GetUserService extends Service {
                     JSONObject object = array.getJSONObject(i);
                     String username = object.getString("username");
                     String password = object.getString("password");
-                    String phone = object.getString("phoneNumer");
+                    String phone = object.getString("phoneNumber");
                     users.add(new User(username, password, phone));
-                    LogUtil.e("USER_INFO", "用户名" + username + "密码" + password + "电话" + phone);
+                    LogUtil.d("USER_INFO", "用户名" + username + "密码" + password + "电话" + phone);
                 }
             } catch (IOException e) {
                 e.printStackTrace();

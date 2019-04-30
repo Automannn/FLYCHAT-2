@@ -34,7 +34,7 @@
             <RelativeLayout
                 android:id="@+id/mine_icon_info_layout"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_110"
+                android:layout_height="?heightH"
                 android:layout_marginTop="@dimen/dp_25"
                 android:background="@drawable/light_gray_white_rip"
                 android:clickable="true"
@@ -42,8 +42,8 @@
 
                 <com.github.siyamed.shapeimageview.CircularImageView
                     android:id="@+id/mine_icon_info"
-                    android:layout_width="@dimen/dp_85"
-                    android:layout_height="@dimen/dp_85"
+                    android:layout_width="?widthF"
+                    android:layout_height="?heightG"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="@dimen/dp_20"
                     android:layout_marginRight="@dimen/dp_20"
@@ -73,7 +73,7 @@
             <TextView
                 android:id="@+id/change_icon_text"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_70"
+                android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_20"
@@ -91,7 +91,7 @@
             <RelativeLayout
                 android:id="@+id/mine_qr_code_layout"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_70"
+                android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
                 android:clickable="true"
                 android:focusable="true">
@@ -108,8 +108,8 @@
                     tools:ignore="RelativeOverlap"/>
 
                 <ImageView
-                    android:layout_width="@dimen/dp_30"
-                    android:layout_height="@dimen/dp_30"
+                    android:layout_width="?widthA"
+                    android:layout_height="?heightA"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
@@ -130,7 +130,7 @@
             <RelativeLayout
                 android:id="@+id/fly_code_info_layout"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_70"
+                android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
                 android:clickable="true"
                 android:focusable="true">
@@ -162,8 +162,8 @@
 
                 <ImageView
                     android:id="@+id/fly_code_edit_img"
-                    android:layout_width="@dimen/dp_20"
-                    android:layout_height="@dimen/dp_20"
+                    android:layout_width="?widthG"
+                    android:layout_height="?heightJ"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
@@ -183,7 +183,7 @@
             <RelativeLayout
                 android:id="@+id/fly_sign_info_layout"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_70"
+                android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
                 android:clickable="true"
                 android:focusable="true">
@@ -215,8 +215,8 @@
 
                 <ImageView
                     android:id="@+id/fly_sign_edit_img"
-                    android:layout_width="@dimen/dp_20"
-                    android:layout_height="@dimen/dp_20"
+                    android:layout_width="?widthG"
+                    android:layout_height="?heightJ"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
@@ -230,7 +230,7 @@
             <RelativeLayout
                 android:id="@+id/mine_num_info_layout"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_70"
+                android:layout_height="?heightI"
                 android:layout_marginTop="@dimen/dp_25"
                 android:background="@drawable/light_gray_white_rip"
                 android:clickable="true"
@@ -263,8 +263,8 @@
 
                 <ImageView
                     android:id="@+id/user_num_edit_img"
-                    android:layout_width="@dimen/dp_20"
-                    android:layout_height="@dimen/dp_20"
+                    android:layout_width="?widthG"
+                    android:layout_height="?heightJ"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
@@ -284,7 +284,7 @@
             <TextView
                 android:id="@+id/share_card_text"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_70"
+                android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_20"
@@ -296,7 +296,7 @@
             <TextView
                 android:id="@+id/login_out_text"
                 android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_70"
+                android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_20"

@@ -24,6 +24,7 @@
 -keepattributes  EnclosingMethod,Signature      #不混淆泛型
 -dontwarn cn.jpush.**       #忽略某个包的警告
 -keep class cn.jpush.** { *; }    #不混淆某个包内的所有文件
+-keep class * extends cn.jpush.android.helpers.JPushMessageReceiver { *; }
 
 -dontwarn cn.jiguang.**
 -keep class cn.jiguang.** { *; }
@@ -41,3 +42,5 @@
 
 #========================protobuf================================
 -keep class com.google.protobuf.** {*;}
+
+-ignorewarnings

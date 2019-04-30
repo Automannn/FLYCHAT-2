@@ -12,11 +12,9 @@ import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.annotation.StyleRes;
 import android.support.v7.app.AppCompatActivity;
-import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.login.LoginActivity;
-import com.gameex.dw.justtalk.userInfo.SettingActivity;
 import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 
 /**
@@ -28,10 +26,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     private SharedPreferences mPref;
     private SharedPreferences.Editor mEditor;
     private static int mState = -1;
-
-    public static int getState() {
-        return mState;
-    }
 
     public static void setState(int state) {
         mState = state;
@@ -55,7 +49,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     /**
      * 此方法会在onCreate方法之前被系统执行
      *
-     * @param resid
+     * @param resid 主题资源id
      */
     @Override
     public void setTheme(@StyleRes int resid) {
@@ -71,7 +65,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 //                WindowManager.LayoutParams.FLAG_FULLSCREEN);    //隐藏状态栏
 
         mPref = PreferenceManager.getDefaultSharedPreferences(this);
-        setFontSize(mState);
+        setUISize(mState);
     }
 
     @Override
@@ -97,39 +91,38 @@ public abstract class BaseActivity extends AppCompatActivity {
     }
 
     /**
-     * 若sate=0，则app还未设置过字体大小，使用缓存中的字体大小；反之使用设置的字体大小
+     * 若sate=-1，则app还未设置过ui样式，使用缓存中的ui样式；反之使用设置的ui样式
      *
-     * @param state
+     * @param state ui样式代号
      */
-    private void setFontSize(int state) {
+    private void setUISize(int state) {
         if (state == -1) {
-            state = mPref.getInt("font_state", 25);
-            setFontSizePref(state);
+            state = mPref.getInt("ui_state", 25);
+            setUiSizePref(state);
         } else {
-            setFontSizePref(state);
-//            ActivityCollector.recreateAll();
+            setUiSizePref(state);
         }
     }
 
     /**
-     * 设置app字体大小，并更新sharedPreference中存贮的字体大小
+     * 设置app UI样式，并更新sharedPreference中存贮的ui样式
      *
-     * @param fontState
+     * @param fontState ui样式代号
      */
-    private void setFontSizePref(int fontState) {
+    private void setUiSizePref(int fontState) {
         if (0 == fontState) {
-            setTheme(R.style.AppTheme_SmallSuperFont);
+            setTheme(R.style.AppTheme_SmallSuperUIStyle);
         } else if (25 == fontState) {
-            setTheme(R.style.AppTheme_SmallFont);
+            setTheme(R.style.AppTheme_SmallUIStyle);
         } else if (50 == fontState) {
-            setTheme(R.style.AppTheme_NormalFont);
+            setTheme(R.style.AppTheme_NormalUIStyle);
         } else if (75 == fontState) {
-            setTheme(R.style.AppTheme_LargeFont);
+            setTheme(R.style.AppTheme_LargeUIStyle);
         } else {
-            setTheme(R.style.AppTheme_LargeSuperFont);
+            setTheme(R.style.AppTheme_LargeSuperUIStyle);
         }
         mEditor = mPref.edit();
-        mEditor.putInt("font_state", fontState);
+        mEditor.putInt("ui_state", fontState);
         mEditor.apply();
     }
 

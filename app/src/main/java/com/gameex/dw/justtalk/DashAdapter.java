@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
@@ -12,11 +13,24 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.gameex.dw.justtalk.ObjPack.Msg;
 import com.gameex.dw.justtalk.chattingPack.ChattingActivity;
+import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.event.MessageEvent;
+import cn.jpush.im.android.api.event.OfflineMessageEvent;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.Message;
 
 /**
  * 飞聊item的RecyclerView的adapter
@@ -26,7 +40,7 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
     private List<Object[]> mMsgInfo;
     private Context mContext;
 
-    public DashAdapter(List<Object[]> msgInfo, Context context) {
+    DashAdapter(List<Object[]> msgInfo, Context context) {
         mMsgInfo = msgInfo;
         mContext = context;
     }
@@ -36,10 +50,10 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
     public DashHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.message_item, viewGroup, false);
-        DashHolder holder = new DashHolder(view);
-        return holder;
+        return new DashHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull DashHolder holder, int position) {
         Object[] obj = mMsgInfo.get(position);
@@ -47,11 +61,11 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
                 .load(obj[0])
                 .into(holder.userIcon);
         holder.userName.setText(String.valueOf(obj[1]));
-        String lastMsg=String.valueOf(obj[2]);
-        if (lastMsg.length()>16){
-            lastMsg=lastMsg.substring(0,15);
+        String lastMsg = String.valueOf(obj[2]);
+        if (lastMsg.length() > 16) {
+            lastMsg = lastMsg.substring(0, 15);
         }
-        holder.msgLast.setText(lastMsg+"......");
+        holder.msgLast.setText(lastMsg + "......");
         holder.msgTime.setText(String.valueOf(obj[3]));
         if (position % 3 == 0) {
             holder.notifyOff.setVisibility(View.GONE);
@@ -69,15 +83,16 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         ImageView notifyOff;
         TextView userName, msgLast, msgTime;
 
-        public DashHolder(@NonNull View itemView) {
+        DashHolder(@NonNull View itemView) {
             super(itemView);
             msgCard = itemView.findViewById(R.id.message_card);
             msgCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    String usernameStr = String.valueOf(mMsgInfo.get(getAdapterPosition())[1]);
+                    JMessageClient.enterSingleConversation(usernameStr);
                     Intent intent = new Intent(mContext, ChattingActivity.class);
-                    intent.putExtra("username", String.valueOf(mMsgInfo.get(getAdapterPosition())[1]));
-                    intent.putExtra("msg_first_uncheck_data",String.valueOf(mMsgInfo.get(getLayoutPosition())[3]));
+                    intent.putExtra("username", usernameStr);
                     mContext.startActivity(intent);
                 }
             });

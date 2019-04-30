@@ -1,6 +1,7 @@
 package com.gameex.dw.justtalk;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -35,6 +36,7 @@ import com.gameex.dw.justtalk.ObjPack.Contact;
 import com.gameex.dw.justtalk.userInfo.SettingActivity;
 import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.gjiazhe.wavesidebar.WaveSideBar;
 import com.yzq.zxinglibrary.android.CaptureActivity;
@@ -45,6 +47,10 @@ import com.yzq.zxinglibrary.encode.CodeCreator;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.model.UserInfo;
+
 public class BottomBarFat extends Fragment implements View.OnClickListener {
     public static final int REQUEST_CODE_SCAN = 131;
     private static final String ARG_PARAM = "flag";
@@ -52,8 +58,11 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     private static String[] indexStr = new String[]{"↑", "A", "B", "C", "D", "E", "F", "G",
             "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "#"};
 
+    @SuppressLint("StaticFieldLeak")
     private static RecyclerView mRecView, mContactRec;
+    @SuppressLint("StaticFieldLeak")
     private static DashAdapter mAdapter;
+    @SuppressLint("StaticFieldLeak")
     private static ContactAdapter mContactAdapter;
     private String param;
     private View mView;
@@ -62,6 +71,7 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     private UpdateFragmentReceiver mFragmentReceiver;
 
     private static CircularImageView userIcon;
+    @SuppressLint("StaticFieldLeak")
     private static TextView userName;
 
     private Dialog mQRCodeDialog;
@@ -84,15 +94,18 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        if (param.equals("0")) {
-            mView = inflater.inflate(R.layout.message_layout, container, false);
-            return mView;
-        } else if (param.equals("1")) {
-            mView = inflater.inflate(R.layout.contact_layout, container, false);
-            return mView;
-        } else {
-            mView = inflater.inflate(R.layout.mine_layout, container, false);
-            return mView;
+        switch (param) {
+            case "0":
+                mView = inflater.inflate(R.layout.message_layout, container, false);
+                return mView;
+            case "1":
+                mView = inflater.inflate(R.layout.contact_layout, container, false);
+                return mView;
+            case "2":
+                mView = inflater.inflate(R.layout.mine_layout, container, false);
+                return mView;
+            default:
+                return null;
         }
     }
 
@@ -220,14 +233,22 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     /**
      * 飞聊界面模拟信息
      *
-     * @return
+     * @return 未读信息类集合
      */
     private List<Object[]> getMsgInfo() {
         List<Object[]> msgInfo = new ArrayList<>();
-        String[] name=new String[]{"德泽","超海","suhdanciakk**（jd","郝世界第九才能哈光","范明", "千帆","怀曼","香山","了双","吉萨嗲花",
-                "蝴蝶卡","德泽","涉及到","的哈韩*^%的jj的开始","书店", "多说句","江西","大祭司","的健康","熽",};
+        UserInfo myInfo = JMessageClient.getMyInfo();
+        if (myInfo.getUserName().equals("17361060489")) {
+            msgInfo.add(new Object[]{R.drawable.icon_user,
+                    "18180027763", "最近的一条信息展示位", DataUtil.getCurrentDateStr()});
+        } else {
+            msgInfo.add(new Object[]{R.drawable.icon_user,
+                    "17361060489", "最近的一条信息展示位", DataUtil.getCurrentDateStr()});
+        }
+        String[] name = new String[]{"德泽", "超海", "suhdanciakk**（jd", "郝世界第九才能哈光", "范明", "千帆", "怀曼", "香山", "了双", "吉萨嗲花",
+                "蝴蝶卡", "德泽", "涉及到", "的哈韩*^%的jj的开始", "书店", "多说句", "江西", "大祭司", "的健康", "熽",};
         for (int i = 0; i < 20; i++) {
-            msgInfo.add(i, new Object[]{R.drawable.icon_user,
+            msgInfo.add(new Object[]{R.drawable.icon_user,
                     name[i],
                     "最后&（&一条信息通知dsdads觉得垃圾呢&（&*",
                     "12月30号"});
@@ -238,11 +259,10 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     /**
      * 加入基础信息，并添加模拟信息
      *
-     * @return
+     * @return 联系人集合
      */
     private List<Contact> getContacts() {
-        List<Contact> contacts = new ArrayList<>();
-        contacts.addAll(Contact.getBasicContact());
+        List<Contact> contacts = new ArrayList<>(Contact.getBasicContact());
         contacts.add(new Contact("A", R.drawable.icon_user, "联系人A1"));
         contacts.add(new Contact("A", R.drawable.icon_user, "联系人A2"));
         contacts.add(new Contact("A", R.drawable.icon_user, "联系人A3"));
@@ -319,7 +339,7 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     /**
      * 二维码展示图片
      *
-     * @param bitmap
+     * @param bitmap 二维码
      */
     private void showQrDialog(Bitmap bitmap) {
         mQRCodeDialog = new Dialog(BottomBarActivity.sBottomBarActivity, R.style.qr_code_dialog_style);
@@ -328,6 +348,7 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
         qrImg.setImageBitmap(bitmap);
         mQRCodeDialog.setCanceledOnTouchOutside(true);
         Window window = mQRCodeDialog.getWindow();
+        assert window != null;
         WindowManager.LayoutParams params = window.getAttributes();
         params.x = 0;
         params.y = 40;

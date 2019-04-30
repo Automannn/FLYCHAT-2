@@ -7,6 +7,7 @@
     <string name="phone_str">手机号</string>
     <string name="quick_sign_up_str">快速注册</string>
     <string name="forgot_pwd_str">忘记密码?</string>
+    <string name="verification_code_str">验证码</string>
 
     <string name="title_activity_bottom_bar">BottomBarActivity</string>
     <string name="title_home">飞聊</string>
@@ -14,6 +15,7 @@
     <string name="title_notifications">我</string>
     <string name="search">搜索</string>
     <string name="username">用户名</string>
+    <string name="username_phone_str">昵称/手机号</string>
     <string name="remember_pwd">记住密码</string>
 
     <string name="user_personal_signed">这个人很佛，什么都没有留下......</string>
@@ -44,7 +46,7 @@
     <string name="take_photo">拍照</string>
     <string name="sure_str">确定</string>
     <string name="cancel_str">取消</string>
-    <string name="chat_edit_hint_str">请输入...</string>
+    <string name="chat_edit_hint_str">请输入…</string>
     <string name="send_btn_text_str">发&#160;&#160;&#160;&#160;送</string>
     <string name="set_font_size_str">字体大小</string>
 

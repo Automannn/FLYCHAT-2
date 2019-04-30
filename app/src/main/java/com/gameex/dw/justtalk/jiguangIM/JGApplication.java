@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.jiguangIM;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 
 import com.gameex.dw.justtalk.util.LogUtil;
@@ -9,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.Message;
 
@@ -25,15 +27,20 @@ public class JGApplication extends Application {
     public static final int REQUEST_CODE_SEND_FILE = 26;
 
     public static final int RESULT_CODE_ALL_MEMBER = 22;
-    public static Map<Long,Boolean> isAtMe=new HashMap<>();
-    public static Map<Long,Boolean> isAtAll=new HashMap<>();
-    public static List<Message> forWardMsg=new ArrayList<>();
+    @SuppressLint("UseSparseArrays")
+    public static Map<Long, Boolean> isAtMe = new HashMap<>();
+    @SuppressLint("UseSparseArrays")
+    public static Map<Long, Boolean> isAtAll = new HashMap<>();
+    public static List<Message> forWardMsg = new ArrayList<>();
+
     @Override
     public void onCreate() {
         super.onCreate();
         LogUtil.i("IMDebugApplication", "init");
         JMessageClient.setDebugMode(true);
-        JMessageClient.init(getApplicationContext(),true);
-//        JMessageClient.registerEventReceiver();
+        JMessageClient.init(getApplicationContext(), true);
+        JPushInterface.init(getApplicationContext());
+        JMessageClient.registerEventReceiver(
+                new GlobalEventListener(getApplicationContext()));
     }
 }

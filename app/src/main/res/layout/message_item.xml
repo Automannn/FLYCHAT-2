@@ -9,7 +9,7 @@
     <android.support.v7.widget.CardView
         android:id="@+id/message_card"
         android:layout_width="match_parent"
-        android:layout_height="60dp"
+        android:layout_height="wrap_content"
         app:layout_constraintTop_toTopOf="parent">
 
         <android.support.constraint.ConstraintLayout
@@ -26,8 +26,8 @@
 
             <com.github.siyamed.shapeimageview.CircularImageView
                 android:id="@+id/user_icon"
-                android:layout_width="@dimen/dp_50"
-                android:layout_height="@dimen/dp_50"
+                android:layout_width="?widthC"
+                android:layout_height="?heightC"
                 android:layout_marginStart="@dimen/dp_5"
                 android:layout_marginLeft="@dimen/dp_5"
                 android:src="@drawable/icon_user"
@@ -43,10 +43,10 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/dp_20"
                 android:layout_marginLeft="@dimen/dp_20"
-                android:layout_marginTop="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_5"
                 android:text="@string/username"
                 android:textColor="@color/colorMineThemeText"
-                android:textSize="?normalFont"
+                android:textSize="?smallFont"
                 app:layout_constraintStart_toEndOf="@id/user_icon"
                 app:layout_constraintTop_toTopOf="parent"/>
 
@@ -57,7 +57,7 @@
                 android:layout_marginBottom="@dimen/dp_5"
                 android:text="@string/last_massage"
                 android:textColor="@color/colorLightGray"
-                android:textSize="?smallFont"
+                android:textSize="?smallSuperFont"
                 app:layout_constraintStart_toStartOf="@id/user_name"
                 app:layout_constraintTop_toBottomOf="@id/user_name"/>
 
@@ -68,14 +68,14 @@
                 android:layout_marginTop="@dimen/dp_6"
                 android:text="@string/msg_data"
                 android:textColor="@color/colorLightGray"
-                android:textSize="?smallFont"
+                android:textSize="?smallSuperFont"
                 app:layout_constraintStart_toEndOf="@id/message_time_line"
                 app:layout_constraintTop_toTopOf="parent"/>
 
             <ImageView
                 android:id="@+id/notify_off"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="?widthG"
+                android:layout_height="?heightJ"
                 android:layout_marginEnd="@dimen/dp_10"
                 android:layout_marginRight="@dimen/dp_10"
                 app:layout_constraintEnd_toEndOf="parent"

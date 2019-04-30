@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
+    android:background="@color/colorMineBack"
     tools:context=".inviteFriends.InviteFriendsActivity">
 
     <com.gameex.dw.justtalk.titleBar.TitleBarView
@@ -18,15 +19,16 @@
     <LinearLayout
         android:id="@+id/invite_by_msg_layout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60"
+        android:layout_height="?heightD"
         android:layout_marginTop="@dimen/dp_20"
         android:background="@drawable/light_gray_white_underline_rip"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <com.github.siyamed.shapeimageview.CircularImageView
-            android:layout_width="@dimen/dp_50"
-            android:layout_height="@dimen/dp_50"
+            android:layout_width="?widthC"
+            android:layout_height="?heightC"
+            app:siBorderColor="@color/colorWhite"
             android:src="@drawable/icon_message"/>
 
         <TextView
@@ -37,20 +39,21 @@
             android:text="@string/invite_by_message_str"
             android:textAlignment="center"
             android:textColor="@color/colorDarkGray"
-            android:textSize="?normalFont"/>
+            android:textSize="?smallFont"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/invite_by_wechat_layout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60"
+        android:layout_height="?heightD"
         android:background="@drawable/light_gray_white_underline_rip"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <com.github.siyamed.shapeimageview.CircularImageView
-            android:layout_width="@dimen/dp_50"
-            android:layout_height="@dimen/dp_50"
+            android:layout_width="?widthC"
+            android:layout_height="?heightC"
+            app:siBorderColor="@color/colorWhite"
             android:src="@drawable/icon_wechat"/>
 
         <TextView
@@ -61,20 +64,21 @@
             android:text="@string/invite_by_wechat_str"
             android:textAlignment="center"
             android:textColor="@color/colorDarkGray"
-            android:textSize="?normalFont"/>
+            android:textSize="?smallFont"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/invite_by_wezone_layout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60"
+        android:layout_height="?heightD"
         android:background="@drawable/light_gray_white_underline_rip"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <com.github.siyamed.shapeimageview.CircularImageView
-            android:layout_width="@dimen/dp_50"
-            android:layout_height="@dimen/dp_50"
+            android:layout_width="?widthC"
+            android:layout_height="?heightC"
+            app:siBorderColor="@color/colorWhite"
             android:src="@drawable/icon_wezone"/>
 
         <TextView
@@ -85,20 +89,21 @@
             android:text="@string/invite_by_wezone_str"
             android:textAlignment="center"
             android:textColor="@color/colorDarkGray"
-            android:textSize="?normalFont"/>
+            android:textSize="?smallFont"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/invite_by_qq_layout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60"
+        android:layout_height="?heightD"
         android:background="@drawable/light_gray_white_underline_rip"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <com.github.siyamed.shapeimageview.CircularImageView
-            android:layout_width="@dimen/dp_50"
-            android:layout_height="@dimen/dp_50"
+            android:layout_width="?widthC"
+            android:layout_height="?heightC"
+            app:siBorderColor="@color/colorWhite"
             android:src="@drawable/icon_qq"/>
 
         <TextView
@@ -109,20 +114,21 @@
             android:text="@string/invite_by_qq_str"
             android:textAlignment="center"
             android:textColor="@color/colorDarkGray"
-            android:textSize="?normalFont"/>
+            android:textSize="?smallFont"/>
     </LinearLayout>
 
     <LinearLayout
         android:id="@+id/invite_by_qzone_layout"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_60"
+        android:layout_height="?heightD"
         android:background="@drawable/light_gray_white_underline_rip"
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
         <com.github.siyamed.shapeimageview.CircularImageView
-            android:layout_width="@dimen/dp_50"
-            android:layout_height="@dimen/dp_50"
+            android:layout_width="?widthC"
+            android:layout_height="?heightC"
+            app:siBorderColor="@color/colorWhite"
             android:src="@drawable/icon_qzone"/>
 
         <TextView
@@ -133,7 +139,7 @@
             android:text="@string/invite_by_qzone_str"
             android:textAlignment="center"
             android:textColor="@color/colorDarkGray"
-            android:textSize="?normalFont"/>
+            android:textSize="?smallFont"/>
     </LinearLayout>
 
 </LinearLayout>

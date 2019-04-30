@@ -9,7 +9,7 @@
 
     <RelativeLayout
         android:id="@+id/talk_ground_layout"
-        android:layout_width="@dimen/dp_150"
+        android:layout_width="?widthE"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="wrap_content"
@@ -20,8 +20,8 @@
         app:layout_constraintTop_toTopOf="parent">
 
         <ImageView
-            android:layout_width="@dimen/dp_22"
-            android:layout_height="@dimen/dp_22"
+            android:layout_width="?widthJ"
+            android:layout_height="?heightM"
             android:layout_marginTop="@dimen/dp_10"
             android:layout_marginBottom="@dimen/dp_10"
             android:layout_centerVertical="true"
@@ -42,7 +42,7 @@
 
     <RelativeLayout
         android:id="@+id/add_friends_layout"
-        android:layout_width="@dimen/dp_150"
+        android:layout_width="?widthE"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="wrap_content"
@@ -53,8 +53,8 @@
         app:layout_constraintTop_toBottomOf="@id/talk_ground_layout">
 
         <ImageView
-            android:layout_width="@dimen/dp_22"
-            android:layout_height="@dimen/dp_22"
+            android:layout_width="?widthJ"
+            android:layout_height="?heightM"
             android:layout_marginTop="@dimen/dp_10"
             android:layout_marginBottom="@dimen/dp_10"
             android:layout_centerVertical="true"
@@ -75,7 +75,7 @@
 
     <RelativeLayout
         android:id="@+id/SQ_layout"
-        android:layout_width="@dimen/dp_150"
+        android:layout_width="?widthE"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="wrap_content"
@@ -86,8 +86,8 @@
         app:layout_constraintTop_toBottomOf="@id/add_friends_layout">
 
         <ImageView
-            android:layout_width="@dimen/dp_22"
-            android:layout_height="@dimen/dp_22"
+            android:layout_width="?widthJ"
+            android:layout_height="?heightM"
             android:layout_marginTop="@dimen/dp_10"
             android:layout_marginBottom="@dimen/dp_10"
             android:layout_centerVertical="true"
@@ -108,7 +108,7 @@
 
     <RelativeLayout
         android:id="@+id/help_back_up_layout"
-        android:layout_width="@dimen/dp_150"
+        android:layout_width="?widthE"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_height="wrap_content"
@@ -121,8 +121,8 @@
         app:layout_constraintTop_toBottomOf="@id/SQ_layout">
 
         <ImageView
-            android:layout_width="@dimen/dp_22"
-            android:layout_height="@dimen/dp_22"
+            android:layout_width="?widthJ"
+            android:layout_height="?heightM"
             android:layout_marginTop="@dimen/dp_10"
             android:layout_marginBottom="@dimen/dp_10"
             android:layout_centerVertical="true"

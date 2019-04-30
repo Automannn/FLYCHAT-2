@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/colorMineBack"
     tools:context=".userInfo.SettingActivity">
 
     <com.gameex.dw.justtalk.titleBar.TitleBarView
@@ -31,7 +32,7 @@
 
             <TextView
                 android:layout_width="@dimen/dp_310"
-                android:layout_height="@dimen/dp_45"
+                android:layout_height="?heightF"
                 android:gravity="center_vertical"
                 android:paddingLeft="20dp"
                 android:paddingRight="20dp"
@@ -39,8 +40,8 @@
                 android:textSize="?smallFont"/>
 
             <ImageView
-                android:layout_width="@dimen/dp_50"
-                android:layout_height="@dimen/dp_50"
+                android:layout_width="?widthC"
+                android:layout_height="?heightC"
                 android:padding="@dimen/dp_16"
                 android:src="@drawable/left_arrow"
                 tools:ignore="ContentDescription"/>

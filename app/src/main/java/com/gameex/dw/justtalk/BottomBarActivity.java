@@ -22,6 +22,7 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.gameex.dw.justtalk.jiguangIM.GlobalEventListener;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.titleBar.OnSearchListen;
 import com.gameex.dw.justtalk.titleBar.OnSearchQueryListen;
@@ -30,10 +31,14 @@ import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.yzq.zxinglibrary.common.Constant;
 
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.Conversation;
+
 /**
  * 主界面activity
  */
 public class BottomBarActivity extends BaseActivity implements OnViewClick, View.OnClickListener {
+    @SuppressLint("StaticFieldLeak")
     public static BottomBarActivity sBottomBarActivity;
 
     private TitleBarView mTitleBarView;
@@ -55,11 +60,16 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
         getTitlePW();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
+
     /**
      * 使用menu文件加载布局，类似底部导航栏
      *
-     * @param menu
-     * @return
+     * @param menu UI表单
+     * @return boolean
      */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -110,10 +120,10 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
         getSupportActionBar().setTitle("");
         mTitleRightLL = findViewById(R.id.layout_right);
 
-        navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        viewPager = (ViewPager) findViewById(R.id.view_page);
+        viewPager = findViewById(R.id.view_page);
         disableShiftMode(navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
         viewPager.addOnPageChangeListener(mPageChangeListener);
@@ -123,7 +133,7 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
     }
 
     /**
-     * @param navigationView
+     * @param navigationView 底部导航栏
      */
     @SuppressLint("RestrictedApi")
     public void disableShiftMode(BottomNavigationView navigationView) {
@@ -155,7 +165,7 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
      * 标题栏弹出框
      */
     private void getTitlePW() {
-        View view = this.getLayoutInflater().inflate(R.layout.title_pup_layout, null);
+        @SuppressLint("InflateParams") View view = this.getLayoutInflater().inflate(R.layout.title_pup_layout, null);
         RelativeLayout talkGround, addFriend, SQ, helpBack;
         talkGround = view.findViewById(R.id.talk_ground_layout);
         talkGround.setOnClickListener(this);
@@ -179,7 +189,7 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
     class ViewPagerAdapter extends FragmentPagerAdapter {
         private Fragment[] mFragments = getFragment();
 
-        public ViewPagerAdapter(FragmentManager fm) {
+        ViewPagerAdapter(FragmentManager fm) {
             super(fm);
         }
 
@@ -271,7 +281,7 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
     };
 
     /**
-     * @return
+     * @return fragment[]
      */
     private Fragment[] getFragment() {
         Fragment[] fats = new Fragment[3];
@@ -318,7 +328,7 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
     /**
      * 点击监听事件
      *
-     * @param view
+     * @param view 被点击的组件
      */
     @Override
     public void onClick(View view) {
@@ -376,10 +386,10 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
        }*/
 
         //接收扫描结果
-        if (requestCode==BottomBarFat.REQUEST_CODE_SCAN&&resultCode==RESULT_OK){
-            if (data!=null){
-                String content=data.getStringExtra(Constant.CODED_CONTENT);
-                Toast.makeText(sBottomBarActivity, content+"", Toast.LENGTH_SHORT).show();
+        if (requestCode == BottomBarFat.REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
+            if (data != null) {
+                String content = data.getStringExtra(Constant.CODED_CONTENT);
+                Toast.makeText(sBottomBarActivity, content + "", Toast.LENGTH_SHORT).show();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);

@@ -50,8 +50,8 @@
 
                     <com.github.siyamed.shapeimageview.CircularImageView
                         android:id="@+id/user_icon_left"
-                        android:layout_width="@dimen/dp_40"
-                        android:layout_height="@dimen/dp_40"
+                        android:layout_width="?widthI"
+                        android:layout_height="?heightL"
                         android:background="@drawable/light_gray_rip_out"
                         android:src="@drawable/icon_user"
                         app:siBorderColor="@color/colorChatBack"/>
@@ -78,7 +78,7 @@
                             android:paddingBottom="@dimen/dp_5"
                             android:text="@string/test2_str"
                             android:textColor="@color/colorMineThemeText"
-                            android:textSize="?smallFont"
+                            android:textSize="?smallSuperFont"
                             tools:ignore="RtlSymmetry"/>
 
                         <TextView
@@ -124,7 +124,7 @@
                             android:paddingBottom="@dimen/dp_5"
                             android:text="@string/test1_str"
                             android:textColor="@color/colorMineThemeText"
-                            android:textSize="?smallFont"
+                            android:textSize="?smallSuperFont"
                             tools:ignore="RtlSymmetry"/>
 
                         <TextView
@@ -139,8 +139,8 @@
 
                     <com.github.siyamed.shapeimageview.CircularImageView
                         android:id="@+id/user_icon_right"
-                        android:layout_width="@dimen/dp_40"
-                        android:layout_height="@dimen/dp_40"
+                        android:layout_width="?widthI"
+                        android:layout_height="?heightL"
                         android:background="@drawable/light_gray_rip_out"
                         android:src="@drawable/icon_user"
                         app:siBorderColor="@color/colorChatBack"/>

@@ -22,12 +22,10 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
 
     private Context mContext;
     private List<Msg> mList;
-    private String mFirstMsgUncheckData;
 
-    public ChatRecAdapter(Context context, List<Msg> list, String firstMsgUncheckData) {
+    ChatRecAdapter(Context context, List<Msg> list) {
         mContext = context;
         mList = list;
-        mFirstMsgUncheckData = firstMsgUncheckData;
     }
 
     @NonNull
@@ -35,15 +33,19 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
     public ChatRecHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.chat_recycler_item, viewGroup, false);
-        ChatRecHolder holder = new ChatRecHolder(view);
-        return holder;
+        return new ChatRecHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ChatRecHolder holder, int position) {
         Msg msg = mList.get(position);
-        holder.msgData.setVisibility(View.VISIBLE);
-        holder.msgData.setText(mFirstMsgUncheckData);
+        holder.msgData.setText(msg.getDate());
+        if (position == 0 || DataUtil.isMoreThanOneDay(mList.get(position - 1).getDate(),
+                msg.getDate())) {
+            holder.msgData.setVisibility(View.VISIBLE);
+        } else {
+            holder.msgData.setVisibility(View.GONE);
+        }
         switch (msg.getType()) {
             case RECEIVED:
                 holder.leftLayout.setVisibility(View.VISIBLE);
@@ -78,7 +80,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
         CircularImageView leftCircle, rightCircle;
         TextView leftMsg, receiveTime, sendTime, rightMsg, msgData;
 
-        public ChatRecHolder(@NonNull View itemView) {
+        ChatRecHolder(@NonNull View itemView) {
             super(itemView);
             leftLayout = itemView.findViewById(R.id.left_msg_linear);
             leftMsgLayout = itemView.findViewById(R.id.msg_receive_layout);

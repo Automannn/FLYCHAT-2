@@ -4,12 +4,43 @@
         <attr name="centerText" format="string"/>
         <attr name="centerTextColor" format="color"/>
     </declare-styleable>
-    
+
     <declare-styleable name="ThemeFontSize">
         <attr name="smallSuperFont" format="reference|dimension"/>
         <attr name="smallFont" format="reference|dimension"/>
         <attr name="normalFont" format="reference|dimension"/>
         <attr name="largeFont" format="reference|dimension"/>
         <attr name="largeSuperFont" format="reference|dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="ThemeDpWidth">
+        <attr name="widthA" format="reference|dimension"/>
+        <attr name="widthB" format="reference|dimension"/>
+        <attr name="widthC" format="reference|dimension"/>
+        <attr name="widthD" format="reference|dimension"/>
+        <attr name="widthE" format="reference|dimension"/>
+        <attr name="widthF" format="reference|dimension"/>
+        <attr name="widthG" format="reference|dimension"/>
+        <attr name="widthH" format="reference|dimension"/>
+        <attr name="widthI" format="reference|dimension"/>
+        <attr name="widthJ" format="reference|dimension"/>
+        <attr name="widthK" format="reference|dimension"/>
+        <attr name="widthL" format="reference|dimension"/>
+    </declare-styleable>
+
+    <declare-styleable name="ThemeDpHeight">
+        <attr name="heightA" format="reference|dimension"/>
+        <attr name="heightB" format="reference|dimension"/>
+        <attr name="heightC" format="reference|dimension"/>
+        <attr name="heightD" format="reference|dimension"/>
+        <attr name="heightE" format="reference|dimension"/>
+        <attr name="heightF" format="reference|dimension"/>
+        <attr name="heightG" format="reference|dimension"/>
+        <attr name="heightH" format="reference|dimension"/>
+        <attr name="heightI" format="reference|dimension"/>
+        <attr name="heightJ" format="reference|dimension"/>
+        <attr name="heightK" format="reference|dimension"/>
+        <attr name="heightL" format="reference|dimension"/>
+        <attr name="heightM" format="reference|dimension"/>
     </declare-styleable>
 </resources>

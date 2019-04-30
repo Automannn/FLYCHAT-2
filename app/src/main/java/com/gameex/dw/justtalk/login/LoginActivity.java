@@ -282,8 +282,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login_btn:
-                checkToLogin(1);
-//                checkToLogin(-1);
+//                checkToLogin(1);
+                checkToLogin(-1);
                 break;
             case R.id.quick_sign_up:
                 Intent intentQuickSign = new Intent(this, SignUpActivity.class);

@@ -4,6 +4,10 @@ import android.net.Uri;
 
 public class Msg {
     /**
+     * 日期
+     */
+    private String date;
+    /**
      * 时间
      */
     private String time;
@@ -38,6 +42,29 @@ public class Msg {
     public Msg(String content, Type type) {
         this.content = content;
         this.type = type;
+    }
+
+    public Msg(String date, String time, String content, Type type) {
+        this.date = date;
+        this.time = time;
+        this.content = content;
+        this.type = type;
+    }
+
+    public Msg(String date, String time, int resourceId, String content, Type type) {
+        this.date = date;
+        this.time = time;
+        this.resourceId = resourceId;
+        this.content = content;
+        this.type = type;
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public String getTime() {
@@ -83,7 +110,8 @@ public class Msg {
     @Override
     public String toString() {
         return "Msg{" +
-                "time='" + time + '\'' +
+                "date='" + date + '\'' +
+                ", time='" + time + '\'' +
                 ", uri=" + uri +
                 ", resourceId=" + resourceId +
                 ", content='" + content + '\'' +
