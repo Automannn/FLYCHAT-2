@@ -2,7 +2,6 @@ package com.gameex.dw.justtalk.jiguangIM;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
-
 import com.gameex.dw.justtalk.util.LogUtil;
 
 import java.util.ArrayList;
@@ -15,6 +14,11 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.Message;
 
 public class JGApplication extends Application {
+    private static final String TAG = "JGAPPLICATION";
+    /**
+     * 极光AppKey
+     */
+    public static final String APP_KEY = "fa964c46085d5543e75797c0";
 
     public static final String CONV_TITLE = "conv_title";
     public static final int IMAGE_MESSAGE = 1;

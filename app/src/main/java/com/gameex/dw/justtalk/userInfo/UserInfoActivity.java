@@ -17,6 +17,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
@@ -34,6 +35,7 @@ import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
+import com.gameex.dw.justtalk.util.DataUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.io.File;
@@ -42,6 +44,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
+
+import static com.gameex.dw.justtalk.util.DataUtil.CHOOSE_PHOTO;
+import static com.gameex.dw.justtalk.util.DataUtil.CROP_PHOTO;
+import static com.gameex.dw.justtalk.util.DataUtil.TAKE_PHOTO;
 
 /**
  * 用户详细信息activity
@@ -49,10 +56,7 @@ import cn.jpush.im.android.api.JMessageClient;
 public class UserInfoActivity extends BaseActivity implements View.OnClickListener {
     @SuppressLint("StaticFieldLeak")
     public static UserInfoActivity sUserInfoActivity;
-    private static final int TAKE_PHOTO = 1;
-    private static final int CHOOSE_PHOTO = 2;
-    private static final int CROP_PHOTO = 3;
-    private static final String UPDATE_USER_INFO = "com.gameex.dw.flychat.UPDATE_USER";
+    public static final String UPDATE_USER_INFO = "com.gameex.dw.flychat.UPDATE_USER";
 
     private static int[] ints;
 
@@ -68,19 +72,23 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
 
     private PopupWindow mEditPup;
 
+    private UserInfo mUserInfo;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_user_info);
-        sUserInfoActivity = this;
 
         initView();
+        initData();
+        sUserInfoActivity = this;
     }
 
     /**
      * 绑定id，添加监听事件
      */
     private void initView() {
+        setContentView(R.layout.activity_user_info);
+        mUserInfo = UserInfo.fromJson(getIntent().getStringExtra("mine_info"));
         mLinearLayout = findViewById(R.id.user_info_constraint);
         mBarView = findViewById(R.id.title_bar_user_info);
         mBarView.setRightIVVisible(View.INVISIBLE);
@@ -127,6 +135,20 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         editPupWin("飞聊号", mFlyCodeText.getText().toString(), mFlyCodeText);
     }
 
+    /**
+     * 初始化数据
+     */
+    private void initData() {
+        mIconImg.setImageURI(mUserInfo.getExtra("icon_uri") == null
+                ? DataUtil.resourceIdToUri(getPackageName(), R.drawable.icon_user)
+                : Uri.parse(mUserInfo.getExtra("icon_uri")));
+        mNickName.setText(TextUtils.isEmpty(mUserInfo.getNickname()) ? mUserInfo.getUserName()
+                : mUserInfo.getNickname());
+        mFlySignText.setText(TextUtils.isEmpty(mUserInfo.getSignature()) ? "未设置"
+                : mUserInfo.getSignature());
+        mNumText.setText(mUserInfo.getUserName());
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -147,10 +169,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 break;
             case R.id.fly_sign_info_layout:
                 Toast.makeText(this, "修改个性签名", Toast.LENGTH_SHORT).show();
-//                if (mEditPup != null) {
-//                    mEditPup.showAtLocation(mLinearLayout, Gravity.CENTER, 0, 0);
-//                    showBackgroundAnimator(0.5f);
-//                }
                 break;
             case R.id.mine_num_info_layout:
                 Toast.makeText(this, "修改账号", Toast.LENGTH_SHORT).show();
@@ -183,13 +201,13 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         switch (requestCode) {
             case TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
-                    cropPhoto(mPhotoUri);
+                    DataUtil.cropPhoto(this, null, mPhotoUri);
                 }
                 break;
             case CHOOSE_PHOTO:
                 if (resultCode == RESULT_OK) {
                     assert data != null;
-                    cropPhoto(data.getData());
+                    DataUtil.cropPhoto(this, null, data.getData());
                 }
                 break;
             case CROP_PHOTO:
@@ -198,7 +216,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     assert extras != null;
                     mIcon = extras.getParcelable("data");
                     if (mIcon != null) {
-                        setPicToView(mIcon);
+                        DataUtil.setPicToView(this, mIcon, "user_icon.jpg");
                         mIconImg.setImageBitmap(mIcon);
                     }
                 }
@@ -225,90 +243,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     }
 
     /**
-     * 创建File对象，用于存贮拍照后的图片
-     */
-    private Uri getPhotoUri(File file) {
-        Uri photoUri;
-        if (file == null) {
-            File outputPhoto = new File(getExternalCacheDir(), "take_photo.jpg");
-            try {
-                if (outputPhoto.exists()) {
-                    outputPhoto.delete();
-                }
-                outputPhoto.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            if (Build.VERSION.SDK_INT >= 24) {
-                photoUri = FileProvider.getUriForFile(UserInfoActivity.this,
-                        getResources().getString(R.string.author_name), outputPhoto);
-            } else {
-                photoUri = Uri.fromFile(outputPhoto);
-            }
-        } else {
-            if (Build.VERSION.SDK_INT >= 24) {
-                photoUri = FileProvider.getUriForFile(UserInfoActivity.this,
-                        getResources().getString(R.string.author_name), file);
-            } else {
-                photoUri = Uri.fromFile(file);
-            }
-        }
-        return photoUri;
-    }
-
-    /**
-     * 调用系统的裁剪功能
-     *
-     * @param uri 需裁剪的uri
-     */
-    public void cropPhoto(Uri uri) {
-        Intent intent = new Intent("com.android.camera.action.CROP");
-        intent.setDataAndType(uri, "image/*");
-        intent.putExtra("crop", "true");
-        // aspectX aspectY 是宽高比列
-        intent.putExtra("aspectX", 1);
-        intent.putExtra("aspectY", 1);
-        // outputX outputY 是裁剪图片宽高
-        intent.putExtra("outputX", 200);
-        intent.putExtra("outputY", 200);
-        intent.putExtra("return-data", true);
-        startActivityForResult(intent, CROP_PHOTO);
-    }
-
-    /**
-     * 将图片保存在SD卡中
-     *
-     * @param bitmap 缓存头像
-     */
-    private void setPicToView(Bitmap bitmap) {
-        FileOutputStream b = null;
-        File file = new File(getExternalCacheDir(), "crop_icon.jpg");
-        if (file.exists()) {
-            file.delete();
-        }
-        try {
-            file.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try {
-            b = new FileOutputStream(file);
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, b);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                //关闭流
-                assert b != null;
-                b.flush();
-                b.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    /**
      * 获取相机权限
      */
     private void requestPermission() {
@@ -320,7 +254,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     Manifest.permission.CAMERA}, 1);
         } else {
             Intent takePhotoIntent = new Intent("android.media.action.IMAGE_CAPTURE");
-            mPhotoUri = getPhotoUri(null);
+            mPhotoUri = DataUtil.getPhotoUri(this, null, "take_photo.jpg");
             takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoUri);
             startActivityForResult(takePhotoIntent, TAKE_PHOTO);
             mDialog.dismiss();
@@ -337,7 +271,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     Toast.makeText(this, "无法拍照", Toast.LENGTH_SHORT).show();
                 } else {
                     Intent takePhotoIntent = new Intent("android.media.action.IMAGE_CAPTURE");
-                    mPhotoUri = getPhotoUri(null);
+                    mPhotoUri = DataUtil.getPhotoUri(this, null, "take_photo.jpg");
                     takePhotoIntent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoUri);
                     startActivityForResult(takePhotoIntent, TAKE_PHOTO);
                     mDialog.dismiss();
@@ -436,8 +370,9 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     public void onBackPressed() {
         super.onBackPressed();
         Intent intent = new Intent(UPDATE_USER_INFO);
-        intent.putExtra("icon_uri",
-                getPhotoUri(new File(getExternalCacheDir(), "crop_icon.jpg")).toString());
+        intent.putExtra("icon_uri", DataUtil.getPhotoUri(this
+                , new File(getExternalCacheDir(), "crop_icon.jpg")
+                , "crop_user_icon.jpg").toString());
         intent.putExtra("username", mFlyCodeText.getText().toString());
         intent.putExtra("user_signed", "nothing");
         sendBroadcast(intent);

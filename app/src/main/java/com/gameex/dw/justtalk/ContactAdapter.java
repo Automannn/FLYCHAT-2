@@ -2,8 +2,10 @@ package com.gameex.dw.justtalk;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,18 +16,26 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.ObjPack.Contact;
 import com.gameex.dw.justtalk.inviteFriends.InviteFriendsActivity;
+import com.gameex.dw.justtalk.userInfo.UserBasicInfoActivity;
+import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
 
-public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactHolder> {
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.UserInfo;
 
+public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactHolder> {
+    private static final String TAG = "CONTACT_ADAPTER";
     private Context mContext;
     private List<Contact> mContacts;
+    private List<UserInfo> mUserInfos;
 
-    public ContactAdapter(Context context, List<Contact> contacts) {
-        this.mContext = context;
-        mContacts = contacts;
+    public ContactAdapter(Context context, List<Contact> contacts, List<UserInfo> userInfos) {
+        mContext = context;
+        this.mContacts = contacts;
+        mUserInfos = userInfos;
     }
 
     @NonNull
@@ -33,65 +43,102 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
     public ContactHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.contact_item, viewGroup, false);
-        ContactHolder holder = new ContactHolder(view);
-        return holder;
+        return new ContactHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull ContactHolder holder, int position) {
-        Contact contact = mContacts.get(position);
-        if (mContacts.get(position).getIndex().equals("↑")) {
-            holder.index.setVisibility(View.GONE);
-        } else {
-            if (position == 3 || !mContacts.get(position - 1).getIndex().equals(contact.getIndex())) {
+        if (position < 3) {
+            Contact contact = mContacts.get(position);
+            if (contact.getIndex().equals("↑")) {
+                holder.index.setVisibility(View.GONE);
+            } else {
                 holder.index.setVisibility(View.VISIBLE);
                 holder.index.setText(contact.getIndex());
+            }
+            if (contact.getIconUri() != null) {
+                Glide.with(mContext)
+                        .load(contact.getIconUri())
+                        .into(holder.icon);
+            } else {
+                Glide.with(mContext)
+                        .load(contact.getIconResource())
+                        .into(holder.icon);
+            }
+            holder.name.setText(contact.getName());
+        } else {
+            position -= 3;
+            UserInfo userInfo = mUserInfos.get(position);
+            if (position == 0 || !mUserInfos.get(position - 1).
+                    getExtra("index").equals(userInfo.getExtra("index"))) {
+                holder.index.setVisibility(View.VISIBLE);
+                holder.index.setText(userInfo.getExtra("index"));
             } else {
                 holder.index.setVisibility(View.GONE);
             }
+            if (userInfo.getExtra("icon_uri") != null) {
+                Glide.with(mContext)
+                        .load(Uri.parse(userInfo.getExtra("icon_uri")))
+                        .into(holder.icon);
+            } else {
+                Glide.with(mContext)
+                        .load(R.drawable.icon_user)
+                        .into(holder.icon);
+            }
+            holder.name.setText(TextUtils.isEmpty(userInfo.getNickname())
+                    ? userInfo.getUserName() : userInfo.getNickname());
         }
-        if (contact.getIconUri() != null) {
-            Glide.with(mContext)
-                    .load(contact.getIconUri())
-                    .into(holder.icon);
-        } else {
-            Glide.with(mContext)
-                    .load(contact.getIconResource())
-                    .into(holder.icon);
-        }
-        holder.name.setText(contact.getName());
     }
 
     @Override
     public int getItemCount() {
-        return mContacts == null ? 0 : mContacts.size();
+        return mUserInfos == null ? 3 : mUserInfos.size() + 3;
     }
 
-    public class ContactHolder extends RecyclerView.ViewHolder {
+    class ContactHolder extends RecyclerView.ViewHolder {
         LinearLayout contactInfo;
         TextView index, name;
         CircularImageView icon;
 
-        public ContactHolder(@NonNull View itemView) {
+        ContactHolder(@NonNull View itemView) {
             super(itemView);
             contactInfo = itemView.findViewById(R.id.contact_info_layout);
             contactInfo.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    switch (mContacts.get(getAdapterPosition()).getName()) {
-                        case "新的朋友":
-                            Toast.makeText(mContext, "新的朋友", Toast.LENGTH_SHORT).show();
-                            break;
-                        case "邀请好友":
-                            Intent intent = new Intent(mContext, InviteFriendsActivity.class);
-                            mContext.startActivity(intent);
-                            break;
-                        case "我的群组":
-                            Toast.makeText(mContext, "我的群组", Toast.LENGTH_SHORT).show();
-                            break;
-                        default:
-                            Toast.makeText(mContext, "查看联系人详细信息", Toast.LENGTH_SHORT).show();
-                            break;
+                    if (getAdapterPosition() < 3) {
+                        switch (mContacts.get(getAdapterPosition()).getName()) {
+                            case "新的朋友":
+                                Toast.makeText(mContext, "新的朋友", Toast.LENGTH_SHORT).show();
+                                break;
+                            case "邀请好友":
+                                Intent intent = new Intent(mContext, InviteFriendsActivity.class);
+                                mContext.startActivity(intent);
+                                break;
+                            case "我的群组":
+                                Toast.makeText(mContext, "我的群组", Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                Toast.makeText(mContext, "查看我的详细信息", Toast.LENGTH_SHORT).show();
+                                break;
+                        }
+                    } else {
+                        JMessageClient.getUserInfo(mUserInfos.get(getAdapterPosition() - 4).
+                                getUserName(), new GetUserInfoCallback() {
+                            @Override
+                            public void gotResult(int i, String s, UserInfo userInfo) {
+                                if (i == 0) {
+                                    LogUtil.d(TAG, "userInfo = " + userInfo.toJson());
+                                    Intent intent = new Intent(mContext, UserBasicInfoActivity.class);
+                                    intent.putExtra("user_icon", userInfo.getExtra("icon_uri") == null
+                                            ? "-1" : userInfo.getExtra("icon_uri"));
+                                    intent.putExtra("username", TextUtils.isEmpty(userInfo.getNickname())
+                                            ? userInfo.getUserName() : userInfo.getNickname());
+                                    intent.putExtra("phone", userInfo.getUserName());
+                                    mContext.startActivity(intent);
+                                }
+                            }
+                        });
                     }
                 }
             });

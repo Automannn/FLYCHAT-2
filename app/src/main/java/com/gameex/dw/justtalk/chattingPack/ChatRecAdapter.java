@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.chattingPack;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -22,10 +23,12 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
 
     private Context mContext;
     private List<Msg> mList;
+    private String currentDate;
 
     ChatRecAdapter(Context context, List<Msg> list) {
         mContext = context;
         mList = list;
+        currentDate = DataUtil.msFormMMDD(System.currentTimeMillis());
     }
 
     @NonNull
@@ -36,33 +39,41 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
         return new ChatRecHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull ChatRecHolder holder, int position) {
         Msg msg = mList.get(position);
-        holder.msgData.setText(msg.getDate());
         if (position == 0 || DataUtil.isMoreThanOneDay(mList.get(position - 1).getDate(),
                 msg.getDate())) {
-            holder.msgData.setVisibility(View.VISIBLE);
+            if (currentDate.equals(msg.getDate())) {
+                holder.receiveTime.setText("今天  " + msg.getTime());
+                holder.sendTime.setText("今天  " + msg.getTime());
+            } else if (DataUtil.isMoreThanOneDay(msg.getDate(), currentDate)) {
+                holder.receiveTime.setText("昨天  " + msg.getTime());
+                holder.sendTime.setText("昨天  " + msg.getTime());
+            } else {
+                holder.receiveTime.setText(msg.getDate() + "  " + msg.getTime());
+                holder.sendTime.setText(msg.getDate() + "  " + msg.getTime());
+            }
         } else {
-            holder.msgData.setVisibility(View.GONE);
+            holder.receiveTime.setText(msg.getTime());
+            holder.sendTime.setText(msg.getTime());
         }
         switch (msg.getType()) {
             case RECEIVED:
                 holder.leftLayout.setVisibility(View.VISIBLE);
                 holder.rightLayout.setVisibility(View.GONE);
                 Glide.with(mContext)
-                        .load(msg.getResourceId())
+                        .load(msg.getUri())
                         .into(holder.leftCircle);
-                holder.receiveTime.setText(msg.getTime());
                 holder.leftMsg.setText(msg.getContent());
                 break;
             case SEND:
                 holder.leftLayout.setVisibility(View.GONE);
                 holder.rightLayout.setVisibility(View.VISIBLE);
                 Glide.with(mContext)
-                        .load(R.drawable.icon_user)
+                        .load(msg.getUri())
                         .into(holder.rightCircle);
-                holder.sendTime.setText(DataUtil.getCurrentTimeStr());
                 holder.rightMsg.setText(msg.getContent());
                 break;
             default:
@@ -75,10 +86,11 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
         return mList == null ? 0 : mList.size();
     }
 
-    public class ChatRecHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+    public class ChatRecHolder extends RecyclerView.ViewHolder
+            implements View.OnClickListener {
         LinearLayout leftLayout, rightLayout, leftMsgLayout, rightMsgLayout;
         CircularImageView leftCircle, rightCircle;
-        TextView leftMsg, receiveTime, sendTime, rightMsg, msgData;
+        TextView leftMsg, receiveTime, sendTime, rightMsg;
 
         ChatRecHolder(@NonNull View itemView) {
             super(itemView);
@@ -93,7 +105,6 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             rightCircle = itemView.findViewById(R.id.user_icon_right);
             rightMsg = itemView.findViewById(R.id.user_msg_right);
             sendTime = itemView.findViewById(R.id.msg_time_send);
-            msgData = itemView.findViewById(R.id.msg_data_chat);
         }
 
         @Override

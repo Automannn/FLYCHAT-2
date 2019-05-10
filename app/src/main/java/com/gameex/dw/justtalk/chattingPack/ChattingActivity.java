@@ -1,19 +1,23 @@
 package com.gameex.dw.justtalk.chattingPack;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.ObjPack.Msg;
+import com.gameex.dw.justtalk.ObjPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
+import com.gameex.dw.justtalk.userInfo.UserBasicInfoActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
@@ -26,6 +30,7 @@ import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 
@@ -38,7 +43,8 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     private CircularImageView mVoiceCircle, mEmojiCircle, mCircleView;
 
     private List<Msg> mMsgs = new ArrayList<>();
-    private String userPhone;
+    private MsgInfo mMsgInfo;
+    private UserInfo mUserInfo;
 
     private Conversation mConversation;
 
@@ -54,14 +60,16 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
      */
     private void initView() {
         setContentView(R.layout.activity_chatting);
+
+        mMsgInfo = getIntent().getParcelableExtra("msg_info");
+        mUserInfo = UserInfo.fromJson(mMsgInfo.getUserInfoJson());
+
         mTitleBar = findViewById(R.id.title_bar_chatting);
         mTitleBar.setSearchIVVisible(View.GONE);
         mTitleBar.setRightIVImg(R.drawable.icon_user);
         mTitleBar.setTitleSize(14);
         try {
-            String username = getIntent().getStringExtra("username");
-            userPhone = username;
-            mTitleBar.setTitle(username + "\n" + DataUtil.getCurrentDateStr());
+            mTitleBar.setTitle(mMsgInfo.getUsername() + "\n" + DataUtil.getCurrentDateStr());
         } catch (NullPointerException npe) {
             npe.printStackTrace();
         }
@@ -78,19 +86,29 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
 
             @Override
             public void rightClick() {
-                Toast.makeText(ChattingActivity.this, "更多操作", Toast.LENGTH_SHORT).show();
+                Intent intent = new Intent(ChattingActivity.this
+                        , UserBasicInfoActivity.class);
+                intent.putExtra("user_icon", mMsgInfo.getUriPath());
+                intent.putExtra("username", mMsgInfo.getUsername());
+                intent.putExtra("phone", mUserInfo.getUserName());
+                startActivity(intent);
             }
         });
 
         JMessageClient.registerEventReceiver(this);
-        mConversation = JMessageClient.getSingleConversation(userPhone);
-        mMsgs = getMsgs();
+        mConversation = JMessageClient.getSingleConversation(mUserInfo.getUserName());
         DefaultItemAnimator animator = new DefaultItemAnimator();
-        animator.setRemoveDuration(500);
-        animator.setAddDuration(500);
+        animator.setRemoveDuration(200);
+        animator.setAddDuration(200);
         mRecycler = findViewById(R.id.chat_recycler);
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setItemAnimator(animator);
+        new Handler(this.getMainLooper()).post(new Runnable() {
+            @Override
+            public void run() {
+                getMsgs();
+            }
+        });
         mRecAdapter = new ChatRecAdapter(this, mMsgs);
         mRecycler.setAdapter(mRecAdapter);
 
@@ -120,7 +138,10 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                     return;
                 }
                 sendMsgCollector(content);
-                updateAdapter(new Msg(content, Msg.Type.SEND));
+                updateAdapter(new Msg(DataUtil.msFormMMDD(System.currentTimeMillis()),
+                        DataUtil.getCurrentTimeStr(), DataUtil.resourceIdToUri(
+                        this.getPackageName(), R.drawable.icon_user)
+                        , content, Msg.Type.SEND));
                 mSendText.setText("");
                 break;
             default:
@@ -157,8 +178,8 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 TextContent textContent = (TextContent) message.getContent();
                 String content = textContent.getText();
                 LogUtil.d("getMessageContent", username + ":" + content);
-                if (username.equals(userPhone)) {
-                    updateAdapter(new Msg(date, time, R.drawable.icon_user, content, Msg.Type.RECEIVED));
+                if (username.equals(mUserInfo.getUserName())) {
+                    updateAdapter(new Msg(date, time, Uri.parse(mMsgInfo.getUriPath()), content, Msg.Type.RECEIVED));
                 } else {
                     LogUtil.d("TAG", "username != userPhone");
                 }
@@ -199,13 +220,12 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
      * @param content 消息文本
      */
     private void sendMsgCollector(String content) {
-        if (mConversation != null) {
-            mConversation = Conversation.createSingleConversation(userPhone);
+        if (mConversation == null) {
+            mConversation = Conversation.createSingleConversation(mUserInfo.getUserName());
         }
         TextContent textContent = new TextContent(content);
         assert mConversation != null;
         Message message = mConversation.createSendMessage(textContent);
-//        Message message = JMessageClient.createSingleTextMessage(userPhone, content);
         message.setOnSendCompleteCallback(new BasicCallback() {
             @Override
             public void gotResult(int requestCode, String responseDesc) {
@@ -226,28 +246,77 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     /**
      * 聊天界面测试参数
      */
-    private List<Msg> getMsgs() {
-        List<Msg> msgs = new ArrayList<>();
-        if (mConversation != null) {
-            mConversation = Conversation.createSingleConversation(userPhone);
+    private void getMsgs() {
+        Conversation conversation = JMessageClient.getSingleConversation(
+                mUserInfo.getUserName());
+        if (conversation == null) {
+            return;
         }
-        assert mConversation != null;
-        List<Message> messages = mConversation.getAllMessage();
-        for (Message message : messages) {
-            TextContent textContent = (TextContent) message.getContent();
-            long milliSecond = message.getCreateTime();
-            String date = DataUtil.msFormMMDD(milliSecond);
-            String time = DataUtil.msFormHHmmTime(milliSecond);
-            switch (message.getContentType()) {
-                case text:
-                    String content = textContent.getText();
-                    msgs.add(new Msg(date, time, R.drawable.icon_user, content, Msg.Type.RECEIVED));
-                    break;
-                default:
-                    break;
+        List<Message> messages = conversation.getAllMessage();
+        if (messages == null) {
+            mMsgs.add(new Msg(mMsgInfo.getDate(), DataUtil.getCurrentTimeStr()
+                    , Uri.parse(mMsgInfo.getUriPath()), mMsgInfo.getMsgLast(), Msg.Type.RECEIVED));
+        } else {
+            for (Message message : messages) {
+                goAddMsgList(message);
             }
         }
-        return msgs;
+    }
+
+    /**
+     * 判断message的发送状态，并做相应的处理
+     *
+     * @param message 消息体
+     */
+    private void goAddMsgList(Message message) {
+        long milliSecond = message.getCreateTime();
+        String date = DataUtil.msFormMMDD(milliSecond);
+        String time = DataUtil.msFormHHmmTime(milliSecond);
+        switch (message.getStatus()) {
+            case receive_success:
+                addMsg(date, time, Uri.parse(mMsgInfo.getUriPath()), message, Msg.Type.RECEIVED);
+                break;
+            case send_success:
+                addMsg(date, time, DataUtil.resourceIdToUri(this.getPackageName()
+                        , R.drawable.icon_user), message, Msg.Type.SEND);
+                break;
+            case send_going:
+                break;
+            case send_fail:
+                break;
+            case send_draft:
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 根据信息的类型，将获得的信息加入msg对象集合
+     *
+     * @param date    消息发送的日期
+     * @param time    消息发送的时间
+     * @param uri     消息发送方的头像
+     * @param message 消息体
+     * @param type    消息的类型（接收/发送）
+     */
+    private void addMsg(String date, String time, Uri uri,
+                        Message message, Msg.Type type) {
+        switch (message.getContentType()) {
+            case text:
+                TextContent textContent = (TextContent) message.getContent();
+                mMsgs.add(new Msg(date, time, uri, textContent.getText(), type));
+                break;
+            case image:
+                break;
+            case voice:
+                break;
+            case video:
+                break;
+            default:
+                break;
+        }
+        mRecAdapter.notifyItemInserted(mMsgs.size() - 1);
     }
 
     @Override

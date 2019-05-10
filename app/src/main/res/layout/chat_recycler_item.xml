@@ -18,26 +18,10 @@
             android:layout_height="wrap_content"
             android:background="@color/colorChatBack">
 
-            <TextView
-                android:id="@+id/msg_data_chat"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="@drawable/chat_msg_data_bg"
-                android:paddingLeft="@dimen/dp_10"
-                android:paddingRight="@dimen/dp_10"
-                android:text="@string/msg_data"
-                android:textAlignment="center"
-                android:textColor="@color/colorWhite"
-                android:textSize="18sp"
-                android:visibility="gone"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"/>
-
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/msg_data_chat">
+                app:layout_constraintTop_toTopOf="parent">
 
                 <LinearLayout
                     android:id="@+id/left_msg_linear"
@@ -64,8 +48,7 @@
                         android:layout_marginLeft="@dimen/dp_5"
                         android:layout_marginTop="@dimen/dp_20"
                         android:layout_weight="1"
-                        android:background="@drawable/msg_content_bg"
-                        android:orientation="horizontal">
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/user_msg_left"
@@ -76,6 +59,7 @@
                             android:paddingTop="@dimen/dp_5"
                             android:paddingRight="@dimen/dp_10"
                             android:paddingBottom="@dimen/dp_5"
+                            android:background="@drawable/msg_content_bg"
                             android:text="@string/test2_str"
                             android:textColor="@color/colorMineThemeText"
                             android:textSize="?smallSuperFont"
@@ -85,10 +69,10 @@
                             android:id="@+id/msg_time_receive"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="bottom"
+                            android:layout_gravity="bottom|end"
                             android:layout_marginEnd="@dimen/dp_4"
                             android:layout_marginRight="@dimen/dp_4"
-                            android:text="@string/msg_time"/>
+                            android:text="@string/msg_date_time"/>
 
                     </LinearLayout>
                 </LinearLayout>
@@ -110,8 +94,7 @@
                         android:layout_marginEnd="@dimen/dp_5"
                         android:layout_marginRight="@dimen/dp_5"
                         android:layout_weight="1"
-                        android:background="@drawable/msg_send_content_bg"
-                        android:orientation="horizontal">
+                        android:orientation="vertical">
 
                         <TextView
                             android:id="@+id/user_msg_right"
@@ -123,6 +106,8 @@
                             android:paddingRight="@dimen/dp_10"
                             android:paddingBottom="@dimen/dp_5"
                             android:text="@string/test1_str"
+                            android:layout_gravity="end"
+                            android:background="@drawable/msg_send_content_bg"
                             android:textColor="@color/colorMineThemeText"
                             android:textSize="?smallSuperFont"
                             tools:ignore="RtlSymmetry"/>
@@ -131,10 +116,10 @@
                             android:id="@+id/msg_time_send"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_gravity="bottom"
-                            android:layout_marginEnd="@dimen/dp_4"
-                            android:layout_marginRight="@dimen/dp_4"
-                            android:text="@string/msg_time"/>
+                            android:layout_gravity="bottom|start"
+                            android:layout_marginStart="@dimen/dp_4"
+                            android:layout_marginLeft="@dimen/dp_4"
+                            android:text="@string/msg_date_time"/>
                     </LinearLayout>
 
                     <com.github.siyamed.shapeimageview.CircularImageView

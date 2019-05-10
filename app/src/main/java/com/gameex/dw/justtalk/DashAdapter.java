@@ -3,6 +3,7 @@ package com.gameex.dw.justtalk;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -13,35 +14,28 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
-import com.gameex.dw.justtalk.ObjPack.Msg;
+import com.gameex.dw.justtalk.ObjPack.MsgInfo;
 import com.gameex.dw.justtalk.chattingPack.ChattingActivity;
+import com.gameex.dw.justtalk.chattingPack.GroupChatActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
-import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.content.TextContent;
-import cn.jpush.im.android.api.event.MessageEvent;
-import cn.jpush.im.android.api.event.OfflineMessageEvent;
-import cn.jpush.im.android.api.model.Conversation;
-import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.UserInfo;
 
 /**
  * 飞聊item的RecyclerView的adapter
  */
 public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
 
-    private List<Object[]> mMsgInfo;
+    private List<MsgInfo> mMsgInfos;
     private Context mContext;
 
-    DashAdapter(List<Object[]> msgInfo, Context context) {
-        mMsgInfo = msgInfo;
+    DashAdapter(List<MsgInfo> msgInfos, Context context) {
+        mMsgInfos = msgInfos;
         mContext = context;
     }
 
@@ -56,25 +50,27 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull DashHolder holder, int position) {
-        Object[] obj = mMsgInfo.get(position);
+        MsgInfo msgInfo = mMsgInfos.get(position);
         Glide.with(mContext)
-                .load(obj[0])
+                .load(Uri.parse(msgInfo.getUriPath()))
                 .into(holder.userIcon);
-        holder.userName.setText(String.valueOf(obj[1]));
-        String lastMsg = String.valueOf(obj[2]);
+        holder.userName.setText(msgInfo.getUsername());
+        String lastMsg = msgInfo.getMsgLast();
         if (lastMsg.length() > 16) {
-            lastMsg = lastMsg.substring(0, 15);
+            lastMsg = lastMsg.substring(0, 15) + "......";
         }
-        holder.msgLast.setText(lastMsg + "......");
-        holder.msgTime.setText(String.valueOf(obj[3]));
-        if (position % 3 == 0) {
+        holder.msgLast.setText(lastMsg);
+        holder.msgTime.setText(msgInfo.getDate());
+        if (msgInfo.isNotify()) {
+            holder.notifyOff.setVisibility(View.VISIBLE);
+        } else {
             holder.notifyOff.setVisibility(View.GONE);
         }
     }
 
     @Override
     public int getItemCount() {
-        return mMsgInfo.size();
+        return mMsgInfos.size();
     }
 
     class DashHolder extends RecyclerView.ViewHolder {
@@ -89,10 +85,24 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
             msgCard.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    String usernameStr = String.valueOf(mMsgInfo.get(getAdapterPosition())[1]);
-                    JMessageClient.enterSingleConversation(usernameStr);
-                    Intent intent = new Intent(mContext, ChattingActivity.class);
-                    intent.putExtra("username", usernameStr);
+                    MsgInfo msgInfo = mMsgInfos.get(getAdapterPosition());
+                    Intent intent = new Intent();
+                    if (msgInfo.isSingle()) {
+                        JMessageClient.enterSingleConversation(
+                                UserInfo.fromJson(msgInfo.getUserInfoJson()).getUserName());
+                        intent.setClass(mContext, ChattingActivity.class);
+                    } else {
+                        GroupInfo groupInfo = GroupInfo.fromJson(msgInfo.getGroupInfoJson());
+                        JMessageClient.enterGroupConversation(GroupInfo.fromJson(
+                                msgInfo.getGroupInfoJson()).getGroupID());
+                        intent.setClass(mContext, GroupChatActivity.class);
+                        intent.putExtra("group_id", groupInfo.getGroupID());
+                        intent.putExtra("group_icon", DataUtil.resourceIdToUri(
+                                mContext.getPackageName(), R.drawable.icon_group));
+                        intent.putExtra("group_name", groupInfo.getGroupName());
+                    }
+                    intent.putExtra("msg_info", msgInfo);
+                    intent.putExtra("last_msg", msgInfo.getMsgLast());
                     mContext.startActivity(intent);
                 }
             });

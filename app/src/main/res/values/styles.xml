@@ -85,7 +85,7 @@
         <item name="widthB">@dimen/dp_32</item>
         <item name="widthC">@dimen/dp_42</item>
         <item name="widthD">@dimen/dp_260</item>
-        <item name="widthE">@dimen/dp_150</item>
+        <item name="widthE">@dimen/dp_160</item>
         <item name="widthF">@dimen/dp_85</item>
         <item name="heightA">@dimen/dp_30</item>
         <item name="heightB">@dimen/dp_32</item>
@@ -269,7 +269,16 @@
         <item name="android:textColorHint">@color/colorLightGray</item>
 
         <!-- Hint for edit text -->
-        <item name="android:hint">@string/search</item>
+        <item name="android:hint">@string/username_phone_str</item>
     </style>
+
+    <style name="AppTheme.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
+
+    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
 
 </resources>

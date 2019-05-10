@@ -5,10 +5,13 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.widget.Toast;
 
+import com.gameex.dw.justtalk.login.LoginActivity;
 import com.gameex.dw.justtalk.signUp.SignUpActivity;
+import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.google.gson.JsonObject;
 
@@ -17,8 +20,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.options.RegisterOptionalUserInfo;
 import cn.jpush.im.api.BasicCallback;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -86,17 +92,25 @@ public class PostJson extends AsyncTask {
                     JSONObject jsonObject = new JSONObject(string);
                     boolean isSuccess = jsonObject.getBoolean("success");
                     if (isSuccess) {
-                        Toast.makeText(SignUpActivity.sSignUpActivity, "注册成功", Toast.LENGTH_SHORT).show();
-                        JMessageClient.register(phone, pwd, new BasicCallback() {
+                        RegisterOptionalUserInfo registerUser=new RegisterOptionalUserInfo();
+                        Map<String,String> extras=new HashMap<>();
+                        extras.put("index","#");
+                        registerUser.setExtras(extras);
+                        JMessageClient.register(phone, pwd,registerUser, new BasicCallback() {
                             @Override
                             public void gotResult(int responseCode, String registerDesc) {
-                                LogUtil.i("JMESSAGE", "JMessageClient.register " + ", responseCode = " + responseCode + " ; registerDesc = " + registerDesc);
+                                LogUtil.i("JMESSAGE", "JMessageClient.register " +
+                                        ", responseCode = " + responseCode +
+                                        " ; registerDesc = " + registerDesc);
                             }
                         });
                         Intent intent = new Intent();
                         intent.putExtra("phone", phone);
                         SignUpActivity.sSignUpActivity.setResult(Activity.RESULT_OK, intent);
                         SignUpActivity.sSignUpActivity.finish();
+                        Looper.prepare();
+                        Toast.makeText(SignUpActivity.sSignUpActivity, "注册成功", Toast.LENGTH_SHORT).show();
+                        Looper.loop();
                     } else {
                         final JSONObject jObject = jsonObject.getJSONObject("data");
                         final String message = jObject.getString("message");

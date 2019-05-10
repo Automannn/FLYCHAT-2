@@ -21,7 +21,8 @@ import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
  * 与ActivityCollector管理其他activity
  */
 public abstract class BaseActivity extends AppCompatActivity {
-    private static final String LOGIN_OUT = "com.gameex.dw.justtalk.LOGIN_OUT";
+    public static BaseActivity sBaseActivity;
+    public static final String LOGIN_OUT = "com.gameex.dw.justtalk.LOGIN_OUT";
 
     private SharedPreferences mPref;
     private SharedPreferences.Editor mEditor;
@@ -66,6 +67,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         mPref = PreferenceManager.getDefaultSharedPreferences(this);
         setUISize(mState);
+        sBaseActivity=this;
     }
 
     @Override

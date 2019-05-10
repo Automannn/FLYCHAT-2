@@ -16,10 +16,6 @@ public class Msg {
      */
     private Uri uri;
     /**
-     * 头像资源id
-     */
-    private int resourceId;
-    /**
      * 内容
      */
     private String content;
@@ -51,10 +47,10 @@ public class Msg {
         this.type = type;
     }
 
-    public Msg(String date, String time, int resourceId, String content, Type type) {
+    public Msg(String date, String time, Uri uri, String content, Type type) {
         this.date = date;
         this.time = time;
-        this.resourceId = resourceId;
+        this.uri = uri;
         this.content = content;
         this.type = type;
     }
@@ -83,14 +79,6 @@ public class Msg {
         this.uri = uri;
     }
 
-    public int getResourceId() {
-        return resourceId;
-    }
-
-    public void setResourceId(int resourceId) {
-        this.resourceId = resourceId;
-    }
-
     public String getContent() {
         return content;
     }
@@ -113,7 +101,6 @@ public class Msg {
                 "date='" + date + '\'' +
                 ", time='" + time + '\'' +
                 ", uri=" + uri +
-                ", resourceId=" + resourceId +
                 ", content='" + content + '\'' +
                 ", type=" + type +
                 '}';

@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorMineBack"
+    android:orientation="vertical"
+    tools:context=".groupInfo.GroupInfoActivity">
+
+    <com.gameex.dw.justtalk.titleBar.TitleBarView
+        android:id="@+id/title_bar_group_info"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_54"
+        app:layout_constraintTop_toTopOf="parent">
+
+    </com.gameex.dw.justtalk.titleBar.TitleBarView>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorMineBack"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:id="@+id/basic_info_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorMineBack"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:id="@+id/group_icon_info_layout"
+                android:layout_width="match_parent"
+                android:layout_height="?heightH"
+                android:layout_marginTop="@dimen/dp_25"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <com.github.siyamed.shapeimageview.CircularImageView
+                    android:id="@+id/group_icon_info"
+                    android:layout_width="?widthF"
+                    android:layout_height="?heightG"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_marginRight="@dimen/dp_20"
+                    android:src="@drawable/icon_group"
+                    app:siBorderColor="@color/colorWhite"/>
+
+                <TextView
+                    android:id="@+id/group_nick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/group_icon_info"
+                    android:layout_toRightOf="@id/group_icon_info"
+                    android:text="@string/group_name"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?normalFont"
+                    tools:ignore="RelativeOverlap"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <TextView
+                android:id="@+id/change_icon_text"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/change_icon_str"
+                android:clickable="true"
+                android:focusable="true"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"/>
+
+            <RelativeLayout
+                android:id="@+id/mine_group_nick_layout"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:layout_marginTop="@dimen/dp_20"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/mine_group_nick_str"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <TextView
+                    android:id="@+id/mine_group_nick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:layout_toStartOf="@id/mine_group_nick_edit_img"
+                    android:layout_toLeftOf="@id/mine_group_nick_edit_img"
+                    android:text="@string/set_mine_group_nick_str"
+                    android:textColor="@color/colorLightGray"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <ImageView
+                    android:id="@+id/mine_group_nick_edit_img"
+                    android:layout_width="?widthG"
+                    android:layout_height="?heightJ"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:src="@drawable/set"
+                    tools:ignore="ContentDescription"/>
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/group_qr_code_layout"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:layout_marginTop="@dimen/dp_20"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/group_qr_code_str"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <ImageView
+                    android:layout_width="?widthA"
+                    android:layout_height="?heightA"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_20"
+                    android:layout_marginRight="@dimen/dp_20"
+                    android:padding="@dimen/dp_5"
+                    android:src="@drawable/qr_code"
+                    tools:ignore="ContentDescription"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <TextView
+                android:id="@+id/group_notice"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/group_notice_str"
+                android:clickable="true"
+                android:focusable="true"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"
+                tools:ignore="RelativeOverlap"/>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <TextView
+                android:id="@+id/group_manage"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/group_manage_str"
+                android:clickable="true"
+                android:focusable="true"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"
+                tools:ignore="RelativeOverlap"/>
+
+            <RelativeLayout
+                android:id="@+id/group_push_layout"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:layout_marginTop="@dimen/dp_20"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/msg_push_str"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <TextView
+                    android:id="@+id/group_push_nick"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_26"
+                    android:layout_marginRight="@dimen/dp_26"
+                    android:text="@string/open_str"
+                    android:textColor="@color/colorLightGray"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/money_gift_long_time_no_see"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:layout_marginTop="@dimen/dp_20"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/money_gift_long_time_no_see_str"
+                android:clickable="true"
+                android:focusable="true"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"
+                tools:ignore="RelativeOverlap"/>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <TextView
+                android:id="@+id/group_chat_record"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/group_chat_record_str"
+                android:clickable="true"
+                android:focusable="true"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"
+                tools:ignore="RelativeOverlap"/>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <TextView
+                android:id="@+id/group_chat_file"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/group_chat_file_str"
+                android:clickable="true"
+                android:focusable="true"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"
+                tools:ignore="RelativeOverlap"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_40">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/group_member_str"
+                    android:textColor="@color/colorLightGray"
+                    tools:ignore="RelativeOverlap"/>
+
+                <TextView
+                    android:id="@+id/group_member_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_20"
+                    android:layout_marginRight="@dimen/dp_20"
+                    android:textColor="@color/colorLightGray"
+                    tools:ignore="RelativeOverlap"/>
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/invite_member_layout"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/add_group_member"
+                    android:layout_width="?heightF"
+                    android:layout_height="?heightF"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    tools:ignore="ContentDescription"
+                    android:src="@drawable/add_group_member"/>
+
+                <TextView
+                    android:id="@+id/invite_group_member"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_toEndOf="@id/add_group_member"
+                    android:layout_toRightOf="@id/add_group_member"
+                    android:text="@string/invite_group_member_str"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="?smallSuperFont"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <ListView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dp_70"
+                android:background="@color/colorWhite">
+
+            </ListView>
+
+        </LinearLayout>
+
+    </ScrollView>
+
+</LinearLayout>

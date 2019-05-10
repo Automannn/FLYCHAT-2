@@ -2,7 +2,6 @@ package com.gameex.dw.justtalk.signUp;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Handler;
 import android.os.Looper;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -20,14 +19,19 @@ import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.TimeCounter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import okhttp3.FormBody;
+import okhttp3.Headers;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
@@ -37,6 +41,7 @@ import okhttp3.Response;
  * 注册activity
  */
 public class SignUpActivity extends BaseActivity implements View.OnClickListener {
+    private static final String TAG = "SignUpActivity";
     /**
      * 上下文参数
      */
@@ -55,10 +60,12 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
      */
     private static final String urlCheckSms = "http://117.50.57.86:8060/validate/mobile";
 
-    private EditText mPhone, mVerifiCode, mPwd;
-    private TextView mVerifiCodeText;
+    private EditText mPhone, mVerifyCode, mPwd;
+    private TextView mVerifyCodeText;
     private Button mSignUp;
     private Intent postJsonSer;
+
+    private Map<String, String> header = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -86,9 +93,9 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
      */
     private void initView() {
         mPhone = findViewById(R.id.phone_edit);
-        mVerifiCode = findViewById(R.id.verification_code_edit);
-        mVerifiCodeText = findViewById(R.id.verification_code_text);
-        mVerifiCodeText.setOnClickListener(this);
+        mVerifyCode = findViewById(R.id.verification_code_edit);
+        mVerifyCodeText = findViewById(R.id.verification_code_text);
+        mVerifyCodeText.setOnClickListener(this);
         mPwd = findViewById(R.id.pwd_edit);
         mSignUp = findViewById(R.id.sign_up_btn);
         mSignUp.setOnClickListener(this);
@@ -100,26 +107,28 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
         String pwd = mPwd.getText().toString();
         switch (view.getId()) {
             case R.id.verification_code_text:   //获取验证码
-                if (mVerifiCode.isEnabled()) {
+                if (mVerifyCode.isEnabled()) {
                     if (DataUtil.isMobileNumber(phone)) {   //判断手机号格式是否正确
                         getSmsCodeThread(phone);
                     } else {
+                        YoYo.with(Techniques.Shake)
+                                .duration(700)
+                                .playOn(findViewById(R.id.phone_edit));
                         Toast.makeText(sSignUpActivity, "请输入正确的手机号", Toast.LENGTH_SHORT).show();
                     }
                 } else {
-                    Toast.makeText(sSignUpActivity, "点击获取验证码后需等待60秒", Toast.LENGTH_SHORT).show();
+                    YoYo.with(Techniques.Swing)
+                            .duration(700)
+                            .playOn(findViewById(R.id.verification_code_text));
+                    Toast.makeText(sSignUpActivity, "请等待" + mVerifyCodeText.getText(), Toast.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.sign_up_btn:  //注册
                 if (DataUtil.isMobileNumber(phone)) {   //验证手机号格式是否为空
-                    if (!TextUtils.isEmpty(mVerifiCode.getText())) {    //判断验证码栏是否为空
+                    if (!TextUtils.isEmpty(mVerifyCode.getText())) {    //判断验证码栏是否为空
                         if (DataUtil.isPWDCorrect(pwd)) {   //验证密码格式是否正确
                             //验证验证码是否正确。是，则进行注册；否，则Toast提示
-//                            isSmsCorrectThread(mVerifiCode.getText().toString(), phone, pwd);
-                            postJsonSer = new Intent(SignUpActivity.this, PostJsonService.class);
-                            postJsonSer.putExtra("sign_info", new String[]{
-                                    phone, pwd, url});
-                            startService(postJsonSer);
+                            isSmsCorrectThread(mVerifyCode.getText().toString(), phone, pwd);
                         } else {
                             //密码格式错误，动画+Toast提示
                             YoYo.with(Techniques.Shake)
@@ -153,14 +162,7 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
      * @param phone 手机号
      */
     private void getSmsCodeThread(final String phone) {
-        mVerifiCode.setEnabled(false);
-        final Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mVerifiCode.setEnabled(true);
-            }
-        }, 60 * 1000);
+        final TimeCounter timeCounter = new TimeCounter(60000, 100, mVerifyCodeText);
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -183,19 +185,29 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
                     if (response.isSuccessful()) {
                         assert response.body() != null;
                         String string = response.body().string();
+                        LogUtil.d(TAG, "getSmsCodeThread: " + "response string = " + string);
                         JSONObject jsonObject = new JSONObject(string);
                         boolean success = jsonObject.getBoolean("success");
                         if (success) {
+                            Headers headers = response.headers();
+                            List<String> cookies = headers.values("Set-cookie");
+                            String s = cookies.get(0);
+                            header.put("header", s);
+                            LogUtil.d(TAG, "getSmsCodeThread: " + "cookies(0) = " + s);
                             String data = jsonObject.getString("data");
                             Looper.prepare();
+                            timeCounter.start();
                             Toast.makeText(SignUpActivity.this, data + "", Toast.LENGTH_SHORT).show();
                             Looper.loop();
                         } else {
+                            JSONObject data = jsonObject.getJSONObject("data");
+                            int code = data.getInt("code");
+                            String message = data.getString("message");
+                            LogUtil.i(TAG, "getSmsCodeThread: " + "code = " + code +
+                                    " ; message = " + message);
                             Looper.prepare();
-                            Toast.makeText(SignUpActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(SignUpActivity.this, message + "", Toast.LENGTH_SHORT).show();
                             Looper.loop();
-                            handler.removeMessages(0);
-                            mVerifiCode.setEnabled(true);
                         }
                     } else {
                         assert response.body() != null;
@@ -233,10 +245,12 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
                 RequestBody formBody = new FormBody.Builder()
                         .add("smsCode", sms)
                         .build();
+                String headerCookie = header.get("header");
                 Request request = new Request.Builder()
                         .url(urlCheckSms)
                         .addHeader("accept", "application/json;charset=utf-8")
                         .addHeader("Content-Type", "text/plain")
+                        .addHeader("cookie", TextUtils.isEmpty(headerCookie) ? "" : headerCookie)
                         .post(formBody)
                         .build();
                 try {
@@ -248,9 +262,8 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
                         boolean success = jsonObject.getBoolean("success");
                         String data = jsonObject.getString("data");
                         if (success) {
-                            Looper.prepare();
+                            header.clear();
                             LogUtil.d("VERIFICATION_CODE_CHECK_RESULT", data + "");
-                            Looper.loop();
                             postJsonSer = new Intent(SignUpActivity.this, PostJsonService.class);
                             postJsonSer.putExtra("sign_info", new String[]{
                                     phone, pwd, url});

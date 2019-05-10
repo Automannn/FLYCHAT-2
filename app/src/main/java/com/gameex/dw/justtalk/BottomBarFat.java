@@ -7,12 +7,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.MediaStore;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -21,6 +22,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,12 +35,16 @@ import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.ObjPack.Contact;
+import com.gameex.dw.justtalk.ObjPack.MsgInfo;
+import com.gameex.dw.justtalk.publicInterface.FragmentCallBack;
 import com.gameex.dw.justtalk.userInfo.SettingActivity;
 import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.gjiazhe.wavesidebar.WaveSideBar;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
@@ -47,14 +53,21 @@ import com.yzq.zxinglibrary.encode.CodeCreator;
 import java.util.ArrayList;
 import java.util.List;
 
+import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.Conversation;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 
 public class BottomBarFat extends Fragment implements View.OnClickListener {
+    public static final String UPDATE_MSG_INFO = "com.gameex.dw.flychat.BottomBarFat.update_MSG_INFO";
+    public static final String REMOVE_CONTACT = "com.gameex.dw.flychat.BottomBarFat.CONTACT_ADAPTER_REMOVE";
+    public static final String ADD_CONTACT = "com.gameex.dw.flychat.BottomBarFat.CONTACT_ADAPTER_ADD";
+    public static final String UPDATE_USER_INFO = "com.gameex.dw.flychat.BottomBarFat.UPDATE_USER";
+
+    private static final String TAG = "BOTTOM_BAR_FAT";
     public static final int REQUEST_CODE_SCAN = 131;
     private static final String ARG_PARAM = "flag";
-    private static final String UPDATE_USER_INFO = "com.gameex.dw.flychat.UPDATE_USER";
     private static String[] indexStr = new String[]{"↑", "A", "B", "C", "D", "E", "F", "G",
             "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "#"};
 
@@ -66,8 +79,14 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     private static ContactAdapter mContactAdapter;
     private String param;
     private View mView;
-    private List<Object[]> mMsgInfo;
-    private List<Contact> mContacts;
+    private List<MsgInfo> mMsgInfos = new ArrayList<>();
+    private List<UserInfo> mContacts = new ArrayList<>();
+
+    public List<UserInfo> getContacts() {
+        return mContacts;
+    }
+
+    private UserInfo mUserInfo;
     private UpdateFragmentReceiver mFragmentReceiver;
 
     private static CircularImageView userIcon;
@@ -75,25 +94,41 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     private static TextView userName;
 
     private Dialog mQRCodeDialog;
+    private SharedPreferences mPref;
+    private SharedPreferences.Editor mEditor;
+
+    private FragmentCallBack mCallBack;
 
     public BottomBarFat() {
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        mCallBack = (FragmentCallBack) getActivity();
+    }
+
+    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPref = PreferenceManager.getDefaultSharedPreferences(BottomBarActivity.sBottomBarActivity);
         if (getArguments() != null) {
             param = getArguments().getString(ARG_PARAM);
         }
         mFragmentReceiver = new UpdateFragmentReceiver();
         IntentFilter filter = new IntentFilter();
+        filter.addAction(UPDATE_MSG_INFO);
         filter.addAction(UPDATE_USER_INFO);
+        filter.addAction(REMOVE_CONTACT);
+        filter.addAction(ADD_CONTACT);
         BottomBarActivity.sBottomBarActivity.registerReceiver(mFragmentReceiver, filter);
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater
+            , @Nullable ViewGroup container
+            , @Nullable Bundle savedInstanceState) {
         switch (param) {
             case "0":
                 mView = inflater.inflate(R.layout.message_layout, container, false);
@@ -173,8 +208,13 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                 mRecView.setLayoutManager(new LinearLayoutManager(BottomBarActivity.sBottomBarActivity));
 //                mRecView.addItemDecoration(new DividerItemDecoration(BottomBarActivity.sBottomBarActivity,
 //                        DividerItemDecoration.VERTICAL));
-                mMsgInfo = getMsgInfo();
-                mAdapter = new DashAdapter(mMsgInfo, BottomBarActivity.sBottomBarActivity);
+                String msgsStr = mPref.getString("msg_list", "");
+                if (!TextUtils.isEmpty(msgsStr)) {
+                    mMsgInfos = new Gson().fromJson(msgsStr
+                            , new TypeToken<List<MsgInfo>>() {
+                            }.getType());
+                }
+                mAdapter = new DashAdapter(mMsgInfos, BottomBarActivity.sBottomBarActivity);
                 mRecView.setAdapter(mAdapter);
                 break;
             case "1":
@@ -186,16 +226,43 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                 mContactRec = mView.findViewById(R.id.contact_recycler);
                 mContactRec.setItemAnimator(animatorContact);
                 mContactRec.setLayoutManager(new LinearLayoutManager(BottomBarActivity.sBottomBarActivity));
-                mContacts = getContacts();
-                mContactAdapter = new ContactAdapter(BottomBarActivity.sBottomBarActivity, mContacts);
-                mContactRec.setAdapter(mContactAdapter);
+                String userInfosStr = mPref.getString("contact_list", "");
+                if (!TextUtils.isEmpty(userInfosStr)) {
+                    mContacts = (List<UserInfo>) UserInfo.fromJsonToCollection(userInfosStr);
+                    mContactAdapter = new ContactAdapter(BottomBarActivity.sBottomBarActivity,
+                            Contact.getBasicContact(), mContacts);
+                    mContactRec.setAdapter(mContactAdapter);
+                } else {
+                    ContactManager.getFriendList(new GetUserInfoListCallback() {
+                        @Override
+                        public void gotResult(int responseCode, String friendListDesc, List<UserInfo> list) {
+                            if (responseCode == 0) {
+                                LogUtil.d(TAG, "ContactManager.getFriendList : " +
+                                        "list = " + list.toString());
+                                mContacts = list;
+                                mContactAdapter = new ContactAdapter(BottomBarActivity.sBottomBarActivity,
+                                        Contact.getBasicContact(), mContacts);
+                                mContactRec.setAdapter(mContactAdapter);
+                                mEditor = mPref.edit();
+                                mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
+                                mEditor.apply();
+                            } else {
+                                LogUtil.d(TAG, "ContactManager.getFriendList : " +
+                                        "responseCode = " + responseCode + " ; friendListDesc" +
+                                        friendListDesc);
+                            }
+                        }
+                    });
+                }
+                mCallBack.sendMessage(UserInfo.collectionToJson(mContacts));
+                updateContact();
                 WaveSideBar indexBar = mView.findViewById(R.id.glide_side_bar);
                 indexBar.setIndexItems(indexStr);
                 indexBar.setOnSelectIndexItemListener(new WaveSideBar.OnSelectIndexItemListener() {
                     @Override
                     public void onSelectIndexItem(String index) {
                         for (int i = 0; i < mContacts.size(); i++) {
-                            if (mContacts.get(i).getIndex().equals(index)) {
+                            if (mContacts.get(i).getExtra("index").equals(index)) {
                                 RecScrollHelper.scrollToPosition(mContactRec, i);
                                 return;
                             }
@@ -204,8 +271,6 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                 });
                 break;
             case "2":
-                userIcon = mView.findViewById(R.id.circle_img_user);
-                userName = mView.findViewById(R.id.mine_name);
                 ImageView qrCode = mView.findViewById(R.id.qr_code_img);
                 qrCode.setOnClickListener(this);
                 RelativeLayout mineInfoLayout, flyChatStoreLayout, looseChangeLayout,
@@ -224,6 +289,32 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                 settingLayout.setOnClickListener(this);
                 onlineServiceLayout = mView.findViewById(R.id.online_service_layout);
                 onlineServiceLayout.setOnClickListener(this);
+                initDataOfMine();
+                break;
+            default:
+                break;
+        }
+    }
+
+    /**
+     * 初始化用户信息(我 标签页信息)
+     */
+    private void initDataOfMine() {
+        switch (param) {
+            case "0":
+                break;
+            case "1":
+                break;
+            case "2":
+                userIcon = mView.findViewById(R.id.circle_img_user);
+                userName = mView.findViewById(R.id.mine_name);
+                mUserInfo = JMessageClient.getMyInfo();
+                userIcon.setImageURI(mUserInfo.getExtra("icon_uri") == null
+                        ? DataUtil.resourceIdToUri(
+                        BottomBarActivity.sBottomBarActivity.getPackageName(), R.drawable.icon_user)
+                        : Uri.parse(mUserInfo.getExtra("icon_uri")));
+                userName.setText(TextUtils.isEmpty(mUserInfo.getNickname())
+                        ? mUserInfo.getUserName() : mUserInfo.getNickname());
                 break;
             default:
                 break;
@@ -238,12 +329,14 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     private List<Object[]> getMsgInfo() {
         List<Object[]> msgInfo = new ArrayList<>();
         UserInfo myInfo = JMessageClient.getMyInfo();
-        if (myInfo.getUserName().equals("17361060489")) {
-            msgInfo.add(new Object[]{R.drawable.icon_user,
-                    "18180027763", "最近的一条信息展示位", DataUtil.getCurrentDateStr()});
-        } else {
-            msgInfo.add(new Object[]{R.drawable.icon_user,
-                    "17361060489", "最近的一条信息展示位", DataUtil.getCurrentDateStr()});
+        if (myInfo != null) {
+            if (myInfo.getUserName().equals("17361060489")) {
+                msgInfo.add(new Object[]{R.drawable.icon_user,
+                        "18180027763", "最近的一条信息展示位", DataUtil.getCurrentDateStr()});
+            } else {
+                msgInfo.add(new Object[]{R.drawable.icon_user,
+                        "17361060489", "最近的一条信息展示位", DataUtil.getCurrentDateStr()});
+            }
         }
         String[] name = new String[]{"德泽", "超海", "suhdanciakk**（jd", "郝世界第九才能哈光", "范明", "千帆", "怀曼", "香山", "了双", "吉萨嗲花",
                 "蝴蝶卡", "德泽", "涉及到", "的哈韩*^%的jj的开始", "书店", "多说句", "江西", "大祭司", "的健康", "熽",};
@@ -257,35 +350,125 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     }
 
     /**
-     * 加入基础信息，并添加模拟信息
-     *
-     * @return 联系人集合
+     * 检查好友变更，并更新联系人列表
      */
-    private List<Contact> getContacts() {
-        List<Contact> contacts = new ArrayList<>(Contact.getBasicContact());
-        contacts.add(new Contact("A", R.drawable.icon_user, "联系人A1"));
-        contacts.add(new Contact("A", R.drawable.icon_user, "联系人A2"));
-        contacts.add(new Contact("A", R.drawable.icon_user, "联系人A3"));
-        contacts.add(new Contact("B", R.drawable.icon_user, "联系人B1"));
-        contacts.add(new Contact("B", R.drawable.icon_user, "联系人B2"));
-        contacts.add(new Contact("B", R.drawable.icon_user, "联系人B3"));
-        contacts.add(new Contact("C", R.drawable.icon_user, "联系人C1"));
-        contacts.add(new Contact("D", R.drawable.icon_user, "联系人D1"));
-        contacts.add(new Contact("D", R.drawable.icon_user, "联系人D2"));
-        contacts.add(new Contact("D", R.drawable.icon_user, "联系人D3"));
-        contacts.add(new Contact("E", R.drawable.icon_user, "联系人E1"));
-        contacts.add(new Contact("E", R.drawable.icon_user, "联系人E2"));
-        contacts.add(new Contact("E", R.drawable.icon_user, "联系人E3"));
-        contacts.add(new Contact("E", R.drawable.icon_user, "联系人E4"));
-        contacts.add(new Contact("E", R.drawable.icon_user, "联系人E5"));
-        contacts.add(new Contact("E", R.drawable.icon_user, "联系人E6"));
-        contacts.add(new Contact("E", R.drawable.icon_user, "联系人E7"));
-        contacts.add(new Contact("G", R.drawable.icon_user, "联系人G1"));
-        contacts.add(new Contact("J", R.drawable.icon_user, "联系人J1"));
-        contacts.add(new Contact("O", R.drawable.icon_user, "联系人O1"));
-        contacts.add(new Contact("Z", R.drawable.icon_user, "联系人Z1"));
-        contacts.add(new Contact("#", R.drawable.icon_user, "联系人#1"));
-        return contacts;
+    private void updateContact() {
+        ContactManager.getFriendList(new GetUserInfoListCallback() {
+            @Override
+            public void gotResult(int responseCode, String friendListDesc, List<UserInfo> list) {
+                if (responseCode == 0) {
+                    LogUtil.d(TAG, "ContactManager.getFriendList : " +
+                            "list = " + list.toString());
+                    if (list.size() == 0) {
+                        mContacts.clear();
+                        mEditor = mPref.edit();
+                        mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
+                        mEditor.apply();
+                        mContactAdapter.notifyDataSetChanged();
+                    } else {
+                        for (int i = 0; i < list.size(); i++) {
+                            UserInfo userInfo = list.get(i);
+                            if (!isUserExist(userInfo)) {
+                                String index = userInfo.getExtra("index");
+                                if (isIndexExist(index)) {
+                                    addNewFromIndex(index, userInfo);
+                                } else {
+                                    addNewNoIndex(index, userInfo);
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    LogUtil.d(TAG, "ContactManager.getFriendList : " +
+                            "responseCode = " + responseCode + " ; friendListDesc" +
+                            friendListDesc);
+                }
+            }
+        });
+    }
+
+    /**
+     * 索引值已存在，将新用户加入联系人集合中对应索引位置的第一位
+     *
+     * @param index    索引
+     * @param userInfo 用户基本信息
+     */
+    private void addNewFromIndex(String index, UserInfo userInfo) {
+        for (int j = 0; j < mContacts.size(); j++) {
+            UserInfo contact = mContacts.get(j);
+            if (contact.getExtra("index").equals(index)) {
+                mContacts.add(j, userInfo);
+                mEditor = mPref.edit();
+                mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
+                mEditor.apply();
+                mCallBack.sendMessage(UserInfo.collectionToJson(mContacts));
+                mContactAdapter.notifyItemInserted(j);
+                break;
+            }
+        }
+    }
+
+    /**
+     * 索引不存在
+     *
+     * @param index    索引
+     * @param userInfo 用户基本信息
+     */
+    private void addNewNoIndex(String index, UserInfo userInfo) {
+        if (mContacts.size() == 0) {
+            mContacts.add(userInfo);
+            mEditor = mPref.edit();
+            mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
+            mEditor.apply();
+            mCallBack.sendMessage(UserInfo.collectionToJson(mContacts));
+            mContactAdapter.notifyDataSetChanged();
+            return;
+        }
+        for (int j = 0; j < mContacts.size(); j++) {
+            UserInfo contact = mContacts.get(j);
+            String indexContact = contact.getExtra("index");
+            if (indexContact.equals("#") || Integer.parseInt(index) < Integer.parseInt(indexContact)) {
+                mContacts.add(j, userInfo);
+                mEditor = mPref.edit();
+                mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
+                mEditor.apply();
+                mCallBack.sendMessage(UserInfo.collectionToJson(mContacts));
+                mContactAdapter.notifyItemInserted(j);
+                break;
+            }
+        }
+    }
+
+    /**
+     * 判断索引值是否已存在
+     *
+     * @param index 下拉的索引
+     * @return boolean
+     */
+    private boolean isIndexExist(String index) {
+        for (int j = 0; j < mContacts.size(); j++) {
+            UserInfo contact = mContacts.get(j);
+            if (contact.getExtra("index").equals(index)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * 判断此用户是否已存在本地列表中
+     *
+     * @param userInfo 从极光的好友对象
+     * @return boolean
+     */
+    private boolean isUserExist(UserInfo userInfo) {
+        for (int j = 0; j < mContacts.size(); j++) {
+            UserInfo contact = mContacts.get(j);
+            if (contact.getUserName().equals(userInfo.getUserName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -296,10 +479,12 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
+        Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.mine_info_layout:
-                Intent intentUserInfo = new Intent(BottomBarActivity.sBottomBarActivity, UserInfoActivity.class);
-                startActivity(intentUserInfo);
+                intent.setClass(BottomBarActivity.sBottomBarActivity, UserInfoActivity.class);
+                intent.putExtra("mine_info", mUserInfo.toJson());
+                startActivity(intent);
                 break;
             case R.id.qr_code_img:
                 /*
@@ -308,28 +493,34 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                 h:图片高
                 logo:不需要的话，直接传空
                  */
-                Bitmap logo = BitmapFactory.decodeResource(getResources(), R.drawable.icon_user);
-                Bitmap qrCodeBit = CodeCreator.createQRCode("www.baidu.com", 400, 400, logo);
+                Bitmap logo = BitmapFactory.decodeResource(getResources(),
+                        R.drawable.icon_user);
+                Bitmap qrCodeBit = CodeCreator.createQRCode("www.baidu.com",
+                        400, 400, logo);
                 showQrDialog(qrCodeBit);
                 break;
             case R.id.loose_change_layout:
-                Toast.makeText(BottomBarActivity.sBottomBarActivity, "查看钱包信息", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BottomBarActivity.sBottomBarActivity,
+                        "查看钱包信息", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.fly_chat_store_layout:
-                Toast.makeText(BottomBarActivity.sBottomBarActivity, "进入商城", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BottomBarActivity.sBottomBarActivity,
+                        "进入商城", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.scan_layout:
                 requestPermission();
                 break;
             case R.id.my_favorite_layout:
-                Toast.makeText(BottomBarActivity.sBottomBarActivity, "查看收藏条目", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BottomBarActivity.sBottomBarActivity,
+                        "查看收藏条目", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.setting_layout:
-                Intent intentSetting = new Intent(BottomBarActivity.sBottomBarActivity, SettingActivity.class);
-                startActivity(intentSetting);
+                intent.setClass(BottomBarActivity.sBottomBarActivity, SettingActivity.class);
+                startActivity(intent);
                 break;
             case R.id.online_service_layout:
-                Toast.makeText(BottomBarActivity.sBottomBarActivity, "请求客服", Toast.LENGTH_SHORT).show();
+                Toast.makeText(BottomBarActivity.sBottomBarActivity,
+                        "请求客服", Toast.LENGTH_SHORT).show();
                 break;
             default:
                 break;
@@ -357,13 +548,90 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     }
 
     /**
+     * 更新飞聊标签页
+     *
+     * @param context  上下文
+     * @param name     极光上的username
+     * @param date     信息发送的日期
+     * @param msg      最后一条未读信息
+     * @param isNotify 是否设置不提醒
+     */
+    private void updateMsgInfo(final Context context, String name, final String date
+            , final String msg, final boolean isNotify, final boolean isSingle, final String groupInfoJson) {
+        JMessageClient.getUserInfo(name, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo userInfo) {
+                if (i == 0) {
+                    LogUtil.d(TAG, "onReceiver: " + "userInfo = " + userInfo.toJson());
+                    MsgInfo msgInfo = new MsgInfo(
+                            userInfo.getExtra("username") == null
+                                    ? userInfo.getUserName() : userInfo.getExtra("username")
+                            , date, msg, isNotify);
+                    msgInfo.setUriPath(userInfo.getExtra("icon_uri") == null ?
+                            DataUtil.resourceIdToUri(context.getPackageName(), R.drawable.icon_user).toString()
+                            : userInfo.getExtra("icon_uri"));
+                    msgInfo.setSingle(isSingle);
+                    msgInfo.setUserInfoJson(userInfo.toJson());
+                    if (groupInfoJson!=null){
+                        msgInfo.setGroupInfoJson(groupInfoJson);
+                    }
+                    int isExist = isMsgExist(userInfo);
+                    if (isExist == -1) {
+                        mMsgInfos.add(msgInfo);
+                        mAdapter.notifyItemInserted(1);
+                    } else {
+                        mMsgInfos.set(isExist, msgInfo);
+                        mAdapter.notifyItemChanged(isExist);
+                    }
+                    Gson gson = new Gson();
+                    String msgsStr = gson.toJson(mMsgInfos);
+                    mEditor = mPref.edit();
+                    mEditor.putString("msg_list", msgsStr);
+                    mEditor.apply();
+                } else {
+                    LogUtil.d(TAG, "onReceiver: " +
+                            "responseCode = " + i + " ; desc = " + s);
+                    Toast.makeText(context, "好友添加失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    /**
+     * 判断新信息的来源是否已存在列表中
+     *
+     * @param userInfo 新信息来源的userInfo
+     * @return 若存在列表中则返回所在位置，否则返回-1
+     */
+    private Integer isMsgExist(UserInfo userInfo) {
+        for (int i = 0; i < mMsgInfos.size(); i++) {
+            UserInfo user = UserInfo.fromJson(mMsgInfos.get(i).getUserInfoJson());
+            if (user.getUserName().equals(userInfo.getUserName())) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    /**
      * fragment刷新广播
      */
     class UpdateFragmentReceiver extends BroadcastReceiver {
 
         @Override
-        public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
+        public void onReceive(final Context context, Intent intent) {
+            String action = intent.getAction();
+            assert action != null;
+            switch (action) {
+                case UPDATE_MSG_INFO:
+                    String name = intent.getStringExtra("username");
+                    String date = intent.getStringExtra("date");
+                    String msg = intent.getStringExtra("msg_last");
+                    boolean isNotify = intent.getBooleanExtra("is_notify", true);
+                    boolean isSingle = intent.getBooleanExtra("is_single", true);
+                    String groupInfoJson=intent.getStringExtra("group_json");
+                    updateMsgInfo(context, name, date, msg, isNotify, isSingle,groupInfoJson);
+                    break;
                 case UPDATE_USER_INFO:
                     try {
                         Uri uri = Uri.parse(intent.getStringExtra("icon_uri"));
@@ -375,6 +643,36 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                     }
                     String username = intent.getStringExtra("username");
                     userName.setText(username);
+                    break;
+                case REMOVE_CONTACT:
+                    String phone = intent.getStringExtra("phone");
+                    for (UserInfo userInfo : mContacts) {
+                        if (phone.equals(userInfo.getUserName())) {
+                            mContacts.remove(userInfo);
+                            mEditor = mPref.edit();
+                            mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
+                            mEditor.apply();
+                            break;
+                        }
+                    }
+                    mContactAdapter.notifyDataSetChanged();
+                    break;
+                case ADD_CONTACT:
+                    updateContact();
+//                    JMessageClient.getUserInfo(intent.getStringExtra("username"), new GetUserInfoCallback() {
+//                        @Override
+//                        public void gotResult(int i, String s, UserInfo userInfo) {
+//                            if (i == 0) {
+//                                LogUtil.d(TAG, "onReceive-addContact: " +
+//                                        "userInfo = " + userInfo.toJson());
+//                                mUserInfos.add(userInfo);
+//                                mContactAdapter.notifyDataSetChanged();
+//                            } else {
+//                                LogUtil.d(TAG, "onReceive-addContact: " +
+//                                        "responseCode = " + i + "desc = " + s);
+//                            }
+//                        }
+//                    });
                     break;
                 default:
                     break;

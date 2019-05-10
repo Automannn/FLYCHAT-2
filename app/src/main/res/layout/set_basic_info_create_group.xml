@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.github.siyamed.shapeimageview.CircularImageView
+            android:id="@+id/group_icon_create"
+            android:layout_width="?heightE"
+            android:layout_height="?heightE"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:layout_marginTop="@dimen/dp_14"
+            android:layout_marginRight="@dimen/dp_12"
+            android:layout_marginBottom="@dimen/dp_14"
+            android:src="@drawable/icon_take_photo"
+            app:siBorderColor="@color/colorWhite"/>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/group_icon_create"
+            android:layout_toRightOf="@id/group_icon_create"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/input_group_name_str"
+                android:textColor="@color/colorAccent"
+                android:textSize="@dimen/sp_8"/>
+
+            <EditText
+                android:id="@+id/group_name_create"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="@dimen/dp_36"
+                android:layout_marginRight="@dimen/dp_36"
+                android:background="@drawable/white_accent_underline_bg"
+                android:inputType="text"
+                android:paddingStart="@dimen/dp_2"
+                android:paddingLeft="@dimen/dp_2"
+                android:paddingTop="@dimen/dp_4"
+                android:paddingBottom="@dimen/dp_4"
+                android:textColor="@color/colorMineThemeText"
+                android:textCursorDrawable="@drawable/light_gray_cursor"
+                android:textSize="?smallSuperFont"
+                tools:ignore="Autofill,LabelFor,RtlSymmetry"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/group_num_create"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_12"
+        android:layout_marginLeft="@dimen/dp_12"
+        android:text="@string/group_num_str"
+        android:textColor="@color/colorAccent"
+        android:textSize="@dimen/sp_8"/>
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/group_member_rec"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layoutAnimation="@anim/layout_animation_fall_down"/>
+
+</LinearLayout>

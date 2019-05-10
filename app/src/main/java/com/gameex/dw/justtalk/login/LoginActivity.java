@@ -52,7 +52,8 @@ import okhttp3.Response;
  * 登录activity
  */
 public class LoginActivity extends BaseActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-    private static final String LOGIN_URL = "http://117.50.57.86:8060/user/login";
+    private static final String TAG = "LoginActivity";
+    public static final String LOGIN_URL = "http://117.50.57.86:8060/user/login";
     private static final int SIGN_UP_REQUEST_CODE = 201;
 
     private SharedPreferences pref;
@@ -109,7 +110,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             if (getIntent().getStringExtra("flag").equals("LoginOut")) {
                 pref = PreferenceManager.getDefaultSharedPreferences(this);
                 String account = pref.getString("account", "");
+                String password = pref.getString("password", "");
                 mUsername.setText(account);
+                mPassword.setText(password);
                 mAutoLogin.setChecked(true);
                 editor = pref.edit();
                 editor.remove("account");
@@ -134,9 +137,21 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             mPassword.setText(password);
             mAutoLogin.setChecked(true);
             if (!TextUtils.isEmpty(account) && !TextUtils.isEmpty(password)) {
-                Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
-                finish();
-                startActivity(intentLogin);
+                JMessageClient.login(account, password, new BasicCallback() {
+                    @Override
+                    public void gotResult(int responseCode, String registerDesc) {
+                        if (responseCode == 0) {
+                            Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
+                            LoginActivity.this.finish();
+                            startActivity(intentLogin);
+                        } else {
+                            LogUtil.i("LOGIN_ACTIVITY_JMESSAGE_LOGIN",
+                                    "JMessageClient.login " +
+                                            ", responseCode = " + responseCode +
+                                            " ; registerDesc = " + registerDesc);
+                        }
+                    }
+                });
             } else {
                 checkToLogin(0);
             }
@@ -210,7 +225,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                     JMessageClient.login(account, password, new BasicCallback() {
                                         @Override
                                         public void gotResult(int responseCode, String registerDesc) {
-                                            LogUtil.i("LOGIN_ACTIVITY_LMESSAGE_LOGIN", "JMessageClient.register " + ", responseCode = " + responseCode + " ; registerDesc = " + registerDesc);
+                                            LogUtil.i("LOGIN_ACTIVITY_JMESSAGE_LOGIN",
+                                                    "JMessageClient.login " +
+                                                            ", responseCode = " + responseCode +
+                                                            " ; registerDesc = " + registerDesc);
                                         }
                                     });
                                     Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
@@ -247,16 +265,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                             }
                         } catch (IOException e) {
                             prosDialog.dismiss();
+                            e.printStackTrace();
                             Looper.prepare();
                             Toast.makeText(LoginActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
                             Looper.loop();
-                            e.printStackTrace();
                         } catch (JSONException e) {
                             prosDialog.dismiss();
+                            e.printStackTrace();
                             Looper.prepare();
                             Toast.makeText(LoginActivity.this, "数据异常", Toast.LENGTH_SHORT).show();
                             Looper.loop();
-                            e.printStackTrace();
                         }
                     }
                 }).start();
@@ -282,8 +300,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login_btn:
-//                checkToLogin(1);
-                checkToLogin(-1);
+                checkToLogin(1);
+//                checkToLogin(-1);
                 break;
             case R.id.quick_sign_up:
                 Intent intentQuickSign = new Intent(this, SignUpActivity.class);
@@ -311,7 +329,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode
+            , @Nullable Intent data) {
         if (requestCode == SIGN_UP_REQUEST_CODE && resultCode == RESULT_OK) {
             if (data != null) {
                 String phone = data.getStringExtra("phone");
@@ -330,7 +349,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (prosDialog.isShowing()) {
+            if (prosDialog != null && prosDialog.isShowing()) {
                 prosDialog.dismiss();
                 LogUtil.d("KEYCODE_BACK", "dismiss dialog");
             } else {

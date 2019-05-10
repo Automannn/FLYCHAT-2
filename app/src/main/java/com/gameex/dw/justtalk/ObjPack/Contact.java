@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.ObjPack;
 
+import android.graphics.Bitmap;
 import android.net.Uri;
 
 import com.gameex.dw.justtalk.BottomBarActivity;
@@ -8,6 +9,9 @@ import com.gameex.dw.justtalk.util.DataUtil;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
 
 /**
  * 联系人对象，存储单个联系人信息
@@ -26,20 +30,58 @@ public class Contact {
      */
     private int iconResource;
     /**
+     * 用户头像位图
+     */
+    private Bitmap iconMap;
+    /**
      * 名称
      */
     private String name;
 
+    /**
+     * 手机号
+     */
+    private String phone;
+
+    /**
+     * 构造
+     *
+     * @param index 索引
+     * @param uri   头像uri
+     * @param name  用户名
+     */
     public Contact(String index, Uri uri, String name) {
         this.index = index;
         this.iconUri = uri;
         this.name = name;
     }
 
+    /**
+     * gouzao
+     *
+     * @param index        索引
+     * @param iconResource 头像资源id
+     * @param name         用户名
+     */
     public Contact(String index, int iconResource, String name) {
         this.index = index;
         this.iconResource = iconResource;
         this.name = name;
+    }
+
+    /**
+     * 构造
+     *
+     * @param index   索引
+     * @param iconMap 头像位图
+     * @param name    用户民
+     * @param phone   用户手机号
+     */
+    public Contact(String index, Bitmap iconMap, String name, String phone) {
+        this.index = index;
+        this.iconMap = iconMap;
+        this.name = name;
+        this.phone = phone;
     }
 
     public String getIndex() {
@@ -66,6 +108,14 @@ public class Contact {
         this.iconResource = iconResource;
     }
 
+    public Bitmap getIconMap() {
+        return iconMap;
+    }
+
+    public void setIconMap(Bitmap iconMap) {
+        this.iconMap = iconMap;
+    }
+
     public String getName() {
         return name;
     }
@@ -74,12 +124,23 @@ public class Contact {
         this.name = name;
     }
 
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
     @Override
     public String toString() {
         return "Contact{" +
-                "索引='" + index + '\'' +
-                ", 头像=" + iconUri +
-                ", 名称='" + name + '\'' +
+                "index='" + index + '\'' +
+                ", iconUri=" + iconUri +
+                ", iconResource=" + iconResource +
+                ", iconMap=" + iconMap +
+                ", name='" + name + '\'' +
+                ", phone='" + phone + '\'' +
                 '}';
     }
 
@@ -93,9 +154,6 @@ public class Contact {
         contacts.add(new Contact("↑", R.drawable.icon_new_friends, "新的朋友"));
         contacts.add(new Contact("↑", R.drawable.icon_invite_friends, "邀请好友"));
         contacts.add(new Contact("↑", R.drawable.icon_group, "我的群组"));
-        contacts.add(new Contact("我", DataUtil.resourceIdToUri(
-                BottomBarActivity.sBottomBarActivity.getPackageName(), R.drawable.icon_user),
-                "我的昵称"));
         return contacts;
     }
 }

@@ -1,7 +1,9 @@
 package com.gameex.dw.justtalk;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -9,35 +11,44 @@ import android.support.constraint.ConstraintLayout;
 import android.support.design.internal.BottomNavigationItemView;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
-import com.gameex.dw.justtalk.jiguangIM.GlobalEventListener;
+import com.gameex.dw.justtalk.addFriends.AddFriendsActivity;
+import com.gameex.dw.justtalk.createGroup.CreateGroupActivity;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
+import com.gameex.dw.justtalk.publicInterface.FragmentCallBack;
 import com.gameex.dw.justtalk.titleBar.OnSearchListen;
 import com.gameex.dw.justtalk.titleBar.OnSearchQueryListen;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.LogUtil;
+import com.yzq.zxinglibrary.android.CaptureActivity;
+import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.Conversation;
+import static com.gameex.dw.justtalk.BottomBarFat.REQUEST_CODE_SCAN;
 
 /**
  * 主界面activity
  */
-public class BottomBarActivity extends BaseActivity implements OnViewClick, View.OnClickListener {
+public class BottomBarActivity extends BaseActivity
+        implements OnViewClick, View.OnClickListener, FragmentCallBack {
+    private static final String TAG = "BottomBarActivity";
     @SuppressLint("StaticFieldLeak")
     public static BottomBarActivity sBottomBarActivity;
 
@@ -50,14 +61,20 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
     private PopupWindow mTitlePup;
 
     private long exitTime;
+    private String mUserInfosStr;
+
+    @Override
+    public void sendMessage(String value) {
+        mUserInfosStr = value;
+        LogUtil.d(TAG, "sendMessage: " + "value = " + value);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_bottom_bar);
-        sBottomBarActivity = this;
         initView();
         getTitlePW();
+        sBottomBarActivity = this;
     }
 
     @Override
@@ -85,6 +102,8 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
      * 绑定id，设置监听，完善相关属性
      */
     private void initView() {
+        setContentView(R.layout.activity_bottom_bar);
+
         mTitleBarView = findViewById(R.id.title_bar);
         mTitleBarView.setLeftIVVisible(View.GONE);
         mTitleBarView.setOnViewClick(this);
@@ -129,7 +148,7 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
         viewPager.addOnPageChangeListener(mPageChangeListener);
         navigation.setSelectedItemId(R.id.navigation_home);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setOffscreenPageLimit(1);
     }
 
     /**
@@ -179,6 +198,16 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
         mTitlePup.setFocusable(true);
         mTitlePup.setOutsideTouchable(true);
+        mTitlePup.setTouchInterceptor(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                if (motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                    mTitlePup.dismiss();
+                    return true;
+                }
+                return false;
+            }
+        });
         mTitlePup.setAnimationStyle(R.style.pop_anim);
         mTitlePup.update();
     }
@@ -322,7 +351,12 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
      */
     @Override
     public void rightClick() {
-        mTitlePup.showAsDropDown(mTitleRightLL, 0, 0);
+        assert mTitlePup != null;
+        if (mTitlePup.isShowing()) {
+            mTitlePup.dismiss();
+        } else {
+            mTitlePup.showAsDropDown(mTitleRightLL, 0, 0);
+        }
     }
 
     /**
@@ -332,15 +366,19 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
      */
     @Override
     public void onClick(View view) {
+        Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.talk_ground_layout:
-                Toast.makeText(sBottomBarActivity, "发起群聊", Toast.LENGTH_SHORT).show();
+                intent.setClass(BottomBarActivity.sBottomBarActivity, CreateGroupActivity.class);
+                intent.putExtra("user_infos", mUserInfosStr);
+                startActivity(intent);
                 break;
             case R.id.add_friends_layout:
-                Toast.makeText(sBottomBarActivity, "添加朋友", Toast.LENGTH_SHORT).show();
+                intent.setClass(this, AddFriendsActivity.class);
+                startActivity(intent);
                 break;
             case R.id.SQ_layout:
-                Toast.makeText(sBottomBarActivity, "扫一扫", Toast.LENGTH_SHORT).show();
+                requestPermission();
                 break;
             case R.id.help_back_up_layout:
                 Toast.makeText(sBottomBarActivity, "帮助和反馈", Toast.LENGTH_SHORT).show();
@@ -348,6 +386,7 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
             default:
                 break;
         }
+        mTitlePup.dismiss();
     }
 
     @Override
@@ -386,13 +425,55 @@ public class BottomBarActivity extends BaseActivity implements OnViewClick, View
        }*/
 
         //接收扫描结果
-        if (requestCode == BottomBarFat.REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
+        if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
                 Toast.makeText(sBottomBarActivity, content + "", Toast.LENGTH_SHORT).show();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    /**
+     * 获取相机权限
+     */
+    private void requestPermission() {
+
+        if (ContextCompat.checkSelfPermission(BottomBarActivity.sBottomBarActivity,
+                android.Manifest.permission.CAMERA) !=
+                PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(BottomBarActivity.sBottomBarActivity, new String[]{
+                    Manifest.permission.CAMERA}, 1);
+        } else {
+            Intent intentScan = new Intent(BottomBarActivity.sBottomBarActivity, CaptureActivity.class);
+            ZxingConfig zxingConfig = new ZxingConfig();    //配置扫一扫界面属性
+            zxingConfig.setReactColor(R.color.colorAccent); //设置扫描框四个角颜色
+            zxingConfig.setScanLineColor(R.color.colorAccent);  //设置扫描线的颜色
+            intentScan.putExtra(Constant.INTENT_ZXING_CONFIG, zxingConfig);
+            startActivityForResult(intentScan, REQUEST_CODE_SCAN);  //跳转到扫一扫界面
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(BottomBarActivity.sBottomBarActivity, "扫描", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intentScan = new Intent(BottomBarActivity.sBottomBarActivity, CaptureActivity.class);
+                    ZxingConfig zxingConfig = new ZxingConfig();    //配置扫一扫界面属性
+                    zxingConfig.setReactColor(R.color.colorAccent); //设置扫描框四个角颜色
+                    zxingConfig.setScanLineColor(R.color.colorAccent);  //设置扫描线的颜色
+                    intentScan.putExtra(Constant.INTENT_ZXING_CONFIG, zxingConfig);
+                    startActivityForResult(intentScan, REQUEST_CODE_SCAN);  //跳转到扫一扫界面
+                }
+                break;
+            default:
+                break;
+        }
     }
 
 }
