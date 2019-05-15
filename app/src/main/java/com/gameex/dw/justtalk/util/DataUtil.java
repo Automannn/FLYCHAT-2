@@ -7,6 +7,7 @@ import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
@@ -292,6 +293,22 @@ public class DataUtil {
                 e.printStackTrace();
             }
         }
+    }
+
+    /**
+     * 将byte数组转为bitmap对象
+     *
+     * @param bytes   byte数组
+     * @param options BitmapFactory.Options
+     * @return bitmap
+     */
+    public static Bitmap getPicFromBytes(byte[] bytes, BitmapFactory.Options options) {
+        if (bytes != null)
+            if (options != null)
+                return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, options);
+            else
+                return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+        return null;
     }
 
 

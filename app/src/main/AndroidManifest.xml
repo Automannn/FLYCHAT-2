@@ -46,6 +46,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".myGroups.MyGroupActivity">
+        </activity>
         <activity android:name=".groupInfo.GroupInfoActivity">
         </activity>
         <activity android:name=".chattingPack.GroupChatActivity">

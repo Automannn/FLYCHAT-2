@@ -10,14 +10,14 @@
     <com.gameex.dw.justtalk.titleBar.TitleBarView
         android:id="@+id/title_bar_chatting"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_54"
+        android:layout_height="@dimen/dp_74"
         app:layout_constraintTop_toTopOf="parent"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/chat_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/dp_55"
+        android:layout_marginTop="@dimen/dp_75"
         android:layout_marginBottom="@dimen/dp_57"
         android:background="@color/colorChatBack"
         app:layout_constraintTop_toBottomOf="@id/title_bar_chatting"/>

@@ -13,7 +13,7 @@
     <com.gameex.dw.justtalk.titleBar.TitleBarView
         android:id="@+id/title_bar_user_info"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_54"
+        android:layout_height="@dimen/dp_74"
         app:layout_constraintTop_toTopOf="parent">
 
     </com.gameex.dw.justtalk.titleBar.TitleBarView>

@@ -25,8 +25,8 @@ import java.io.IOException;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.TextContent;
-import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ContactNotifyEvent;
 import cn.jpush.im.android.api.event.LoginStateChangeEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
@@ -201,15 +201,21 @@ public class GlobalEventListener {
                 switch (message.getTargetType()) {
                     case single:
                         intent.putExtra("is_single", true);
+                        appContext.sendBroadcast(intent);
                         break;
                     case group:
                         intent.putExtra("is_single", false);
                         intent.putExtra("group_json", ((GroupInfo) message.getTargetInfo()).toJson());
+                        appContext.sendBroadcast(intent);
                         break;
                 }
                 break;
+            case eventNotification:
+                GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
+                EventNotificationContent notificationContent = (EventNotificationContent) message.getContent();
+                handleGroupEvent(notificationContent.getEventNotificationType());
+                break;
         }
-        appContext.sendBroadcast(intent);
     }
 
     /**
@@ -303,5 +309,22 @@ public class GlobalEventListener {
         }
         return PendingIntent.getBroadcast(appContext, flag, intent,
                 PendingIntent.FLAG_ONE_SHOT /*PendingIntent.FLAG_UPDATE_CURRENT*/);
+    }
+
+    private void handleGroupEvent(EventNotificationContent.EventNotificationType type) {
+        switch (type) {
+            case group_member_added:    //群成员加群事件
+                LogUtil.d(TAG, "handleGroupEvent-group_member_added: " + "新成员");
+                break;
+            case group_member_removed:  //群成员被踢事件
+                LogUtil.d(TAG, "handleGroupEvent-group_member_removed: " + "群成员被踢");
+                break;
+            case group_member_exit:  //群成员退群事件
+                LogUtil.d(TAG, "handleGroupEvent-group_member_exit: " + "群成员退群");
+                break;
+            case group_info_updated:    //群信息变更事件
+                LogUtil.d(TAG, "handleGroupEvent-group_info_updated: " + "群信息变更");
+                break;
+        }
     }
 }

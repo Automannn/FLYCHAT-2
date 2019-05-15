@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -22,7 +23,9 @@ import cn.jpush.im.android.api.model.GroupInfo;
 public class GroupInfoActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "GroupInfoActivity";
 
-    private TitleBarView mTitleBarView;
+    private ImageView mBack;
+    private TextView mTitle;
+    private ImageView mMore;
     private RelativeLayout mIconLayout, mNickLayout, mQrCodeLayout, mPushLayout, mInviteMember;
     private CircularImageView mIcon;
     private TextView mName, mChangeIcon, mNick, mNotice, mManage, mPush, mMoneyGift, mChatRecord, mChatFile, mMemberCount;
@@ -39,7 +42,9 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
      */
     private void initView() {
         setContentView(R.layout.activity_group);
-        mTitleBarView = findViewById(R.id.title_bar_group_info);
+        mBack = findViewById(R.id.back);
+        mTitle = findViewById(R.id.title);
+        mMore = findViewById(R.id.more);
         mIconLayout = findViewById(R.id.group_icon_info_layout);
         mIcon = findViewById(R.id.group_icon_info);
         mName = findViewById(R.id.group_nick);
@@ -61,25 +66,9 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
      * 初始化数据
      */
     private void initData() {
-        mTitleBarView.setTitle("群详情");
-        mTitleBarView.setRightIVImg(R.drawable.more);
-        mTitleBarView.setSearchIVVisible(View.GONE);
-        mTitleBarView.setOnViewClick(new OnViewClick() {
-            @Override
-            public void leftClick() {
-                finish();
-            }
-
-            @Override
-            public void searchClick() {
-
-            }
-
-            @Override
-            public void rightClick() {
-                Toast.makeText(GroupInfoActivity.this, "更多", Toast.LENGTH_SHORT).show();
-            }
-        });
+        mBack.setOnClickListener(this);
+        mTitle.setText("群详情");
+        mMore.setOnClickListener(this);
 
         mIconLayout.setOnClickListener(this);
         mChangeIcon.setOnClickListener(this);
@@ -111,6 +100,12 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
     public void onClick(View view) {
         Intent intent = new Intent();
         switch (view.getId()) {
+            case R.id.back:
+                finish();
+                break;
+            case R.id.more:
+                Toast.makeText(this, "更多", Toast.LENGTH_SHORT).show();
+                break;
             case R.id.group_icon_info_layout:
                 Toast.makeText(this, "修改群名称", Toast.LENGTH_SHORT).show();
                 break;

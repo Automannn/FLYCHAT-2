@@ -16,6 +16,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.ObjPack.Contact;
 import com.gameex.dw.justtalk.inviteFriends.InviteFriendsActivity;
+import com.gameex.dw.justtalk.myGroups.MyGroupActivity;
 import com.gameex.dw.justtalk.userInfo.UserBasicInfoActivity;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
@@ -107,23 +108,26 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
                 @Override
                 public void onClick(View view) {
                     if (getAdapterPosition() < 3) {
+                        Intent intent = new Intent();
                         switch (mContacts.get(getAdapterPosition()).getName()) {
                             case "新的朋友":
                                 Toast.makeText(mContext, "新的朋友", Toast.LENGTH_SHORT).show();
                                 break;
                             case "邀请好友":
-                                Intent intent = new Intent(mContext, InviteFriendsActivity.class);
+                                intent.setClass(mContext, InviteFriendsActivity.class);
                                 mContext.startActivity(intent);
                                 break;
                             case "我的群组":
-                                Toast.makeText(mContext, "我的群组", Toast.LENGTH_SHORT).show();
+                                intent.setClass(mContext, MyGroupActivity.class);
+                                intent.putExtra("user_infos",UserInfo.collectionToJson(mUserInfos));
+                                mContext.startActivity(intent);
                                 break;
                             default:
                                 Toast.makeText(mContext, "查看我的详细信息", Toast.LENGTH_SHORT).show();
                                 break;
                         }
                     } else {
-                        JMessageClient.getUserInfo(mUserInfos.get(getAdapterPosition() - 4).
+                        JMessageClient.getUserInfo(mUserInfos.get(getAdapterPosition() - 3).
                                 getUserName(), new GetUserInfoCallback() {
                             @Override
                             public void gotResult(int i, String s, UserInfo userInfo) {

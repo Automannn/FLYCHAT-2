@@ -2,6 +2,7 @@ package com.gameex.dw.justtalk.jiguangIM;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+
 import com.gameex.dw.justtalk.util.LogUtil;
 
 import java.util.ArrayList;
@@ -11,7 +12,10 @@ import java.util.Map;
 
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 
 public class JGApplication extends Application {
     private static final String TAG = "JGAPPLICATION";
@@ -46,5 +50,25 @@ public class JGApplication extends Application {
         JPushInterface.init(getApplicationContext());
         JMessageClient.registerEventReceiver(
                 new GlobalEventListener(getApplicationContext()));
+
+//        upateUser();
+    }
+
+    private void upateUser() {
+        JMessageClient.getUserInfo("13404081072", new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo userInfo) {
+                if (i == 0) {
+                    userInfo.setUserExtras("index", "#");
+                    JMessageClient.updateMyInfo(UserInfo.Field.extras, userInfo, new BasicCallback() {
+                        @Override
+                        public void gotResult(int i, String s) {
+                            LogUtil.d(TAG, "updateUser: " + "responseCode = " + i
+                                    + " ;desc = " + s);
+                        }
+                    });
+                }
+            }
+        });
     }
 }

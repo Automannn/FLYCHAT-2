@@ -9,15 +9,55 @@
     android:orientation="vertical"
     tools:context=".groupInfo.GroupInfoActivity">
 
-    <com.gameex.dw.justtalk.titleBar.TitleBarView
-        android:id="@+id/title_bar_group_info"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_54"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="@dimen/dp_60"
+        android:background="@color/colorPrimary"
+        android:paddingBottom="@dimen/dp_4">
 
-    </com.gameex.dw.justtalk.titleBar.TitleBarView>
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:background="@drawable/light_gray_rip_out"
+            android:padding="@dimen/dp_8"
+            android:src="@drawable/left_arrow"
+            tools:ignore="ContentDescription"/>
 
-    <ScrollView
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:layout_toEndOf="@id/back"
+            android:layout_toRightOf="@id/back"
+            android:gravity="center"
+            android:text="@string/group_name"
+            android:textColor="@color/colorMineBack"
+            android:textSize="@dimen/sp_15"
+            tools:ignore="RelativeOverlap"/>
+
+        <ImageView
+            android:id="@+id/more"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:padding="@dimen/dp_8"
+            android:background="@drawable/light_gray_rip_out"
+            android:src="@drawable/more"
+            tools:ignore="ContentDescription"/>
+    </RelativeLayout>
+
+    <android.support.v4.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorMineBack"
@@ -74,12 +114,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_20"
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/change_icon_str"
-                android:clickable="true"
-                android:focusable="true"
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"/>
 
@@ -176,12 +216,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_20"
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/group_notice_str"
-                android:clickable="true"
-                android:focusable="true"
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"
                 tools:ignore="RelativeOverlap"/>
@@ -197,12 +237,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_20"
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/group_manage_str"
-                android:clickable="true"
-                android:focusable="true"
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"
                 tools:ignore="RelativeOverlap"/>
@@ -249,12 +289,12 @@
                 android:layout_height="?heightI"
                 android:layout_marginTop="@dimen/dp_20"
                 android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_20"
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/money_gift_long_time_no_see_str"
-                android:clickable="true"
-                android:focusable="true"
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"
                 tools:ignore="RelativeOverlap"/>
@@ -270,12 +310,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_20"
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/group_chat_record_str"
-                android:clickable="true"
-                android:focusable="true"
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"
                 tools:ignore="RelativeOverlap"/>
@@ -291,12 +331,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
                 android:gravity="center_vertical"
                 android:paddingLeft="@dimen/dp_20"
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/group_chat_file_str"
-                android:clickable="true"
-                android:focusable="true"
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"
                 tools:ignore="RelativeOverlap"/>
@@ -343,8 +383,8 @@
                     android:layout_centerVertical="true"
                     android:layout_marginStart="@dimen/dp_20"
                     android:layout_marginLeft="@dimen/dp_20"
-                    tools:ignore="ContentDescription"
-                    android:src="@drawable/add_group_member"/>
+                    android:src="@drawable/add_group_member"
+                    tools:ignore="ContentDescription"/>
 
                 <TextView
                     android:id="@+id/invite_group_member"
@@ -377,6 +417,6 @@
 
         </LinearLayout>
 
-    </ScrollView>
+    </android.support.v4.widget.NestedScrollView>
 
 </LinearLayout>

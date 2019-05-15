@@ -9,20 +9,60 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_100"
+        android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
         android:orientation="vertical"
         app:layout_constraintTop_toTopOf="parent">
 
-        <com.gameex.dw.justtalk.titleBar.TitleBarView
-            android:id="@+id/title_bar"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_54"/>
+            android:layout_height="@dimen/dp_54">
+
+            <ImageView
+                android:id="@+id/back"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/dp_5"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:background="@drawable/light_gray_rip_out"
+                android:padding="@dimen/dp_8"
+                android:src="@drawable/left_arrow"
+                tools:ignore="ContentDescription"/>
+
+            <TextView
+                android:id="@+id/group_name_member_num"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dp_40"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/dp_5"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:layout_toEndOf="@id/back"
+                android:layout_toRightOf="@id/back"
+                android:gravity="center"
+                android:text="@string/group_name"
+                android:textColor="@color/colorMineBack"
+                android:textSize="@dimen/sp_15"
+                tools:ignore="RelativeOverlap"/>
+
+            <ImageView
+                android:id="@+id/group_info"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginEnd="@dimen/dp_10"
+                android:layout_marginRight="@dimen/dp_10"
+                android:background="@drawable/light_gray_rip_out"
+                android:src="@drawable/icon_group"
+                tools:ignore="ContentDescription"/>
+        </RelativeLayout>
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/group_member_title_rec"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layoutAnimation="@anim/layout_animation_fall_down"
             android:paddingLeft="@dimen/dp_5"
@@ -34,7 +74,7 @@
         android:id="@+id/group_chat_recycler"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/dp_101"
+        android:layout_marginTop="@dimen/dp_96"
         android:layout_marginBottom="@dimen/dp_57"
         android:background="@color/colorChatBack"
         android:layoutAnimation="@anim/layout_animation_fall_down"

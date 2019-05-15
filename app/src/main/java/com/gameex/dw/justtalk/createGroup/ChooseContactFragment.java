@@ -13,9 +13,7 @@ import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.gameex.dw.justtalk.ObjPack.User;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.RecScrollHelper;
 import com.gameex.dw.justtalk.publicInterface.FragmentCallBack;
@@ -163,10 +161,10 @@ public class ChooseContactFragment extends Fragment {
         });
 
         DefaultItemAnimator animator = new DefaultItemAnimator();
-        animator.setAddDuration(500);
-        animator.setChangeDuration(500);
-        animator.setMoveDuration(500);
-        animator.setRemoveDuration(500);
+        animator.setAddDuration(300);
+        animator.setChangeDuration(300);
+        animator.setMoveDuration(300);
+        animator.setRemoveDuration(300);
         mRecyclerView.setItemAnimator(animator);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(sActivity));
         mAdapter = new ChooseContactAdapter(sActivity, mUserInfos);

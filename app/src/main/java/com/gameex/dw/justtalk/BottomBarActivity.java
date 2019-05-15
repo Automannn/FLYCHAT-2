@@ -122,7 +122,7 @@ public class BottomBarActivity extends BaseActivity
                 navigation.setVisibility(View.VISIBLE);
                 mTitleBarView.setLayoutParams(new ConstraintLayout.LayoutParams(
                         ConstraintLayout.LayoutParams.MATCH_PARENT,
-                        DataUtil.dpToPx(sBottomBarActivity, 60)));
+                        DataUtil.dpToPx(sBottomBarActivity, 74)));
             }
         });
         mTitleBarView.setQueryListen(new OnSearchQueryListen() {
@@ -148,7 +148,7 @@ public class BottomBarActivity extends BaseActivity
         viewPager.addOnPageChangeListener(mPageChangeListener);
         navigation.setSelectedItemId(R.id.navigation_home);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
-        viewPager.setOffscreenPageLimit(1);
+        viewPager.setOffscreenPageLimit(2);
     }
 
     /**
@@ -343,7 +343,8 @@ public class BottomBarActivity extends BaseActivity
         navigation.setVisibility(View.GONE);
         mTitleBarView.setSearchViewShow(true);
         mTitleBarView.setLayoutParams(new ConstraintLayout.LayoutParams(
-                ConstraintLayout.LayoutParams.MATCH_PARENT, ConstraintLayout.LayoutParams.MATCH_PARENT));
+                ConstraintLayout.LayoutParams.MATCH_PARENT
+                , ConstraintLayout.LayoutParams.MATCH_PARENT));
     }
 
     /**

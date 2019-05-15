@@ -17,7 +17,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -145,12 +147,28 @@ public class DoneCreateFragment extends Fragment implements View.OnClickListener
                 }
             }
         });
+        mName.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                mCallBack.sendGroupName(mName.getText().toString());
+            }
+        });
         mNum.setText(mUserInfos == null ? "0个群成员" : mUserInfos.size() + "个群成员");
         DefaultItemAnimator animator = new DefaultItemAnimator();
-        animator.setAddDuration(500);
-        animator.setChangeDuration(500);
-        animator.setMoveDuration(500);
-        animator.setRemoveDuration(500);
+        animator.setAddDuration(300);
+        animator.setChangeDuration(300);
+        animator.setMoveDuration(300);
+        animator.setRemoveDuration(300);
         mView.setItemAnimator(animator);
         mView.setLayoutManager(new LinearLayoutManager(sActivity));
         mAdapter = new DoneCreateAdapter(sActivity, mUserInfos);

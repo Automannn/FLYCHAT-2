@@ -27,13 +27,14 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
     public GroupChatAdapter(Context context, List<Msg> list) {
         mContext = context;
         mList = list;
+        currentDate = DataUtil.msFormMMDD(System.currentTimeMillis());
     }
 
     @NonNull
     @Override
     public GroupChatHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
-        LayoutInflater inflater=LayoutInflater.from(mContext);
-        View view=inflater.inflate(R.layout.group_chat_item,viewGroup,false);
+        LayoutInflater inflater = LayoutInflater.from(mContext);
+        View view = inflater.inflate(R.layout.group_chat_item, viewGroup, false);
         return new GroupChatHolder(view);
     }
 

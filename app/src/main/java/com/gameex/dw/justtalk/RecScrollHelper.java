@@ -10,8 +10,8 @@ import android.support.v7.widget.RecyclerView;
  */
 public class RecScrollHelper {
     /**
-     * @param recView
-     * @param position
+     * @param recView  需要被滚动的RecyclerView
+     * @param position 滚动到的位置
      */
     public static void scrollToPosition(RecyclerView recView, int position) {
         RecyclerView.LayoutManager managerRec = recView.getLayoutManager();
@@ -28,7 +28,7 @@ public class RecScrollHelper {
      */
     public static class TopSmoothScroller extends LinearSmoothScroller {
 
-        public TopSmoothScroller(Context context) {
+        TopSmoothScroller(Context context) {
             super(context);
         }
 

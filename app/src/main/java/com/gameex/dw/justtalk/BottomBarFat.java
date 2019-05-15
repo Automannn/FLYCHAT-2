@@ -199,10 +199,10 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
         switch (param) {
             case "0":
                 DefaultItemAnimator animator = new DefaultItemAnimator();
-                animator.setAddDuration(500);
-                animator.setChangeDuration(500);
-                animator.setMoveDuration(500);
-                animator.setRemoveDuration(500);
+                animator.setAddDuration(300);
+                animator.setChangeDuration(300);
+                animator.setMoveDuration(300);
+                animator.setRemoveDuration(300);
                 mRecView = mView.findViewById(R.id.recycler_dash);
                 mRecView.setItemAnimator(animator);
                 mRecView.setLayoutManager(new LinearLayoutManager(BottomBarActivity.sBottomBarActivity));
@@ -219,10 +219,10 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                 break;
             case "1":
                 DefaultItemAnimator animatorContact = new DefaultItemAnimator();
-                animatorContact.setAddDuration(500);
-                animatorContact.setChangeDuration(500);
-                animatorContact.setMoveDuration(500);
-                animatorContact.setRemoveDuration(500);
+                animatorContact.setAddDuration(300);
+                animatorContact.setChangeDuration(300);
+                animatorContact.setMoveDuration(300);
+                animatorContact.setRemoveDuration(300);
                 mContactRec = mView.findViewById(R.id.contact_recycler);
                 mContactRec.setItemAnimator(animatorContact);
                 mContactRec.setLayoutManager(new LinearLayoutManager(BottomBarActivity.sBottomBarActivity));
@@ -557,7 +557,8 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
      * @param isNotify 是否设置不提醒
      */
     private void updateMsgInfo(final Context context, String name, final String date
-            , final String msg, final boolean isNotify, final boolean isSingle, final String groupInfoJson) {
+            , final String msg, final boolean isNotify
+            , final boolean isSingle, final String groupInfoJson) {
         JMessageClient.getUserInfo(name, new GetUserInfoCallback() {
             @Override
             public void gotResult(int i, String s, UserInfo userInfo) {
