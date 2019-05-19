@@ -20,6 +20,18 @@ public class Msg {
      */
     private String content;
     /**
+     * 信息类型
+     */
+    private MsgType msgType;
+
+    public enum MsgType {
+        /**
+         * 红包
+         */
+        RED_PACKAGE
+    }
+
+    /**
      * 类型
      */
     private Type type;
@@ -95,6 +107,14 @@ public class Msg {
         this.type = type;
     }
 
+    public MsgType getMsgType() {
+        return msgType;
+    }
+
+    public void setMsgType(MsgType msgType) {
+        this.msgType = msgType;
+    }
+
     @Override
     public String toString() {
         return "Msg{" +
@@ -102,6 +122,7 @@ public class Msg {
                 ", time='" + time + '\'' +
                 ", uri=" + uri +
                 ", content='" + content + '\'' +
+                ", msgType=" + msgType +
                 ", type=" + type +
                 '}';
     }

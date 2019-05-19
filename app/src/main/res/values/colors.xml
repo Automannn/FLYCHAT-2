@@ -27,5 +27,7 @@
     <color name="colorMineBack">#eeeeee</color>
     <color name="colorMineLine">#efefef</color>
     <color name="colorChatBack">#ececec</color>
+    
+    <color name="colorRedDeep">#D24F45</color>
 
 </resources>

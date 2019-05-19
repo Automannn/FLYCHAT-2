@@ -14,6 +14,7 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+        multiDexEnabled true
 
         ndk {
             abiFilters 'armeabi', 'armeabi-v7a', 'arm64-v8a'
@@ -79,4 +80,6 @@ dependencies {
     implementation 'cn.jiguang.sdk:jpush:3.2.0'
     implementation 'com.belerweb:pinyin4j:2.5.0'
     implementation 'com.readystatesoftware.systembartint:systembartint:1.0.3'
+    implementation 'com.automannn.common:commonUtils:1.0-RELEASE'
+    implementation 'com.android.support:multidex:1.0.3'
 }

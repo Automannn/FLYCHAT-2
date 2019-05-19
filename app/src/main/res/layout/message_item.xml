@@ -81,7 +81,8 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/msg_time"
                 app:srcCompat="@drawable/ic_notifications_off_black_24dp"
-                tools:ignore="ContentDescription"/>
+                tools:ignore="ContentDescription"
+                android:visibility="gone"/>
         </android.support.constraint.ConstraintLayout>
 
     </android.support.v7.widget.CardView>

@@ -1,14 +1,24 @@
 package com.gameex.dw.justtalk.chattingPack;
 
 import android.content.Intent;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.GridView;
+import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.ObjPack.Msg;
@@ -18,12 +28,15 @@ import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.gameex.dw.justtalk.userInfo.UserBasicInfoActivity;
+import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.TextContent;
@@ -35,18 +48,36 @@ import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 
 public class ChattingActivity extends BaseActivity implements View.OnClickListener {
+    private static final String TAG = "ChattingActivity";
 
     private TitleBarView mTitleBar;
     private RecyclerView mRecycler;
     private ChatRecAdapter mRecAdapter;
     private EditText mSendText;
     private CircularImageView mVoiceCircle, mEmojiCircle, mCircleView;
+    private GridView mGridView;
+    private SimpleAdapter mSimpleAdapter;
 
+    private List<Map<String, Object>> mGridList = new ArrayList<>();
+    private int[] icon = {R.drawable.icon_red_package, R.drawable.icon_photo};
+    private String[] iconName = {"红包", "图片"};
     private List<Msg> mMsgs = new ArrayList<>();
     private MsgInfo mMsgInfo;
     private UserInfo mUserInfo;
 
     private Conversation mConversation;
+    /**
+     * 软键盘相关
+     */
+    private InputMethodManager mIMM;
+    /**
+     * 虚拟键高度，若没有/隐藏虚拟键，则为0
+     */
+    private int navigationBarHeight;
+    /**
+     * 软件盘高度，有虚拟键，则为软键盘高度+虚拟键高度
+     */
+    private int heightDifference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +91,9 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
      */
     private void initView() {
         setContentView(R.layout.activity_chatting);
+        mIMM = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        //获得虚拟键高度
+        navigationBarHeight = BarUtil.getNavigationBarHeight(this);
 
         mMsgInfo = getIntent().getParcelableExtra("msg_info");
         mUserInfo = UserInfo.fromJson(mMsgInfo.getUserInfoJson());
@@ -115,11 +149,71 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         mVoiceCircle = findViewById(R.id.voice_msg);
         mVoiceCircle.setOnClickListener(this);
         mSendText = findViewById(R.id.send_edit);
+        mSendText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (TextUtils.isEmpty(editable)) {
+                    mCircleView.setImageResource(R.drawable.more_send);
+                } else {
+                    mCircleView.setImageResource(R.drawable.send);
+                }
+            }
+        });
+        mSendText.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {  //当键盘弹出/隐藏时调用此方法
+                Rect r = new Rect();
+                //获取当前界面可视部分
+                ChattingActivity.this.getWindow()
+                        .getDecorView()
+                        .getWindowVisibleDisplayFrame(r);
+                //获取屏幕的高度
+                int screenHeight = ChattingActivity.this.getWindow()
+                        .getDecorView()
+                        .getRootView()
+                        .getHeight();
+                //此处就是用来获取键盘的高度的， 在键盘没有弹出的时候 此高度为0 键盘弹出的时候为一个正数
+                heightDifference = screenHeight - r.bottom;
+                if (heightDifference > navigationBarHeight) {
+                    if (mGridView.getVisibility() == View.VISIBLE) {
+                        mGridView.setVisibility(View.GONE);
+                        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)
+                                mRecycler.getLayoutParams();
+                        params.bottomMargin = DataUtil.dpToPx(ChattingActivity.this, 57);
+                        mRecycler.setLayoutParams(params);
+                        return;
+                    }
+                }
+                LogUtil.d(TAG, "initView-onGlobalLayout: " + "Size = " + heightDifference);
+            }
+        });
         mEmojiCircle = findViewById(R.id.emoji_circle);
         mEmojiCircle.setOnClickListener(this);
         mCircleView = findViewById(R.id.send_circle);
         mCircleView.setOnClickListener(this);
 
+        mGridView = findViewById(R.id.function_grid);
+        mSimpleAdapter = new SimpleAdapter(this, initGridList()
+                , R.layout.function_item, new String[]{"icon", "icon_name"}
+                , new int[]{R.id.function_img, R.id.function_name});
+        mGridView.setAdapter(mSimpleAdapter);
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view
+                    , int position, long id) {
+                Toast.makeText(ChattingActivity.this, position + ""
+                        , Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -134,7 +228,17 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
             case R.id.send_circle:  //发送文本
                 String content = mSendText.getText().toString();
                 if (content.isEmpty()) {
-                    Toast.makeText(this, "说点什么吧...", Toast.LENGTH_SHORT).show();
+                    if (mIMM != null && heightDifference > navigationBarHeight) {
+                        mIMM.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showFunction();
+                            }
+                        }, 50);
+                    } else {
+                        showFunction();
+                    }
                     return;
                 }
                 sendMsgCollector(content);
@@ -147,6 +251,22 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
             default:
                 break;
         }
+    }
+
+    /**
+     * 展示底部功能栏
+     */
+    private void showFunction() {
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)
+                mRecycler.getLayoutParams();
+        if (mGridView.getVisibility() == View.GONE) {
+            mGridView.setVisibility(View.VISIBLE);
+            params.bottomMargin = DataUtil.dpToPx(this, 207);
+        } else {
+            mGridView.setVisibility(View.GONE);
+            params.bottomMargin = DataUtil.dpToPx(this, 57);
+        }
+        mRecycler.setLayoutParams(params);
     }
 
     /**
@@ -319,10 +439,26 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         mRecAdapter.notifyItemInserted(mMsgs.size() - 1);
     }
 
+    /**
+     * 初始化底部功能栏布局
+     *
+     * @return List<Map                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               <                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               String                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Object>>
+     */
+    private List<Map<String, Object>> initGridList() {
+        for (int i = 0; i < icon.length; i++) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("icon", icon[i]);
+            map.put("icon_name", iconName[i]);
+            mGridList.add(map);
+        }
+        return mGridList;
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
         JMessageClient.exitConversation();
         JMessageClient.unRegisterEventReceiver(this);
     }
+
 }

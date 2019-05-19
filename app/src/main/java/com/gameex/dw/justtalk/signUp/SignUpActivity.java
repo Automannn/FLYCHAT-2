@@ -50,15 +50,15 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
     /**
      * 服务器注册接口
      */
-    private static final String url = "http://117.50.57.86:8060/user/register";
+    private static final String url = "https://wechat.automannn.cn/user/register";
     /**
      * 获取验证码接口
      */
-    private static final String urlSms = "http://117.50.57.86:8060/code/sms";
+    private static final String urlSms = "https://wechat.automannn.cn/code/sms";
     /**
      * 验证码验证接口
      */
-    private static final String urlCheckSms = "http://117.50.57.86:8060/validate/mobile";
+    private static final String urlCheckSms = "https://wechat.automannn.cn/validate/mobile";
 
     private EditText mPhone, mVerifyCode, mPwd;
     private TextView mVerifyCodeText;

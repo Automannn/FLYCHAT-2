@@ -184,7 +184,8 @@ public class BottomBarActivity extends BaseActivity
      * 标题栏弹出框
      */
     private void getTitlePW() {
-        @SuppressLint("InflateParams") View view = this.getLayoutInflater().inflate(R.layout.title_pup_layout, null);
+        @SuppressLint("InflateParams") View view = this.getLayoutInflater().inflate(
+                R.layout.title_pup_layout, null);
         RelativeLayout talkGround, addFriend, SQ, helpBack;
         talkGround = view.findViewById(R.id.talk_ground_layout);
         talkGround.setOnClickListener(this);

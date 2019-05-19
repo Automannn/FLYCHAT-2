@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <LinearLayout
+        android:id="@+id/award_animation_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:layout_marginTop="@dimen/dp_100"
+        android:layout_marginRight="@dimen/dp_30"
+        android:layout_marginBottom="@dimen/dp_100"
+        android:background="@mipmap/group_award_background">
+
+        <ImageView
+            android:id="@+id/close"
+            android:layout_width="@dimen/dp_20"
+            android:layout_height="@dimen/dp_20"
+            android:layout_margin="@dimen/dp_15"
+            android:background="@drawable/light_gray_rip_out"
+            android:clickable="true"
+            android:focusable="true"
+            android:layout_gravity="start"
+            android:src="@mipmap/close_award"
+            tools:ignore="ContentDescription"/>
+
+        <com.github.siyamed.shapeimageview.CircularImageView
+            android:id="@+id/group_award_logo"
+            android:layout_width="@dimen/dp_80"
+            android:layout_height="@dimen/dp_80"
+            android:layout_marginTop="@dimen/dp_30"
+            android:src="@drawable/icon_user"
+            app:siBorderColor="@color/colorRedDeep"/>
+
+        <TextView
+            android:id="@+id/group_award_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="红包"
+            android:textColor="@color/colorLightGray"
+            android:textSize="24sp"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:id="@+id/group_award_object"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="55555"
+            android:textColor="@color/colorLightGray"
+            android:textSize="30sp"/>
+
+        <!--android:background="@drawable/open_group_award_anima"-->
+        <ImageView
+            android:id="@+id/open"
+            android:layout_width="@dimen/dp_90"
+            android:layout_height="@dimen/dp_90"
+            android:background="@drawable/light_gray_rip_out"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@mipmap/open_group_award_icon"
+            tools:ignore="ContentDescription"/>
+    </LinearLayout>
+
+</RelativeLayout>

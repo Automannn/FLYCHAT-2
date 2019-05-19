@@ -2,6 +2,7 @@ package com.gameex.dw.justtalk.jiguangIM;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.gameex.dw.justtalk.util.LogUtil;
 
@@ -17,7 +18,7 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 
-public class JGApplication extends Application {
+public class JGApplication extends MultiDexApplication {
     private static final String TAG = "JGAPPLICATION";
     /**
      * 极光AppKey

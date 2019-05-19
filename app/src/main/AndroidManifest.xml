@@ -46,6 +46,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".redPackage.RedDetailActivity">
+        </activity>
+        <activity android:name=".redPackage.SetYuanActivity">
+        </activity>
         <activity android:name=".myGroups.MyGroupActivity">
         </activity>
         <activity android:name=".groupInfo.GroupInfoActivity">

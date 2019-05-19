@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    tools:context=".redPackage.SetYuanActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_74"
+        android:background="@color/colorRedDeep"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        android:paddingBottom="@dimen/dp_5">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/dp_36"
+            android:layout_height="@dimen/dp_36"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:background="@drawable/light_gray_rip_out"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="@dimen/dp_8"
+            android:src="@drawable/left_arrow"
+            tools:ignore="ContentDescription"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_36"
+            android:layout_marginStart="@dimen/dp_12"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:gravity="center"
+            android:text="@string/red_package_str"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_21"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:id="@+id/who_get_layout"
+        android:layout_width="match_parent"
+        android:layout_height="?heightI"
+        android:layout_marginTop="@dimen/dp_20"
+        android:background="@drawable/light_gray_white_rip"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dp_2"
+                android:text="@string/who_can_get"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"/>
+
+            <TextView
+                android:id="@+id/group_member_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/group_member_count_str"
+                android:textColor="@color/colorLightGray"
+                android:textSize="?smallSuperFont"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/who_get"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_8"
+            android:layout_marginRight="@dimen/dp_8"
+            android:layout_toStartOf="@id/next_step"
+            android:layout_toLeftOf="@id/next_step"
+            android:text="@string/anybody_str"
+            android:textColor="@color/colorLightGray"
+            android:textSize="?smallFont"
+            tools:ignore="RelativeOverlap"/>
+
+        <ImageView
+            android:id="@+id/next_step"
+            android:layout_width="?widthG"
+            android:layout_height="?heightJ"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            app:srcCompat="@drawable/icon_right_arrow"
+            tools:ignore="ContentDescription"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?heightD"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10">
+
+        <TextView
+            android:id="@+id/yuan_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/yuan_count_str"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="?smallFont"/>
+
+        <ImageView
+            android:id="@+id/ping"
+            android:layout_width="?widthG"
+            android:layout_height="?heightJ"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:layout_toEndOf="@id/yuan_count"
+            android:layout_toRightOf="@id/yuan_count"
+            android:src="@drawable/ping"
+            tools:ignore="ContentDescription"/>
+
+        <EditText
+            android:id="@+id/yuan_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_8"
+            android:layout_marginRight="@dimen/dp_8"
+            android:layout_toStartOf="@id/yuan"
+            android:layout_toLeftOf="@id/yuan"
+            android:background="@null"
+            android:gravity="end"
+            android:hint="@string/edit_yuan_str"
+            android:inputType="text"
+            android:textColor="@color/colorMineThemeText"
+            android:textColorHint="@color/colorLightGray"
+            android:textCursorDrawable="@drawable/light_gray_cursor"
+            android:textSize="?smallFont"
+            tools:ignore="Autofill,LabelFor,RelativeOverlap"/>
+
+        <TextView
+            android:id="@+id/yuan"
+            android:layout_width="?widthG"
+            android:layout_height="?heightJ"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="@string/yuan_str"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="?smallFont"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?heightD"
+        android:layout_marginTop="@dimen/dp_10"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/dp_2"
+                android:text="@string/red_package_num_str"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/now_package_kind"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/now_red_package_kind_str"
+                    android:textColor="@color/colorLightGray"
+                    android:textSize="?smallSuperFont"/>
+
+                <TextView
+                    android:id="@+id/change_to_kind"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/light_gray_rip_out"
+                    android:text="@string/change_to_package_str"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="?smallSuperFont"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <EditText
+            android:id="@+id/edit_red_package_num"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_8"
+            android:layout_marginRight="@dimen/dp_8"
+            android:layout_toStartOf="@id/num"
+            android:layout_toLeftOf="@id/num"
+            android:background="@null"
+            android:gravity="end"
+            android:hint="@string/edit_package_num_str"
+            android:inputType="number"
+            android:textColor="@color/colorMineThemeText"
+            android:textColorHint="@color/colorLightGray"
+            android:textCursorDrawable="@drawable/light_gray_cursor"
+            android:textSize="?smallFont"
+            tools:ignore="Autofill,LabelFor,RelativeOverlap"/>
+
+        <TextView
+            android:id="@+id/num"
+            android:layout_width="?widthG"
+            android:layout_height="?heightJ"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="@string/num_str"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="?smallFont"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="?heightD"
+        android:layout_marginTop="@dimen/dp_10"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10">
+
+        <EditText
+            android:id="@+id/red_package_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:background="@null"
+            android:hint="@string/red_package_message_str"
+            android:inputType="textMultiLine"
+            android:maxWidth="@dimen/dp_200"
+            android:textColor="@color/colorMineThemeText"
+            android:textCursorDrawable="@drawable/light_gray_cursor"
+            android:textSize="?smallFont"
+            tools:ignore="Autofill,RelativeOverlap"/>
+
+        <ImageView
+            android:id="@+id/update_message"
+            android:layout_width="?widthG"
+            android:layout_height="?heightJ"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:src="@drawable/update"
+            tools:ignore="ContentDescription"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:background="@color/colorLightGray"/>
+
+    <TextView
+        android:id="@+id/money"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="@dimen/dp_20"
+        android:paddingBottom="@dimen/dp_20"
+        android:text="@string/money_count_str"
+        android:textColor="@color/colorMineThemeText"
+        android:textSize="@dimen/sp_38"/>
+
+    <Button
+        android:id="@+id/send_red_package"
+        android:layout_width="@dimen/dp_340"
+        android:layout_height="@dimen/dp_44"
+        android:layout_gravity="center_horizontal"
+        android:alpha="0.5"
+        android:background="@drawable/red_deep_bg"
+        android:enabled="false"
+        android:text="@string/send_red_package_str"
+        android:textColor="@color/colorWhite"
+        android:textSize="@dimen/sp_20"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="1"
+        android:gravity="bottom"
+        android:text="@string/red_package_back_ps_str"
+        android:textColor="@color/colorLightGray"
+        android:textSize="?smallSuperFont"/>
+
+</LinearLayout>

@@ -28,8 +28,10 @@ import com.gameex.dw.justtalk.dataStream.GetUserService;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.signUp.SignUpActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
+import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import org.json.JSONArray;
@@ -53,7 +55,7 @@ import okhttp3.Response;
  */
 public class LoginActivity extends BaseActivity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener {
     private static final String TAG = "LoginActivity";
-    public static final String LOGIN_URL = "http://117.50.57.86:8060/user/login";
+    public static final String LOGIN_PATH = "user/login";
     private static final int SIGN_UP_REQUEST_CODE = 201;
 
     private SharedPreferences pref;
@@ -186,98 +188,149 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 prosDialog.show();
                 final String account = mUsername.getText().toString();
                 final String password = mPassword.getText().toString();
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        MediaType JSON = MediaType.parse("application/json;charset=utf-8");
-                        JSONObject json = new JSONObject();
-                        try {
-                            if (DataUtil.isMobileNumber(account)) {
-                                json.put("phoneNumber", account);
-                            } else {
-                                json.put("username", account);
-                            }
-                            json.put("password", password);
-                            OkHttpClient client = new OkHttpClient();
-                            RequestBody requestBody = RequestBody.create(JSON, String.valueOf(json));
-                            Request request = new Request.Builder()
-                                    .url(LOGIN_URL)
-                                    .post(requestBody)
-                                    .build();
-                            Response response = client.newCall(request).execute();
-                            if (response.isSuccessful()) {
-                                assert response.body() != null;
-                                String string = response.body().string();
-                                LogUtil.d("RESPONSE_STRING", string);
-                                JSONObject jsonObject = new JSONObject(string);
-                                boolean isSuccess = jsonObject.getBoolean("success");
-                                if (isSuccess) {
-                                    prosDialog.dismiss();
-                                    editor = pref.edit();
-                                    if (mAutoLogin.isChecked()) {
-                                        editor.putBoolean("remember_password", true);
-                                        editor.putString("account", account);
-                                        editor.putString("password", password);
-                                    } else {
-                                        editor.clear();
-                                    }
-                                    editor.apply();
-                                    JMessageClient.login(account, password, new BasicCallback() {
-                                        @Override
-                                        public void gotResult(int responseCode, String registerDesc) {
-                                            LogUtil.i("LOGIN_ACTIVITY_JMESSAGE_LOGIN",
-                                                    "JMessageClient.login " +
-                                                            ", responseCode = " + responseCode +
-                                                            " ; registerDesc = " + registerDesc);
-                                        }
-                                    });
-                                    Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
-                                    finish();
-                                    startActivity(intentLogin);
-                                } else {
-                                    prosDialog.dismiss();
-                                    JSONObject object = jsonObject.getJSONObject("data");
-                                    int code = object.getInt("code");
-                                    String message = object.getString("message");
-                                    if (code == 403) {
-                                        Looper.prepare();
-                                        YoYo.with(Techniques.Shake)
-                                                .duration(700)
-                                                .playOn(findViewById(R.id.username_layout));
-                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
-                                        Looper.loop();
-                                    } else if (code == 404) {
-                                        Looper.prepare();
-                                        YoYo.with(Techniques.Shake)
-                                                .duration(700)
-                                                .playOn(findViewById(R.id.password_layout));
-                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
-                                        Looper.loop();
-                                    } else {
-                                        Looper.prepare();
-                                        Toast.makeText(LoginActivity.this, "请完善登陆信息", Toast.LENGTH_SHORT).show();
-                                        Looper.loop();
-                                    }
-                                }
-                            } else {
-                                prosDialog.dismiss();
-                                LogUtil.d("RESPONSE_BODY", "null");
-                            }
-                        } catch (IOException e) {
-                            prosDialog.dismiss();
-                            e.printStackTrace();
-                            Looper.prepare();
-                            Toast.makeText(LoginActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
-                            Looper.loop();
-                        } catch (JSONException e) {
-                            prosDialog.dismiss();
-                            e.printStackTrace();
-                            Looper.prepare();
-                            Toast.makeText(LoginActivity.this, "数据异常", Toast.LENGTH_SHORT).show();
-                            Looper.loop();
-                        }
+                JSONObject json = new JSONObject();
+                try {
+                    if (DataUtil.isMobileNumber(account)) {
+                        json.put("phoneNumber", account);
+                    } else {
+                        json.put("username", account);
                     }
-                }).start();
+                    json.put("password", password);
+                    OkHttpUtil.okHttpPostJson(LOGIN_PATH, json.toString(), null, new CallBackUtil.CallBackString() {
+                        @Override
+                        public void onFailure(Call call, Exception e) {
+                            prosDialog.dismiss();
+                            LogUtil.d(TAG, "checkToLogin-CallBackUtil-onFailure: " + "null");
+                        }
+
+                        @Override
+                        public void onResponse(String response) {
+                            if (response != null) {
+                                LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
+                                        + "response" + response);
+                                try {
+                                    JSONObject jsonObject = new JSONObject(response);
+                                    boolean isSuccess = jsonObject.getBoolean("success");
+                                    if (isSuccess) {
+                                        prosDialog.dismiss();
+                                        editor = pref.edit();
+                                        if (mAutoLogin.isChecked()) {
+                                            editor.putBoolean("remember_password", true);
+                                            editor.putString("account", account);
+                                            editor.putString("password", password);
+                                        } else {
+                                            editor.clear();
+                                        }
+                                        editor.apply();
+                                        JMessageClient.login(account, password, new BasicCallback() {
+                                            @Override
+                                            public void gotResult(int responseCode, String registerDesc) {
+                                                LogUtil.i("LOGIN_ACTIVITY_JMESSAGE_LOGIN",
+                                                        "JMessageClient.login " +
+                                                                ", responseCode = " + responseCode +
+                                                                " ; registerDesc = " + registerDesc);
+                                            }
+                                        });
+                                        Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
+                                        finish();
+                                        startActivity(intentLogin);
+                                    } else {
+                                        prosDialog.dismiss();
+                                        JSONObject object = jsonObject.getJSONObject("data");
+                                        int code = object.getInt("code");
+                                        String message = object.getString("message");
+                                        if (code == 403) {
+                                            YoYo.with(Techniques.Shake)
+                                                    .duration(700)
+                                                    .playOn(findViewById(R.id.username_layout));
+                                            Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+                                        } else if (code == 404) {
+                                            YoYo.with(Techniques.Shake)
+                                                    .duration(700)
+                                                    .playOn(findViewById(R.id.password_layout));
+                                            Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            Toast.makeText(LoginActivity.this, "请完善登陆信息", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
+//                            OkHttpClient client = new OkHttpClient();
+//                            RequestBody requestBody = RequestBody.create(JSON, String.valueOf(json));
+//                            Request request = new Request.Builder()
+//                                    .url(LOGIN_URL)
+//                                    .post(requestBody)
+//                                    .build();
+//                            Response response = client.newCall(request).execute();
+//                            if (response.isSuccessful()) {
+//                                assert response.body() != null;
+//                                String string = response.body().string();
+//                                LogUtil.d("RESPONSE_STRING", string);
+//                                JSONObject jsonObject = new JSONObject(string);
+//                                boolean isSuccess = jsonObject.getBoolean("success");
+//                                if (isSuccess) {
+//                                    prosDialog.dismiss();
+//                                    editor = pref.edit();
+//                                    if (mAutoLogin.isChecked()) {
+//                                        editor.putBoolean("remember_password", true);
+//                                        editor.putString("account", account);
+//                                        editor.putString("password", password);
+//                                    } else {
+//                                        editor.clear();
+//                                    }
+//                                    editor.apply();
+//                                    JMessageClient.login(account, password, new BasicCallback() {
+//                                        @Override
+//                                        public void gotResult(int responseCode, String registerDesc) {
+//                                            LogUtil.i("LOGIN_ACTIVITY_JMESSAGE_LOGIN",
+//                                                    "JMessageClient.login " +
+//                                                            ", responseCode = " + responseCode +
+//                                                            " ; registerDesc = " + registerDesc);
+//                                        }
+//                                    });
+//                                    Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
+//                                    finish();
+//                                    startActivity(intentLogin);
+//                                } else {
+//                                    prosDialog.dismiss();
+//                                    JSONObject object = jsonObject.getJSONObject("data");
+//                                    int code = object.getInt("code");
+//                                    String message = object.getString("message");
+//                                    if (code == 403) {
+//                                        Looper.prepare();
+//                                        YoYo.with(Techniques.Shake)
+//                                                .duration(700)
+//                                                .playOn(findViewById(R.id.username_layout));
+//                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+//                                        Looper.loop();
+//                                    } else if (code == 404) {
+//                                        Looper.prepare();
+//                                        YoYo.with(Techniques.Shake)
+//                                                .duration(700)
+//                                                .playOn(findViewById(R.id.password_layout));
+//                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+//                                        Looper.loop();
+//                                    } else {
+//                                        Looper.prepare();
+//                                        Toast.makeText(LoginActivity.this, "请完善登陆信息", Toast.LENGTH_SHORT).show();
+//                                        Looper.loop();
+//                                    }
+//                                }
+//                            } else {
+//                                prosDialog.dismiss();
+//                                LogUtil.d("RESPONSE_BODY", "null");
+//                            }
+                } catch (JSONException e) {
+                    prosDialog.dismiss();
+                    e.printStackTrace();
+                    Looper.prepare();
+                    Toast.makeText(LoginActivity.this, "数据异常", Toast.LENGTH_SHORT).show();
+                    Looper.loop();
+                }
             } else {
                 if (flag == 1) {
                     YoYo.with(Techniques.Shake)

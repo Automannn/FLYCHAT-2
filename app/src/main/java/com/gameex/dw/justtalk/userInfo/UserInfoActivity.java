@@ -36,6 +36,7 @@ import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.io.File;
@@ -164,7 +165,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             case R.id.fly_code_info_layout:
                 if (mEditPup != null) {
                     mEditPup.showAtLocation(mLinearLayout, Gravity.CENTER, 0, 0);
-                    showBackgroundAnimator(0.5f);
+                    WindowUtil.showBackgroundAnimator(sUserInfoActivity,0.5f);
                 }
                 break;
             case R.id.fly_sign_info_layout:
@@ -318,7 +319,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         mEditPup.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                setWindowBackgroundAlpha(1f);
+                WindowUtil.setWindowBackgroundAlpha(sUserInfoActivity,1f);
             }
         });
         mEditPup.setAnimationStyle(R.style.pop_anim);
@@ -335,35 +336,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         windowManager.getDefaultDisplay().getMetrics(metrics);
         ints[0] = metrics.widthPixels;
         ints[1] = metrics.heightPixels;
-    }
-
-    /**
-     * 控制窗口背景的不透明度
-     */
-    private void setWindowBackgroundAlpha(float alpha) {
-        Window window = this.getWindow();
-        WindowManager.LayoutParams layoutParams = window.getAttributes();
-        layoutParams.alpha = alpha;
-        window.setAttributes(layoutParams);
-    }
-
-    /**
-     * 窗口显示，窗口背景透明度渐变动画
-     */
-    private void showBackgroundAnimator(float mAlpha) {
-        if (mAlpha >= 1f) {
-            return;
-        }
-        final ValueAnimator animator = ValueAnimator.ofFloat(1.0f, mAlpha);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float alpha = (float) animator.getAnimatedValue();
-                setWindowBackgroundAlpha(alpha);
-            }
-        });
-        animator.setDuration(500);
-        animator.start();
     }
 
     @Override

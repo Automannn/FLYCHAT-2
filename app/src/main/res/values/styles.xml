@@ -223,6 +223,11 @@
         <item name="android:windowEnterAnimation">@anim/popup_title_in</item>
         <item name="android:windowExitAnimation">@anim/popup_title_out</item>
     </style>
+    <!-- 红包弹窗 -->
+    <style name="translate_scale_alpha_style" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/translate_scale_alpha_in</item>
+        <item name="android:windowExitAnimation">@anim/translate_scale_alpha_out</item>
+    </style>
 
     <!-- Checkbox style -->
     <style name="rem_checkbox" parent="@android:style/Widget.Material.CompoundButton.CheckBox" tools:targetApi="lollipop">

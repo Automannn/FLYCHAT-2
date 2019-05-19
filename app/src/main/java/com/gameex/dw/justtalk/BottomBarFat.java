@@ -37,6 +37,7 @@ import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.ObjPack.Contact;
 import com.gameex.dw.justtalk.ObjPack.MsgInfo;
 import com.gameex.dw.justtalk.publicInterface.FragmentCallBack;
+import com.gameex.dw.justtalk.publicInterface.RecyclerItemClick;
 import com.gameex.dw.justtalk.userInfo.SettingActivity;
 import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
@@ -262,9 +263,12 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                     @Override
                     public void onSelectIndexItem(String index) {
                         for (int i = 0; i < mContacts.size(); i++) {
-                            if (mContacts.get(i).getExtra("index").equals(index)) {
-                                RecScrollHelper.scrollToPosition(mContactRec, i);
-                                return;
+                            String indexContact=mContacts.get(i).getExtra("index");
+                            if (indexContact!=null){
+                                if (indexContact.equals(index)) {
+                                    RecScrollHelper.scrollToPosition(mContactRec, i);
+                                    return;
+                                }
                             }
                         }
                     }

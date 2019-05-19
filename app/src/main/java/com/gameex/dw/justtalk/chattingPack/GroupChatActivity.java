@@ -2,18 +2,27 @@ package com.gameex.dw.justtalk.chattingPack;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.media.Image;
+import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewTreeObserver;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -21,16 +30,19 @@ import com.gameex.dw.justtalk.ObjPack.Msg;
 import com.gameex.dw.justtalk.ObjPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.groupInfo.GroupInfoActivity;
-import com.gameex.dw.justtalk.titleBar.OnViewClick;
-import com.gameex.dw.justtalk.titleBar.TitleBarView;
+import com.gameex.dw.justtalk.redPackage.SetYuanActivity;
+import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.MessageEvent;
@@ -43,21 +55,73 @@ import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 
 public class GroupChatActivity extends AppCompatActivity implements View.OnClickListener {
-
+    public static GroupChatActivity sActivity;
+    private static final String TAG = "GroupChatActivity";
+    /**
+     * 群内红包
+     */
+    private static final int REQUEST_GROUP_RED_PACKAGE = 101;
+    /**
+     * 返回箭头
+     */
     private ImageView mBack;
+    /**
+     * 群名称和群成员数
+     */
     private TextView mNameNum;
+    /**
+     * 群信息入口
+     */
     private ImageView mGroup;
+    /**
+     * 群成员头像展示RecyclerView
+     */
     private RecyclerView mRecyclerView;
+    /**
+     * 群成员头像展示适配器
+     */
     private GroupMemberAdapter mMemberAdapter;
+    /**
+     * 群消息RecyclerView
+     */
     private RecyclerView mMsgRecycler;
+    /**
+     * 群消息适配器
+     */
     private GroupChatAdapter mChatAdapter;
+    /**
+     * 发送语音按钮
+     */
     private CircularImageView voiceImg;
+    /**
+     * 编辑框
+     */
     private EditText mEdit;
+    /**
+     * 发送表情按钮
+     */
     private CircularImageView mEmoji;
+    /**
+     * 发送及跟多功能按钮
+     */
     private CircularImageView mSend;
-
+    /**
+     * 底部功能栏
+     */
+    private GridView mGridView;
+    /**
+     * 底部功能栏适配器
+     */
+    private SimpleAdapter mSimpleAdapter;
+    /**
+     * 群成员头像Uri
+     */
     private List<Uri> mUris = new ArrayList<>();
+    /**
+     * 初始化消息列表
+     */
     private List<Msg> mMsgs = new ArrayList<>();
+
     private MsgInfo mMsgInfo;
     /**
      * 群头像
@@ -72,10 +136,31 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      */
     private GroupInfo mGroupInfo;
     private Conversation mConversation;
+    /**
+     * 底部功能栏数据
+     */
+    private List<Map<String, Object>> mGridList = new ArrayList<>();
+    private int[] icon = {R.drawable.icon_red_package, R.drawable.icon_photo};
+    private String[] iconName = {"红包", "图片"};
+
+    /**
+     * 软键盘相关
+     */
+    private InputMethodManager mIMM;
+    /**
+     * 虚拟键高度，若没有/隐藏虚拟键，则为0
+     */
+    private int navigationBarHeight;
+    /**
+     * 软件盘高度，有虚拟键，则为软键盘高度+虚拟键高度
+     */
+    private int heightDifference;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sActivity = this;
         initView();
         initData();
     }
@@ -107,18 +192,21 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      */
     @SuppressLint("SetTextI18n")
     private void initData() {
+        mIMM = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        //获得虚拟键高度
+        navigationBarHeight = BarUtil.getNavigationBarHeight(this);
+
         JMessageClient.registerEventReceiver(this);
         mGroupId = getIntent().getLongExtra("group_id", -1);
         mConversation = JMessageClient.getGroupConversation(mGroupId);
 
         mMsgInfo = getIntent().getParcelableExtra("msg_info");
         mGroupInfo = GroupInfo.fromJson(mMsgInfo.getGroupInfoJson());
-//        mUris = getUris();
 
         mGroupIcon = getIntent().getParcelableExtra("group_icon");
 
-//        mNameNum.setText(getIntent().getStringExtra("group_name")
-//                + "（" + mUris.size() + "）");
+        mBack.setOnClickListener(this);
+
         mGroup.setOnClickListener(this);
 
         DefaultItemAnimator animator = new DefaultItemAnimator();
@@ -151,18 +239,75 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         });
 
         voiceImg.setOnClickListener(this);
-        mEdit.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        mEdit.addTextChangedListener(new TextWatcher() {
             @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    //当把编辑框聚焦时，改变右下角图片为发送
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                LogUtil.d(TAG, "initData-beforeTextChange: " + "char = " + charSequence
+                        + " ;i = " + i + " ;i1 = " + i1 + " ;i2 = " + i2);
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                LogUtil.d(TAG, "initData-onTextChanged: " + "char = " + charSequence
+                        + " ;i = " + i + " ;i1 = " + i1 + " ;i2 = " + i2);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                LogUtil.d(TAG, "initData-afterTextChanged: " + "editable = " + editable);
+                if (TextUtils.isEmpty(editable)) {
+                    mSend.setImageResource(R.drawable.more_send);
                 } else {
-                    //当把编辑框聚焦时，改变右下角图片为更多
+                    mSend.setImageResource(R.drawable.send);
                 }
+            }
+        });
+        mEdit.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {  //当键盘弹出/隐藏时调用此方法
+                Rect r = new Rect();
+                //获取当前界面可视部分
+                GroupChatActivity.this.getWindow()
+                        .getDecorView()
+                        .getWindowVisibleDisplayFrame(r);
+                //获取屏幕的高度
+                int screenHeight = GroupChatActivity.this.getWindow()
+                        .getDecorView()
+                        .getRootView()
+                        .getHeight();
+                //此处就是用来获取键盘的高度的， 在键盘没有弹出的时候 此高度为0 键盘弹出的时候为一个正数
+                heightDifference = screenHeight - r.bottom;
+                if (heightDifference > navigationBarHeight) {
+                    mGridView.setVisibility(View.GONE);
+                    ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)
+                            mMsgRecycler.getLayoutParams();
+                    params.bottomMargin = DataUtil.dpToPx(GroupChatActivity.this, 57);
+                    mMsgRecycler.setLayoutParams(params);
+                    return;
+                }
+                LogUtil.d(TAG, "initView-onGlobalLayout: " + "Size = " + heightDifference);
             }
         });
         mEmoji.setOnClickListener(this);
         mSend.setOnClickListener(this);
+
+        mGridView = findViewById(R.id.function_grid);
+        mSimpleAdapter = new SimpleAdapter(this, initGridList()
+                , R.layout.function_item, new String[]{"icon", "icon_name"}
+                , new int[]{R.id.function_img, R.id.function_name});
+        mGridView.setAdapter(mSimpleAdapter);
+        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+                if (position == 0) {
+                    Intent intent = new Intent(GroupChatActivity.this
+                            , SetYuanActivity.class);
+                    intent.putExtra("group_info", mGroupInfo.toJson());
+                    startActivityForResult(intent, REQUEST_GROUP_RED_PACKAGE);
+                }
+                LogUtil.d(TAG, "initData-onItemClick: " + "position = " + position);
+            }
+        });
     }
 
     /**
@@ -194,29 +339,42 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
             String time = DataUtil.msFormHHmmTime(milliSecond);
             Uri uri = TextUtils.isEmpty(userInfo.getExtra("icon_uri")) ? DataUtil.resourceIdToUri(getPackageName()
                     , R.drawable.icon_user) : Uri.parse(userInfo.getExtra("icon_uri"));
-            switch (message.getContentType()) {
-                case text:  //处理文字信息
-                    TextContent textContent = (TextContent) message.getContent();
-                    String content = textContent.getText();
-                    LogUtil.d("getMessageContent", username + ":" + content);
-                    if (groupInfo.getGroupID() == mGroupId) {
+            if (groupInfo.getGroupID() == mGroupId) {
+                switch (message.getContentType()) {
+                    case text:  //处理文字信息
+                        TextContent textContent = (TextContent) message.getContent();
+                        String content = textContent.getText();
+                        LogUtil.d("getMessageContent", username + ":" + content);
                         updateAdapter(new Msg(date, time, uri, content, Msg.Type.RECEIVED));
-                    } else {
-                        LogUtil.d("TAG", "not this group");
-                    }
-                    break;
-                default:
-                    break;
+                        break;
+                    case custom:
+                        CustomContent customContent = (CustomContent) message.getContent();
+                        String yuan = customContent.getStringValue("yuan");
+                        LogUtil.d(TAG, "onEventMainThread-custom: " + "yuan = " + yuan);
+                        Msg msg = new Msg(date, time, uri, yuan, Msg.Type.RECEIVED);
+                        msg.setMsgType(Msg.MsgType.RED_PACKAGE);
+                        updateAdapter(msg);
+                        break;
+                    default:
+                        break;
+                }
+            } else {
+                LogUtil.d("TAG", "not this group");
             }
         }
     }
 
     @Override
     public void onClick(View view) {
+        Intent intent = new Intent();
         switch (view.getId()) {
+            case R.id.back:
+                finish();
+                break;
             case R.id.group_info:
-                Intent intent = new Intent(GroupChatActivity.this
+                intent.setClass(GroupChatActivity.this
                         , GroupInfoActivity.class);
+                intent.putExtra("group_info", mGroupInfo.toJson());
                 intent.putExtra("group_id", mGroupId);
                 startActivity(intent);
                 break;
@@ -229,10 +387,20 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
             case R.id.send_circle:
                 String content = mEdit.getText().toString();
                 if (content.isEmpty()) {
-                    Toast.makeText(this, "说点什么吧...", Toast.LENGTH_SHORT).show();
+                    if (mIMM != null && heightDifference > navigationBarHeight) {
+                        mIMM.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                showFunction();
+                            }
+                        }, 50);
+                    } else {
+                        showFunction();
+                    }
                     return;
                 }
-                sendMsgCollector(content);
+                sendTextMsg(content);
                 updateAdapter(new Msg(DataUtil.msFormMMDD(System.currentTimeMillis()),
                         DataUtil.getCurrentTimeStr(), DataUtil.resourceIdToUri(
                         this.getPackageName(), R.drawable.icon_user)
@@ -243,11 +411,27 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     }
 
     /**
-     * 发送消息处理与监听
+     * 展示底部功能栏
+     */
+    private void showFunction() {
+        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)
+                mMsgRecycler.getLayoutParams();
+        if (mGridView.getVisibility() == View.GONE) {
+            mGridView.setVisibility(View.VISIBLE);
+            params.bottomMargin = DataUtil.dpToPx(this, 207);
+        } else {
+            mGridView.setVisibility(View.GONE);
+            params.bottomMargin = DataUtil.dpToPx(this, 57);
+        }
+        mMsgRecycler.setLayoutParams(params);
+    }
+
+    /**
+     * 发送文本消息
      *
      * @param content 消息文本
      */
-    private void sendMsgCollector(String content) {
+    private void sendTextMsg(String content) {
         if (mConversation == null) {
             mConversation = Conversation.createGroupConversation(mGroupId);
         }
@@ -272,9 +456,19 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     }
 
     /**
-     * 初始化标题栏头像图片
+     * 创建自定义消息
      *
-     * @return uri集合
+     * @param map 自定义消息键值对
+     */
+    private void sendCustomMsg(Map<String, String> map) {
+        Message message = JMessageClient.createGroupCustomMessage(mGroupId, map);
+        MessageSendingOptions options = new MessageSendingOptions();
+        options.setRetainOffline(true);
+        JMessageClient.sendMessage(message);
+    }
+
+    /**
+     * 初始化标题栏头像图片
      */
     @SuppressLint("SetTextI18n")
     private void getUris() {
@@ -300,14 +494,6 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         if (conversation == null) {
             return;
         }
-//        List<GroupMemberInfo> groupMemberInfos = mGroupInfo.getGroupMemberInfos();
-//        for (GroupMemberInfo groupMemberInfo : groupMemberInfos) {
-//            UserInfo userInfo = groupMemberInfo.getUserInfo();
-//            String uri = userInfo.getExtra("icon_uri");
-//            mUris.add(TextUtils.isEmpty(uri) ? DataUtil.resourceIdToUri(getPackageName()
-//                    , R.drawable.icon_user) : Uri.parse(uri));
-//            mMemberAdapter.notifyItemInserted(mUris.size() - 1);
-//        }
         List<Message> messages = conversation.getAllMessage();
         if (messages == null) {
             mMsgs.add(new Msg(mMsgInfo.getDate(), DataUtil.getCurrentTimeStr()
@@ -366,10 +552,53 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                 break;
             case video:
                 break;
+            case custom:
+                CustomContent customContent = (CustomContent) message.getContent();
+                String yuan = customContent.getStringValue("yuan");
+                Msg msg = new Msg(date, time, uri, yuan, type);
+                msg.setMsgType(Msg.MsgType.RED_PACKAGE);
+                mMsgs.add(msg);
+                break;
             default:
                 break;
         }
         mChatAdapter.notifyItemInserted(mMsgs.size() - 1);
     }
 
+    /**
+     * 初始化底部功能栏布局
+     *
+     * @return List<Map                               <                               String                               ,                               Object>>
+     */
+    private List<Map<String, Object>> initGridList() {
+        for (int i = 0; i < icon.length; i++) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("icon", icon[i]);
+            map.put("icon_name", iconName[i]);
+            mGridList.add(map);
+        }
+        return mGridList;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == REQUEST_GROUP_RED_PACKAGE && resultCode == RESULT_OK) {
+            if (data != null) {
+                String[] yuan = data.getStringExtra("yuan").split("￥");
+                Msg msg = new Msg(DataUtil.msFormMMDD(System.currentTimeMillis()),
+                        DataUtil.getCurrentTimeStr(), DataUtil.resourceIdToUri(
+                        this.getPackageName(), R.drawable.icon_user)
+                        , data.getStringExtra("yuan"), Msg.Type.SEND);
+                msg.setMsgType(Msg.MsgType.RED_PACKAGE);
+                updateAdapter(msg);
+                Map<String, String> map = new HashMap<>();
+                map.put("yuan", yuan[1]);
+                sendCustomMsg(map);
+                LogUtil.d(TAG, "onActivityResult: " + "yuan.length = " + yuan.length
+                        + " ;yuan[0] = " + yuan[0] + " ;yuan[1] = " + yuan[1]);
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
 }

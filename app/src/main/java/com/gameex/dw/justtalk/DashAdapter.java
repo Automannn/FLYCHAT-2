@@ -17,6 +17,7 @@ import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.ObjPack.MsgInfo;
 import com.gameex.dw.justtalk.chattingPack.ChattingActivity;
 import com.gameex.dw.justtalk.chattingPack.GroupChatActivity;
+import com.gameex.dw.justtalk.publicInterface.RecyclerItemClick;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
@@ -62,9 +63,9 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         holder.msgLast.setText(lastMsg);
         holder.msgTime.setText(msgInfo.getDate());
         if (msgInfo.isNotify()) {
-            holder.notifyOff.setVisibility(View.VISIBLE);
-        } else {
             holder.notifyOff.setVisibility(View.GONE);
+        } else {
+            holder.notifyOff.setVisibility(View.VISIBLE);
         }
     }
 
@@ -79,7 +80,7 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         ImageView notifyOff;
         TextView userName, msgLast, msgTime;
 
-        DashHolder(@NonNull View itemView) {
+        DashHolder(@NonNull final View itemView) {
             super(itemView);
             msgCard = itemView.findViewById(R.id.message_card);
             msgCard.setOnClickListener(new View.OnClickListener() {

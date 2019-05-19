@@ -37,6 +37,8 @@
                         android:layout_width="?widthI"
                         android:layout_height="?heightL"
                         android:background="@drawable/light_gray_rip_out"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:src="@drawable/icon_user"
                         app:siBorderColor="@color/colorChatBack"/>
 
@@ -54,12 +56,12 @@
                             android:id="@+id/user_msg_left"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:background="@drawable/msg_content_bg"
                             android:maxWidth="@dimen/dp_200"
                             android:paddingLeft="@dimen/dp_10"
                             android:paddingTop="@dimen/dp_5"
                             android:paddingRight="@dimen/dp_10"
                             android:paddingBottom="@dimen/dp_5"
-                            android:background="@drawable/msg_content_bg"
                             android:text="@string/test2_str"
                             android:textColor="@color/colorMineThemeText"
                             android:textSize="?smallSuperFont"
@@ -100,14 +102,14 @@
                             android:id="@+id/user_msg_right"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_gravity="end"
+                            android:background="@drawable/msg_send_content_bg"
                             android:maxWidth="@dimen/dp_200"
                             android:paddingLeft="@dimen/dp_10"
                             android:paddingTop="@dimen/dp_5"
                             android:paddingRight="@dimen/dp_10"
                             android:paddingBottom="@dimen/dp_5"
                             android:text="@string/test1_str"
-                            android:layout_gravity="end"
-                            android:background="@drawable/msg_send_content_bg"
                             android:textColor="@color/colorMineThemeText"
                             android:textSize="?smallSuperFont"
                             tools:ignore="RtlSymmetry"/>
@@ -127,6 +129,8 @@
                         android:layout_width="?widthI"
                         android:layout_height="?heightL"
                         android:background="@drawable/light_gray_rip_out"
+                        android:clickable="true"
+                        android:focusable="true"
                         android:src="@drawable/icon_user"
                         app:siBorderColor="@color/colorChatBack"/>
                 </LinearLayout>

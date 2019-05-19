@@ -4,11 +4,13 @@ import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
 import android.support.annotation.IntDef;
 import android.support.v4.widget.DrawerLayout;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
@@ -184,7 +186,7 @@ public class BarUtil {
 
 
     /**
-     *  代码实现android:fitsSystemWindows
+     * 代码实现android:fitsSystemWindows
      *
      * @param activity
      */
@@ -224,7 +226,7 @@ public class BarUtil {
     /**
      * 设置 状态栏深色浅色切换
      */
-    public static boolean setStatusBarFontIconDark(Activity activity, @ViewType int type,boolean dark) {
+    public static boolean setStatusBarFontIconDark(Activity activity, @ViewType int type, boolean dark) {
         switch (type) {
             case TYPE_MIUI:
                 return setMiuiUI(activity, dark);
@@ -232,7 +234,7 @@ public class BarUtil {
                 return setFlymeUI(activity, dark);
             case TYPE_M:
             default:
-                return setCommonUI(activity,dark);
+                return setCommonUI(activity, dark);
         }
     }
 
@@ -303,6 +305,7 @@ public class BarUtil {
             return false;
         }
     }
+
     //获取状态栏高度
     public static int getStatusBarHeight(Context context) {
         int result = 0;
@@ -314,4 +317,64 @@ public class BarUtil {
         return result;
     }
 
+    /**
+     * 获取虚拟键高度
+     *
+     * @param context 上下文
+     * @return int
+     */
+    public static int getNavigationBarHeight(Context context) {
+        int result = 0;
+        if (hasNavBar(context)) {
+            Resources res = context.getResources();
+            int resourceId = res.getIdentifier("navigation_bar_height", "dimen", "android");
+            if (resourceId > 0) {
+                result = res.getDimensionPixelSize(resourceId);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * 检查是否存在虚拟键
+     *
+     * @param context 上下文
+     * @return boolean
+     */
+    public static boolean hasNavBar(Context context) {
+        Resources res = context.getResources();
+        int resourceId = res.getIdentifier("config_showNavigationBar", "bool", "android");
+        if (resourceId != 0) {
+            boolean hasNav = res.getBoolean(resourceId);
+            // check override flag
+            String sNavBarOverride = getNavBarOverride();
+            if ("1".equals(sNavBarOverride)) {
+                hasNav = false;
+            } else if ("0".equals(sNavBarOverride)) {
+                hasNav = true;
+            }
+            return hasNav;
+        } else { // fallback
+            return !ViewConfiguration.get(context).hasPermanentMenuKey();
+        }
+    }
+
+    /**
+     * 判断虚拟按键是否重写
+     *
+     * @return string
+     */
+    private static String getNavBarOverride() {
+        String sNavBarOverride = null;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            try {
+                Class c = Class.forName("android.os.SystemProperties");
+                Method m = c.getDeclaredMethod("get", String.class);
+                m.setAccessible(true);
+                sNavBarOverride = (String) m.invoke(null, "qemu.hw.mainkeys");
+            } catch (Throwable e) {
+            }
+        }
+        return sNavBarOverride;
+    }
 }

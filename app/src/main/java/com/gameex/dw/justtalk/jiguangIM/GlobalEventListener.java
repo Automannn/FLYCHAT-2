@@ -27,6 +27,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ContactNotifyEvent;
 import cn.jpush.im.android.api.event.LoginStateChangeEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
@@ -188,27 +189,14 @@ public class GlobalEventListener {
      */
     private void goUpdateMsgInfos(Message message) {
         Intent intent = new Intent(UPDATE_MSG_INFO);
-        UserInfo userInfo = message.getFromUser();
-        String username = userInfo.getUserName();
         String date = DataUtil.msFormMMDD(message.getCreateTime());
         switch (message.getContentType()) {
             case text:
                 TextContent content = (TextContent) message.getContent();
-                intent.putExtra("username", username);
                 intent.putExtra("date", date);
                 intent.putExtra("msg_last", content.getText());
                 intent.putExtra("is_notify", true);
-                switch (message.getTargetType()) {
-                    case single:
-                        intent.putExtra("is_single", true);
-                        appContext.sendBroadcast(intent);
-                        break;
-                    case group:
-                        intent.putExtra("is_single", false);
-                        intent.putExtra("group_json", ((GroupInfo) message.getTargetInfo()).toJson());
-                        appContext.sendBroadcast(intent);
-                        break;
-                }
+                updateMsgInfo(message, intent);
                 break;
             case eventNotification:
                 GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
@@ -311,6 +299,36 @@ public class GlobalEventListener {
                 PendingIntent.FLAG_ONE_SHOT /*PendingIntent.FLAG_UPDATE_CURRENT*/);
     }
 
+    /**
+     * 判断是群组信息还是单聊信息，做最后处理，并发送广播更新飞聊标签页
+     *
+     * @param message 信息体
+     * @param intent  intent
+     */
+    private void updateMsgInfo(Message message, Intent intent) {
+        switch (message.getTargetType()) {
+            case single:
+                UserInfo userInfo = message.getFromUser();
+                String username = userInfo.getUserName();
+                intent.putExtra("username", username);
+                intent.putExtra("is_single", true);
+                break;
+            case group:
+                GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
+                String groupName = groupInfo.getGroupName();
+                intent.putExtra("username", groupName);
+                intent.putExtra("is_single", false);
+                intent.putExtra("group_json", ((GroupInfo) message.getTargetInfo()).toJson());
+                break;
+        }
+        appContext.sendBroadcast(intent);
+    }
+
+    /**
+     * 处理群组事件
+     *
+     * @param type 群组事件类型
+     */
     private void handleGroupEvent(EventNotificationContent.EventNotificationType type) {
         switch (type) {
             case group_member_added:    //群成员加群事件

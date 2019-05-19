@@ -1,6 +1,8 @@
 package com.gameex.dw.justtalk.groupInfo;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.Color;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -15,20 +17,99 @@ import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
+import java.util.List;
+
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
+import cn.jpush.im.android.api.model.GroupMemberInfo;
+import cn.jpush.im.api.BasicCallback;
 
-
+/**
+ * 群组详细信息展示
+ */
 public class GroupInfoActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "GroupInfoActivity";
-
+    /**
+     * 返回箭头
+     */
     private ImageView mBack;
+    /**
+     * 页面标题
+     */
     private TextView mTitle;
+    /**
+     * 右上角功能键
+     */
     private ImageView mMore;
-    private RelativeLayout mIconLayout, mNickLayout, mQrCodeLayout, mPushLayout, mInviteMember;
+    /**
+     * 包含头像的layout
+     */
+    private RelativeLayout mIconLayout;
+    /**
+     * 我的群昵称的layout
+     */
+    private RelativeLayout mNickLayout;
+    /**
+     * 群二维码layout
+     */
+    private RelativeLayout mQrCodeLayout;
+    /**
+     * 消息推送开关layout
+     */
+    private RelativeLayout mPushLayout;
+    /**
+     * 邀请群成员layout
+     */
+    private RelativeLayout mInviteMember;
+    /**
+     * 群头像
+     */
     private CircularImageView mIcon;
-    private TextView mName, mChangeIcon, mNick, mNotice, mManage, mPush, mMoneyGift, mChatRecord, mChatFile, mMemberCount;
+    /**
+     * 群名称
+     */
+    private TextView mName;
+    /**
+     * 修改群头像
+     */
+    private TextView mChangeIcon;
+    /**
+     * 我的群昵称
+     */
+    private TextView mNick;
+    /**
+     * 群公告
+     */
+    private TextView mNotice;
+    /**
+     * 群管理
+     */
+    private TextView mManage;
+    /**
+     * 群消息通知
+     */
+    private TextView mPush;
+    /**
+     * 长时间未领取红包
+     */
+    private TextView mMoneyGift;
+    /**
+     * 群聊天记录
+     */
+    private TextView mChatRecord;
+    /**
+     * 群聊天文件
+     */
+    private TextView mChatFile;
+    /**
+     * 群成员数
+     */
+    private TextView mMemberCount;
+    /**
+     * 群组体
+     */
+    private GroupInfo mGroupInfo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,41 +140,44 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
         mMoneyGift = findViewById(R.id.money_gift_long_time_no_see);
         mChatRecord = findViewById(R.id.group_chat_record);
         mChatFile = findViewById(R.id.group_chat_file);
+        mMemberCount = findViewById(R.id.group_member_count);
         mInviteMember = findViewById(R.id.invite_member_layout);
     }
 
     /**
      * 初始化数据
      */
+    @SuppressLint("SetTextI18n")
     private void initData() {
+        mGroupInfo = GroupInfo.fromJson(getIntent().getStringExtra("group_info"));
+
         mBack.setOnClickListener(this);
         mTitle.setText("群详情");
         mMore.setOnClickListener(this);
 
         mIconLayout.setOnClickListener(this);
+        mName.setText(mGroupInfo.getGroupName());
         mChangeIcon.setOnClickListener(this);
         mNickLayout.setOnClickListener(this);
+        mNick.setText(getGroupNick(JMessageClient.getMyInfo().getUserName()));
         mQrCodeLayout.setOnClickListener(this);
         mNotice.setOnClickListener(this);
         mManage.setOnClickListener(this);
         mPushLayout.setOnClickListener(this);
+        if (mGroupInfo.isGroupBlocked() == 0) {
+            mPush.setText("屏蔽");
+            mPush.setTextColor(Color.RED);
+        }
         mMoneyGift.setOnClickListener(this);
         mChatRecord.setOnClickListener(this);
         mChatFile.setOnClickListener(this);
+        List<GroupMemberInfo> memberInfos = mGroupInfo.getGroupMemberInfos();
+        if (memberInfos != null && memberInfos.size() > 0) {
+            mMemberCount.setText(memberInfos.size() + "");
+        } else {
+            mMemberCount.setText("0");
+        }
         mInviteMember.setOnClickListener(this);
-
-        JMessageClient.getGroupInfo(getIntent().getLongExtra("group_id", -1)
-                , new GetGroupInfoCallback() {
-                    @Override
-                    public void gotResult(int i, String s, GroupInfo groupInfo) {
-                        if (i == 0) {
-                            LogUtil.d(TAG, "initData: " + "groupInfo = " + groupInfo.toJson());
-                        } else {
-                            LogUtil.d(TAG, "initData: " + "responseCode = " + i +
-                                    " ; desc = " + s);
-                        }
-                    }
-                });
     }
 
     @Override
@@ -125,7 +209,35 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                 Toast.makeText(this, "管理群成员", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.group_push_layout:
-                Toast.makeText(this, "开启/关闭消息通知", Toast.LENGTH_SHORT).show();
+                if (mGroupInfo.isGroupBlocked() == 1) {
+                    mPush.setText("屏蔽");
+                    mPush.setTextColor(Color.RED);
+                    mGroupInfo.setBlockGroupMessage(0, new BasicCallback() {
+                        @Override
+                        public void gotResult(int i, String s) {
+                            LogUtil.d(TAG, "onClick-group_push_layout: " + "requestCode = " + i +
+                                    " ;desc = " + s);
+                            if (i == 0) {
+                                Toast.makeText(GroupInfoActivity.this, "已开启"
+                                        , Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                } else {
+                    mPush.setText("开启");
+                    mPush.setTextColor(getResources().getColor(R.color.colorLightGray));
+                    mGroupInfo.setBlockGroupMessage(1, new BasicCallback() {
+                        @Override
+                        public void gotResult(int i, String s) {
+                            LogUtil.d(TAG, "onClick-group_push_layout: " + "requestCode = " + i +
+                                    " ;desc = " + s);
+                            if (i == 0) {
+                                Toast.makeText(GroupInfoActivity.this, "已屏蔽"
+                                        , Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+                }
                 break;
             case R.id.money_gift_long_time_no_see:
                 Toast.makeText(this, "查看长时间未领取的红包", Toast.LENGTH_SHORT).show();
@@ -140,5 +252,16 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                 Toast.makeText(this, "邀请群成员", Toast.LENGTH_SHORT).show();
                 break;
         }
+    }
+
+    /**
+     * 获取用户在该群组的群昵称
+     *
+     * @param username 用户名
+     * @return string
+     */
+    private String getGroupNick(String username) {
+        GroupMemberInfo memberInfo = mGroupInfo.getGroupMember(username, null);
+        return memberInfo.getNickName();
     }
 }
