@@ -46,6 +46,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".payPackage.VerifyIdentityActivity">
+        </activity>
+        <activity android:name=".payPackage.AddBankCardActivity">
+        </activity>
+        <activity android:name=".payPackage.RechargeActivity">
+        </activity>
         <activity android:name=".payPackage.ChangeActivity">
         </activity>
         <activity android:name=".redPackage.RedDetailActivity">
@@ -235,8 +241,7 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity
-            android:name=".chattingPack.ChattingActivity">
+        <activity android:name=".chattingPack.ChattingActivity">
         </activity>
         <activity
             android:name=".BottomBarActivity"

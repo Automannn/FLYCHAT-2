@@ -111,6 +111,23 @@
     <string name="cash_withdrawal_str">提现</string>
     <string name="my_bank_card_str">我的银行卡</string>
     <string name="my_red_packet_record_str">我的红包记录</string>
+    <string name="recharge_change_str">零钱充值</string>
+    <string name="recharge_yuan_str">充值金额</string>
+    <string name="recharge_next_notice_str">充值到账会略有延迟 , 请稍后查询</string>
+    <string name="bind_bank_card_str">绑定银行卡</string>
+    <string name="no_bank_card_notice_str">没用可用的银行卡 , 现在就去添加？</string>
+    <string name="add_bank_card_str">添加银行卡</string>
+    <string name="please_add_yours_card_str">请绑定持卡人本人的银行卡</string>
+    <string name="card_below_str">持卡人</string>
+    <string name="input_name_str">请输入您的姓名</string>
+    <string name="id_card_str">身份证</string>
+    <string name="input_id_number_str">请输入您的身份证号</string>
+    <string name="card_number_str">卡号</string>
+    <string name="only_savings_card_str">仅支持储蓄卡</string>
+    <string name="add_bank_card_notice_str">友情提示 ：仅支持绑定借记卡( 储蓄卡 ) ，不支持信用卡</string>
+    <string name="verify_identity_str">身份验证</string>
+    <string name="add_bank_input_pwd_str">添加银行卡\n请输入支付密码 ，以验证身份</string>
+    <string name="pay_pwd_str">支付密码</string>
 
     <string name="last_massage">最后一条信息或通知</string>
     <string name="msg_data">8月14号</string>

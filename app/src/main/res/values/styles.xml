@@ -229,6 +229,12 @@
         <item name="android:windowExitAnimation">@anim/translate_scale_alpha_out</item>
     </style>
 
+    <!-- 添加银行卡弹窗 -->
+    <style name="scale_alpha_style" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/scale_alpha_in</item>
+        <item name="android:windowExitAnimation">@anim/scale_alpha_out</item>
+    </style>
+
     <!-- Checkbox style -->
     <style name="rem_checkbox" parent="@android:style/Widget.Material.CompoundButton.CheckBox" tools:targetApi="lollipop">
         <item name="android:colorControlActivated">@color/colorAccent</item>

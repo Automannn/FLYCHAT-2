@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.payPackage;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -78,6 +79,7 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
 
     @Override
     public void onClick(View view) {
+        Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.back:
                 finish();
@@ -86,7 +88,8 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
                 Toast.makeText(this, "更多功能", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.recharge:
-                Toast.makeText(this, "充值", Toast.LENGTH_SHORT).show();
+                intent.setClass(this, RechargeActivity.class);
+                startActivity(intent);
                 break;
             case R.id.cash_withdrawal:
                 Toast.makeText(this, "提现", Toast.LENGTH_SHORT).show();

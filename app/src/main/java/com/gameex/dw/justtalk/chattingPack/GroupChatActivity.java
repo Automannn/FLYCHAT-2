@@ -2,6 +2,7 @@ package com.gameex.dw.justtalk.chattingPack;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Handler;
@@ -30,11 +31,16 @@ import com.gameex.dw.justtalk.ObjPack.Msg;
 import com.gameex.dw.justtalk.ObjPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.groupInfo.GroupInfoActivity;
+import com.gameex.dw.justtalk.imagePicker.GifSizeFilter;
+import com.gameex.dw.justtalk.imagePicker.Glide4Engine;
 import com.gameex.dw.justtalk.redPackage.SetYuanActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
+import com.zhihu.matisse.Matisse;
+import com.zhihu.matisse.MimeType;
+import com.zhihu.matisse.filter.Filter;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -61,6 +67,10 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      * 群内红包
      */
     private static final int REQUEST_GROUP_RED_PACKAGE = 101;
+    /**
+     * ZhiHu`s image picker`s request code
+     */
+    private static final int REQUEST_CODE_CHOOSE = 23;
     /**
      * 返回箭头
      */
@@ -299,6 +309,19 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                             , SetYuanActivity.class);
                     intent.putExtra("group_info", mGroupInfo.toJson());
                     startActivityForResult(intent, REQUEST_GROUP_RED_PACKAGE);
+                } else if (position == 1) {
+                    Matisse.from(GroupChatActivity.this)
+                            .choose(MimeType.ofAll())
+                            .countable(true)
+                            .maxSelectable(9)
+                            .addFilter(new GifSizeFilter(320, 320
+                                    , 5 * Filter.K * Filter.K))
+                            .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.dp_120))
+                            .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                            .thumbnailScale(0.85f)
+                            .imageEngine(new Glide4Engine())
+                            .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
+                            .forResult(REQUEST_CODE_CHOOSE);
                 }
                 LogUtil.d(TAG, "initData-onItemClick: " + "position = " + position);
             }
@@ -345,7 +368,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                     case custom:
                         CustomContent customContent = (CustomContent) message.getContent();
                         String yuan = customContent.getStringValue("yuan");
-                        String token=customContent.getStringValue("token");
+                        String token = customContent.getStringValue("token");
                         LogUtil.d(TAG, "onEventMainThread-custom: " + "yuan = " + yuan);
                         Msg msg = new Msg(date, time, uri, yuan, Msg.Type.RECEIVED);
                         msg.setMsgType(Msg.MsgType.RED_PACKAGE);
@@ -547,7 +570,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
             case custom:
                 CustomContent customContent = (CustomContent) message.getContent();
                 String yuan = customContent.getStringValue("yuan");
-                String token=customContent.getStringValue("token");
+                String token = customContent.getStringValue("token");
                 Msg msg = new Msg(date, time, uri, yuan, type);
                 msg.setMsgType(Msg.MsgType.RED_PACKAGE);
                 msg.setRedToken(token);
@@ -562,7 +585,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     /**
      * 初始化底部功能栏布局
      *
-     * @return List<Map                                                               <                                                               String                                                               ,                                                               Object>>
+     * @return List<Map                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               <                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               String                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Object>>
      */
     private List<Map<String, Object>> initGridList() {
         for (int i = 0; i < icon.length; i++) {
@@ -594,8 +617,20 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                 LogUtil.d(TAG, "onActivityResult: " + "yuan.length = " + yuan.length
                         + " ;yuan[0] = " + yuan[0] + " ;yuan[1] = " + yuan[1]);
             }
+        } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
+            List<Uri> path = Matisse.obtainResult(data);
+            Toast.makeText(this, path + "", Toast.LENGTH_SHORT).show();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (mGridView.getVisibility() == View.VISIBLE) {
+            mGridView.setVisibility(View.GONE);
+        } else {
+            super.onBackPressed();
         }
     }
 }
