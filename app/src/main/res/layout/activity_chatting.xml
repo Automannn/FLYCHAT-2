@@ -1,24 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".chattingPack.ChattingActivity">
 
     <com.gameex.dw.justtalk.titleBar.TitleBarView
         android:id="@+id/title_bar_chatting"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_74"
-        app:layout_constraintTop_toTopOf="parent"/>
+        android:layout_height="@dimen/dp_74"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/chat_recycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/dp_75"
-        android:layout_marginBottom="@dimen/dp_57"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@color/colorChatBack"/>
 
     <LinearLayout
@@ -27,8 +26,7 @@
         android:layout_height="?heightE"
         android:background="@color/colorWhite"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/function_grid">
+        android:orientation="horizontal">
 
         <com.github.siyamed.shapeimageview.CircularImageView
             android:id="@+id/voice_msg"
@@ -88,7 +86,6 @@
         android:id="@+id/function_grid"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_150"
-        android:layout_gravity="bottom"
         android:background="@color/colorMineBack"
         android:horizontalSpacing="@dimen/dp_2"
         android:numColumns="4"
@@ -98,7 +95,6 @@
         android:paddingBottom="@dimen/dp_10"
         android:scrollbars="none"
         android:verticalSpacing="@dimen/dp_5"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:visibility="gone"/>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

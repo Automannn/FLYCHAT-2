@@ -1,20 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".chattingPack.GroupChatActivity">
 
     <LinearLayout
         android:id="@+id/title_linear"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_95"
+        android:layout_height="wrap_content"
         android:background="@color/colorPrimary"
-        android:orientation="vertical"
-        app:layout_constraintTop_toTopOf="parent">
+        android:orientation="vertical">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -75,9 +75,8 @@
     <android.support.v7.widget.RecyclerView
         android:id="@+id/group_chat_recycler"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_marginTop="@dimen/dp_96"
-        android:layout_marginBottom="@dimen/dp_57"
+        android:layout_height="0dp"
+        android:layout_weight="1"
         android:background="@color/colorChatBack"
         android:layoutAnimation="@anim/layout_animation_fall_down"/>
 
@@ -87,8 +86,7 @@
         android:layout_height="?heightE"
         android:background="@color/colorWhite"
         android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toTopOf="@id/function_grid">
+        android:orientation="horizontal">
 
         <com.github.siyamed.shapeimageview.CircularImageView
             android:id="@+id/voice_msg"
@@ -148,7 +146,6 @@
         android:id="@+id/function_grid"
         android:layout_width="match_parent"
         android:layout_height="@dimen/dp_150"
-        android:layout_gravity="bottom"
         android:background="@color/colorMineBack"
         android:horizontalSpacing="@dimen/dp_2"
         android:numColumns="4"
@@ -158,7 +155,6 @@
         android:paddingBottom="@dimen/dp_10"
         android:scrollbars="none"
         android:verticalSpacing="@dimen/dp_5"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        android:visibility="gone"/>
 
-</android.support.constraint.ConstraintLayout>
+</LinearLayout>

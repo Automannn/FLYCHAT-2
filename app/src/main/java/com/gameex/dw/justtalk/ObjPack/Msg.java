@@ -20,6 +20,10 @@ public class Msg {
      */
     private String content;
     /**
+     * pubKey
+     */
+    private String redToken;
+    /**
      * 信息类型
      */
     private MsgType msgType;
@@ -113,6 +117,14 @@ public class Msg {
 
     public void setMsgType(MsgType msgType) {
         this.msgType = msgType;
+    }
+
+    public String getRedToken() {
+        return redToken;
+    }
+
+    public void setRedToken(String redToken) {
+        this.redToken = redToken;
     }
 
     @Override

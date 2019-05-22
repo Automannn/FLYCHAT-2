@@ -161,14 +161,56 @@
                 android:textSize="?smallFont"/>
 
             <LinearLayout
+                android:id="@+id/already_friend_action_layout"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:layout_marginTop="@dimen/dp_25"
+                android:layout_marginBottom="@dimen/dp_70"
+                android:background="@color/colorWhite"
+                android:orientation="horizontal"
+                android:visibility="gone">
+
+                <TextView
+                    android:id="@+id/delete_contact"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/light_gray_white_rip"
+                    android:gravity="center"
+                    android:text="@string/delete_str"
+                    android:textColor="@color/colorRed"
+                    android:textSize="?smallFont"/>
+
+                <TextView
+                    android:id="@+id/line"
+                    android:layout_width="@dimen/dp_1"
+                    android:layout_height="match_parent"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_marginBottom="@dimen/dp_10"
+                    android:background="@color/colorLightGray"/>
+
+                <TextView
+                    android:id="@+id/send_msg"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/light_gray_white_rip"
+                    android:gravity="center"
+                    android:text="@string/send_msg_str"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="?smallFont"/>
+
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/invite_show_layout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/dp_25"
                 android:layout_marginBottom="@dimen/dp_70"
                 android:gravity="center"
-                android:visibility="gone"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:visibility="gone">
 
                 <Button
                     android:id="@+id/accept_btn"

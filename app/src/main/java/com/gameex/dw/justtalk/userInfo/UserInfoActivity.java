@@ -31,11 +31,15 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.gameex.dw.justtalk.BottomBarActivity;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
@@ -45,6 +49,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 
 import static com.gameex.dw.justtalk.util.DataUtil.CHOOSE_PHOTO;
@@ -55,6 +60,7 @@ import static com.gameex.dw.justtalk.util.DataUtil.TAKE_PHOTO;
  * 用户详细信息activity
  */
 public class UserInfoActivity extends BaseActivity implements View.OnClickListener {
+    private static final String TAG = "UserInfoActivity";
     @SuppressLint("StaticFieldLeak")
     public static UserInfoActivity sUserInfoActivity;
     public static final String UPDATE_USER_INFO = "com.gameex.dw.flychat.UPDATE_USER";
@@ -89,7 +95,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
      */
     private void initView() {
         setContentView(R.layout.activity_user_info);
-        mUserInfo = UserInfo.fromJson(getIntent().getStringExtra("mine_info"));
         mLinearLayout = findViewById(R.id.user_info_constraint);
         mBarView = findViewById(R.id.title_bar_user_info);
         mBarView.setRightIVVisible(View.INVISIBLE);
@@ -140,9 +145,9 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
      * 初始化数据
      */
     private void initData() {
-        mIconImg.setImageURI(mUserInfo.getExtra("icon_uri") == null
-                ? DataUtil.resourceIdToUri(getPackageName(), R.drawable.icon_user)
-                : Uri.parse(mUserInfo.getExtra("icon_uri")));
+        mUserInfo = UserInfo.fromJson(getIntent().getStringExtra("mine_info"));
+        UserInfoUtils.initUserIcon(mUserInfo, BottomBarActivity.sBottomBarActivity
+                , mIconImg);
         mNickName.setText(TextUtils.isEmpty(mUserInfo.getNickname()) ? mUserInfo.getUserName()
                 : mUserInfo.getNickname());
         mFlySignText.setText(TextUtils.isEmpty(mUserInfo.getSignature()) ? "未设置"
@@ -152,6 +157,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void onClick(View view) {
+        Intent intent=new Intent();
         switch (view.getId()) {
             case R.id.mine_icon_info_layout:
                 Toast.makeText(this, "修改用户名", Toast.LENGTH_SHORT).show();
@@ -165,7 +171,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             case R.id.fly_code_info_layout:
                 if (mEditPup != null) {
                     mEditPup.showAtLocation(mLinearLayout, Gravity.CENTER, 0, 0);
-                    WindowUtil.showBackgroundAnimator(sUserInfoActivity,0.5f);
+                    WindowUtil.showBackgroundAnimator(sUserInfoActivity, 0.5f);
                 }
                 break;
             case R.id.fly_sign_info_layout:
@@ -179,16 +185,16 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 break;
             case R.id.login_out_text:
                 JMessageClient.logout();
-                Intent intentLoginOut = new Intent();
-                intentLoginOut.setAction("com.gameex.dw.justtalk.LOGIN_OUT");
-                this.sendBroadcast(intentLoginOut);
+                intent.setAction("com.gameex.dw.justtalk.LOGIN_OUT");
+                this.sendBroadcast(intent);
                 break;
             case R.id.take_photo:
                 requestPermission();
                 break;
             case R.id.choose_from_lib_text:
                 Intent choosePhotoIntent = new Intent(Intent.ACTION_PICK, null);
-                choosePhotoIntent.setDataAndType(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, "image/*");
+                choosePhotoIntent.setDataAndType(MediaStore.Images
+                        .Media.EXTERNAL_CONTENT_URI, "image/*");
                 startActivityForResult(choosePhotoIntent, CHOOSE_PHOTO);
                 mDialog.dismiss();
                 break;
@@ -198,7 +204,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode
+            , @Nullable Intent data) {
         switch (requestCode) {
             case TAKE_PHOTO:
                 if (resultCode == RESULT_OK) {
@@ -319,7 +326,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         mEditPup.setOnDismissListener(new PopupWindow.OnDismissListener() {
             @Override
             public void onDismiss() {
-                WindowUtil.setWindowBackgroundAlpha(sUserInfoActivity,1f);
+                WindowUtil.setWindowBackgroundAlpha(sUserInfoActivity, 1f);
             }
         });
         mEditPup.setAnimationStyle(R.style.pop_anim);

@@ -36,6 +36,8 @@
     public void onEvent*(**);
 }
 
+-dontwarn com.squareup.picasso.**
+
 #========================gson================================
 -dontwarn com.google.**
 -keep class com.google.gson.** {*;}

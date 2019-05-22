@@ -46,6 +46,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".payPackage.ChangeActivity">
+        </activity>
         <activity android:name=".redPackage.RedDetailActivity">
         </activity>
         <activity android:name=".redPackage.SetYuanActivity">
@@ -233,7 +235,8 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <activity android:name=".chattingPack.ChattingActivity">
+        <activity
+            android:name=".chattingPack.ChattingActivity">
         </activity>
         <activity
             android:name=".BottomBarActivity"

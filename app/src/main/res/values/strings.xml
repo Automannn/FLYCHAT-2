@@ -23,6 +23,8 @@
     <string name="search_chat_str">查找聊天记录</string>
     <string name="chat_file_str">聊天文件</string>
     <string name="add_to_contact_str">添加到通讯录</string>
+    <string name="delete_str">删除好友</string>
+    <string name="send_msg_str">发消息</string>
 
     <string name="user_personal_signed">这个人很佛，什么都没有留下......</string>
     <string name="loose_change_str">零钱</string>
@@ -103,6 +105,13 @@
     <string name="change_to_package_str">改为普通红包</string>
     <string name="money_count_str">￥0.00</string>
 
+    <string name="change_str">零钱</string>
+    <string name="my_change_str">我的零钱</string>
+    <string name="recharge_str">充值</string>
+    <string name="cash_withdrawal_str">提现</string>
+    <string name="my_bank_card_str">我的银行卡</string>
+    <string name="my_red_packet_record_str">我的红包记录</string>
+
     <string name="last_massage">最后一条信息或通知</string>
     <string name="msg_data">8月14号</string>
     <string name="msg_time">16:59</string>
@@ -115,6 +124,8 @@
     这是&#160;&#160;&#160;&#160;一条&#160;&#160;&#160;&#160;测试&#160;&#160;&#160;&#160;数据。
         &amp;……&amp;……*%&amp;（（*））GJGGKHjhHKHKkHhkk</string>
 
+    <string name="permission_request_denied">Permission request denied</string>
+    <string name="error_gif">x or y bound size should be at least %1$dpx and file size should be no more than %2$sM</string>
 
     <string-array name="tick_text_str_arr">
         <item>小</item>

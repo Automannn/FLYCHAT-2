@@ -17,8 +17,10 @@ import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.dataStream.PostJsonService;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
+import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.gameex.dw.justtalk.util.TimeCounter;
 
 import org.json.JSONException;
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.Call;
 import okhttp3.FormBody;
 import okhttp3.Headers;
 import okhttp3.OkHttpClient;
@@ -50,15 +53,15 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
     /**
      * 服务器注册接口
      */
-    private static final String url = "https://wechat.automannn.cn/user/register";
+    private static final String SIGN_PATH = "user/register";
     /**
      * 获取验证码接口
      */
-    private static final String urlSms = "https://wechat.automannn.cn/code/sms";
+    private static final String GET_SMS = "code/sms";
     /**
      * 验证码验证接口
      */
-    private static final String urlCheckSms = "https://wechat.automannn.cn/validate/mobile";
+    private static final String CHECK_SMS = "validate/mobile";
 
     private EditText mPhone, mVerifyCode, mPwd;
     private TextView mVerifyCodeText;
@@ -73,10 +76,14 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
         setContentView(R.layout.activity_sign_up);
 
         sSignUpActivity = this;
-        BarUtil.setFullTransBar(this);  //设置全透明状态栏和虚拟键
 
         initView();
         initData();
+        if (!BarUtil.setStatusBarDarkTheme(this, true)) {
+            //如果不支持设置深色风格 为了兼容总不能让状态栏白白的看不清, 于是设置一个状态栏颜色为半透明,
+            //这样半透明+白=灰, 状态栏的文字能看得清
+//            BarUtil.setStatusBarColor(this,0x55000000);
+        }
     }
 
     /**
@@ -163,66 +170,55 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
      */
     private void getSmsCodeThread(final String phone) {
         final TimeCounter timeCounter = new TimeCounter(60000, 100, mVerifyCodeText);
-        new Thread(new Runnable() {
+        HashMap<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("phoneNumber", phone);
+        OkHttpUtil.okHttpPost(GET_SMS, paramsMap, new CallBackUtil.CallBackDefault() {
             @Override
-            public void run() {
-                OkHttpClient client = new OkHttpClient.Builder()
-                        .connectTimeout(10 * 1000, TimeUnit.MILLISECONDS)
-                        .readTimeout(5 * 10 * 1000, TimeUnit.MILLISECONDS)
-                        .writeTimeout(5 * 10 * 1000, TimeUnit.MILLISECONDS)
-                        .build();
-                RequestBody formBody = new FormBody.Builder()
-                        .add("phoneNumber", phone)
-                        .build();
-                Request request = new Request.Builder()
-                        .url(urlSms)
-                        .addHeader("accept", "application/json;charset=utf-8")
-                        .addHeader("Content-Type", "text/plain")
-                        .post(formBody)
-                        .build();
+            public void onFailure(Call call, Exception e) {
+                LogUtil.d(TAG, "getSmsCodeThread-onFailure: ");
+                e.printStackTrace();
+                Toast.makeText(SignUpActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(Response response) {
                 try {
-                    Response response = client.newCall(request).execute();
                     if (response.isSuccessful()) {
-                        assert response.body() != null;
-                        String string = response.body().string();
-                        LogUtil.d(TAG, "getSmsCodeThread: " + "response string = " + string);
-                        JSONObject jsonObject = new JSONObject(string);
-                        boolean success = jsonObject.getBoolean("success");
-                        if (success) {
-                            Headers headers = response.headers();
-                            List<String> cookies = headers.values("Set-cookie");
-                            String s = cookies.get(0);
-                            header.put("header", s);
-                            LogUtil.d(TAG, "getSmsCodeThread: " + "cookies(0) = " + s);
-                            String data = jsonObject.getString("data");
-                            Looper.prepare();
-                            timeCounter.start();
-                            Toast.makeText(SignUpActivity.this, data + "", Toast.LENGTH_SHORT).show();
-                            Looper.loop();
+                        if (response.body() != null) {
+                            String string = response.body().string();
+                            LogUtil.d(TAG, "getSmsCodeThread-onResponse: " + "response string = " + string);
+                            JSONObject jsonObject = new JSONObject(string);
+                            boolean success = jsonObject.getBoolean("success");
+                            if (success) {
+                                Headers headers = response.headers();
+                                List<String> cookies = headers.values("Set-cookie");
+                                String s = cookies.get(0);
+                                header.put("cookie", TextUtils.isEmpty(s) ? "" : s);
+                                LogUtil.d(TAG, "getSmsCodeThread: " + "cookies(0) = " + s);
+                                String data = jsonObject.getString("data");
+                                timeCounter.start();
+                                Toast.makeText(SignUpActivity.this, data + "", Toast.LENGTH_SHORT).show();
+                            } else {
+                                JSONObject data = jsonObject.getJSONObject("data");
+                                int code = data.getInt("code");
+                                String message = data.getString("message");
+                                LogUtil.i(TAG, "getSmsCodeThread-onResponse-successFalse: "
+                                        + "code = " + code + " ; message = " + message);
+                                Toast.makeText(SignUpActivity.this, message + "", Toast.LENGTH_SHORT).show();
+                            }
                         } else {
-                            JSONObject data = jsonObject.getJSONObject("data");
-                            int code = data.getInt("code");
-                            String message = data.getString("message");
-                            LogUtil.i(TAG, "getSmsCodeThread: " + "code = " + code +
-                                    " ; message = " + message);
-                            Looper.prepare();
-                            Toast.makeText(SignUpActivity.this, message + "", Toast.LENGTH_SHORT).show();
-                            Looper.loop();
+                            LogUtil.i(TAG, "getSmsCodeThread-response.bodyNull: ");
                         }
                     } else {
-                        assert response.body() != null;
-                        LogUtil.d("VERIFICATION_CODE", response.body().string() + "response fail");
+                        LogUtil.i(TAG, "getSmsCodeThread-responseFalse: ");
                     }
-
-                } catch (IOException e) {
-                    LogUtil.d("VERIFICATION_CODE", "IOException");
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    LogUtil.d("VERIFICATION_CODE", "JSONException");
-                    e.printStackTrace();
+                } catch (IOException ioe) {
+                    ioe.printStackTrace();
+                } catch (JSONException JSONe) {
+                    JSONe.printStackTrace();
                 }
             }
-        }).start();
+        });
     }
 
     /**
@@ -234,58 +230,49 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
      */
     private void isSmsCorrectThread(final String sms, final String phone,
                                     final String pwd) {
-        new Thread(new Runnable() {
+        HashMap<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("smsCode", sms);
+        OkHttpUtil.okHttpPost(CHECK_SMS, paramsMap, header, new CallBackUtil.CallBackDefault() {
             @Override
-            public void run() {
-                OkHttpClient client = new OkHttpClient.Builder()
-                        .connectTimeout(10 * 1000, TimeUnit.MILLISECONDS)
-                        .readTimeout(5 * 10 * 1000, TimeUnit.MILLISECONDS)
-                        .writeTimeout(5 * 10 * 1000, TimeUnit.MILLISECONDS)
-                        .build();
-                RequestBody formBody = new FormBody.Builder()
-                        .add("smsCode", sms)
-                        .build();
-                String headerCookie = header.get("header");
-                Request request = new Request.Builder()
-                        .url(urlCheckSms)
-                        .addHeader("accept", "application/json;charset=utf-8")
-                        .addHeader("Content-Type", "text/plain")
-                        .addHeader("cookie", TextUtils.isEmpty(headerCookie) ? "" : headerCookie)
-                        .post(formBody)
-                        .build();
-                try {
-                    Response response = client.newCall(request).execute();
-                    if (response.isSuccessful()) {
-                        assert response.body() != null;
-                        String string = response.body().string();
-                        JSONObject jsonObject = new JSONObject(string);
-                        boolean success = jsonObject.getBoolean("success");
-                        String data = jsonObject.getString("data");
-                        if (success) {
-                            header.clear();
-                            LogUtil.d("VERIFICATION_CODE_CHECK_RESULT", data + "");
-                            postJsonSer = new Intent(SignUpActivity.this, PostJsonService.class);
-                            postJsonSer.putExtra("sign_info", new String[]{
-                                    phone, pwd, url});
-                            startService(postJsonSer);
-                        } else {
-                            Looper.prepare();
-                            Toast.makeText(SignUpActivity.this, data + "", Toast.LENGTH_SHORT).show();
-                            Looper.loop();
+            public void onFailure(Call call, Exception e) {
+                LogUtil.d(TAG, "isSmsCorrectThread-onFailure: ");
+                e.printStackTrace();
+                Toast.makeText(SignUpActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onResponse(Response response) {
+                if (response.isSuccessful()) {
+                    if (response.body() != null) {
+                        String string ;
+                        try {
+                            string = response.body().string();
+                            JSONObject jsonObject = new JSONObject(string);
+                            boolean success = jsonObject.getBoolean("success");
+                            String data = jsonObject.getString("data");
+                            if (success) {
+                                header.clear();
+                                LogUtil.d("VERIFICATION_CODE_CHECK_RESULT", data + "");
+                                postJsonSer = new Intent(SignUpActivity.this, PostJsonService.class);
+                                postJsonSer.putExtra("sign_info", new String[]{
+                                        phone, pwd, SIGN_PATH});
+                                startService(postJsonSer);
+                            } else {
+                                Toast.makeText(SignUpActivity.this, data + "", Toast.LENGTH_SHORT).show();
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
                     } else {
-                        LogUtil.d("VERIFICATION_CODE_CHECK", "response fail");
+                        LogUtil.d(TAG, "isSmsCorrectThread-onResponse: " + "response.body = null");
                     }
-
-                } catch (IOException e) {
-                    LogUtil.d("VERIFICATION_CODE_CHECK", "IOException");
-                    e.printStackTrace();
-                } catch (JSONException e) {
-                    LogUtil.d("VERIFICATION_CODE_CHECK", "JSONException");
-                    e.printStackTrace();
+                } else {
+                    LogUtil.d(TAG, "isSmsCorrectThread-onResponse: " + "responseFalse");
                 }
             }
-        }).start();
+        });
     }
 
     @Override

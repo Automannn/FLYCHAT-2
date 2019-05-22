@@ -279,11 +279,6 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                 heightDifference = screenHeight - r.bottom;
                 if (heightDifference > navigationBarHeight) {
                     mGridView.setVisibility(View.GONE);
-                    ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)
-                            mMsgRecycler.getLayoutParams();
-                    params.bottomMargin = DataUtil.dpToPx(GroupChatActivity.this, 57);
-                    mMsgRecycler.setLayoutParams(params);
-                    return;
                 }
                 LogUtil.d(TAG, "initView-onGlobalLayout: " + "Size = " + heightDifference);
             }
@@ -350,9 +345,11 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                     case custom:
                         CustomContent customContent = (CustomContent) message.getContent();
                         String yuan = customContent.getStringValue("yuan");
+                        String token=customContent.getStringValue("token");
                         LogUtil.d(TAG, "onEventMainThread-custom: " + "yuan = " + yuan);
                         Msg msg = new Msg(date, time, uri, yuan, Msg.Type.RECEIVED);
                         msg.setMsgType(Msg.MsgType.RED_PACKAGE);
+                        msg.setRedToken(token);
                         updateAdapter(msg);
                         break;
                     default:
@@ -414,16 +411,11 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      * 展示底部功能栏
      */
     private void showFunction() {
-        ConstraintLayout.LayoutParams params = (ConstraintLayout.LayoutParams)
-                mMsgRecycler.getLayoutParams();
         if (mGridView.getVisibility() == View.GONE) {
             mGridView.setVisibility(View.VISIBLE);
-            params.bottomMargin = DataUtil.dpToPx(this, 207);
         } else {
             mGridView.setVisibility(View.GONE);
-            params.bottomMargin = DataUtil.dpToPx(this, 57);
         }
-        mMsgRecycler.setLayoutParams(params);
     }
 
     /**
@@ -555,8 +547,10 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
             case custom:
                 CustomContent customContent = (CustomContent) message.getContent();
                 String yuan = customContent.getStringValue("yuan");
+                String token=customContent.getStringValue("token");
                 Msg msg = new Msg(date, time, uri, yuan, type);
                 msg.setMsgType(Msg.MsgType.RED_PACKAGE);
+                msg.setRedToken(token);
                 mMsgs.add(msg);
                 break;
             default:
@@ -568,7 +562,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     /**
      * 初始化底部功能栏布局
      *
-     * @return List<Map                               <                               String                               ,                               Object>>
+     * @return List<Map                                                               <                                                               String                                                               ,                                                               Object>>
      */
     private List<Map<String, Object>> initGridList() {
         for (int i = 0; i < icon.length; i++) {
@@ -585,14 +579,17 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         if (requestCode == REQUEST_GROUP_RED_PACKAGE && resultCode == RESULT_OK) {
             if (data != null) {
                 String[] yuan = data.getStringExtra("yuan").split("￥");
+                String token = data.getStringExtra("token");
                 Msg msg = new Msg(DataUtil.msFormMMDD(System.currentTimeMillis()),
                         DataUtil.getCurrentTimeStr(), DataUtil.resourceIdToUri(
                         this.getPackageName(), R.drawable.icon_user)
                         , data.getStringExtra("yuan"), Msg.Type.SEND);
                 msg.setMsgType(Msg.MsgType.RED_PACKAGE);
+                msg.setRedToken(token);
                 updateAdapter(msg);
                 Map<String, String> map = new HashMap<>();
                 map.put("yuan", yuan[1]);
+                map.put("token", token);
                 sendCustomMsg(map);
                 LogUtil.d(TAG, "onActivityResult: " + "yuan.length = " + yuan.length
                         + " ;yuan[0] = " + yuan[0] + " ;yuan[1] = " + yuan[1]);

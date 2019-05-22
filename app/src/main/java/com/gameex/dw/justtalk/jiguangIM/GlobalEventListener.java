@@ -278,11 +278,7 @@ public class GlobalEventListener {
         } else if (flag == 1) {
             intent.setAction(CONTACT_NOTIFY_CLICKED);
             intent.putExtra(NOTIFY_TYPE_EXTRA, NOTIFY_TYPE_ONE);
-            intent.putExtra("user_icon", userInfo.getExtra("icon_uri") == null
-                    ? "-1" : userInfo.getExtra("icon_uri"));
-            intent.putExtra("username", userInfo.getExtra("username") == null
-                    ? "-1" : userInfo.getExtra("username"));
-            intent.putExtra("phone", userInfo.getUserName());
+            intent.putExtra("user_info_json",userInfo.toJson());
         } else if (flag == 0) {
             intent.setAction(CONTACT_NOTIFY_ACCEPT);
             intent.putExtra("username", username);

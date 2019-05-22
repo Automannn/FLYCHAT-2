@@ -76,7 +76,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         setContentView(R.layout.activity_login);
 
         initView();
-        BarUtil.setFullTransBar(this);  //状态栏、虚拟键全透明
+        if (!BarUtil.setStatusBarDarkTheme(this, true)) {
+            //如果不支持设置深色风格 为了兼容总不能让状态栏白白的看不清, 于是设置一个状态栏颜色为半透明,
+            //这样半透明+白=灰, 状态栏的文字能看得清
+//            BarUtil.setStatusBarColor(this,0x55000000);
+        }
     }
 
     /**
@@ -119,6 +123,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 editor = pref.edit();
                 editor.remove("account");
                 editor.remove("password");
+                editor.remove("userId");
                 editor.remove("remember_password");
                 editor.apply();
             }
@@ -196,28 +201,34 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                         json.put("username", account);
                     }
                     json.put("password", password);
-                    OkHttpUtil.okHttpPostJson(LOGIN_PATH, json.toString(), null, new CallBackUtil.CallBackString() {
+                    OkHttpUtil.okHttpPostJson(LOGIN_PATH, json.toString(), null, new CallBackUtil.CallBackDefault() {
                         @Override
                         public void onFailure(Call call, Exception e) {
                             prosDialog.dismiss();
-                            LogUtil.d(TAG, "checkToLogin-CallBackUtil-onFailure: " + "null");
+                            e.printStackTrace();
+                            LogUtil.d(TAG, "checkToLogin-CallBackUtil-onFailure: ");
+                            Toast.makeText(LoginActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
                         }
 
                         @Override
-                        public void onResponse(String response) {
+                        public void onResponse(Response response) {
                             if (response != null) {
                                 LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
                                         + "response" + response);
                                 try {
-                                    JSONObject jsonObject = new JSONObject(response);
+                                    assert response.body() != null;
+                                    JSONObject jsonObject = new JSONObject(response.body().string());
+                                    JSONObject object = jsonObject.getJSONObject("data");
                                     boolean isSuccess = jsonObject.getBoolean("success");
                                     if (isSuccess) {
+                                        String userId = object.getString("id");
                                         prosDialog.dismiss();
                                         editor = pref.edit();
                                         if (mAutoLogin.isChecked()) {
                                             editor.putBoolean("remember_password", true);
                                             editor.putString("account", account);
                                             editor.putString("password", password);
+                                            editor.putString("userId", userId);
                                         } else {
                                             editor.clear();
                                         }
@@ -229,14 +240,20 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                                         "JMessageClient.login " +
                                                                 ", responseCode = " + responseCode +
                                                                 " ; registerDesc = " + registerDesc);
+                                                if (responseCode == 0) {
+                                                    Intent intentLogin = new Intent(
+                                                            LoginActivity.this, BottomBarActivity.class);
+                                                    finish();
+                                                    startActivity(intentLogin);
+                                                } else {
+                                                    prosDialog.dismiss();
+                                                    Toast.makeText(LoginActivity.this,
+                                                            "登陆失败……", Toast.LENGTH_SHORT).show();
+                                                }
                                             }
                                         });
-                                        Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
-                                        finish();
-                                        startActivity(intentLogin);
                                     } else {
                                         prosDialog.dismiss();
-                                        JSONObject object = jsonObject.getJSONObject("data");
                                         int code = object.getInt("code");
                                         String message = object.getString("message");
                                         if (code == 403) {
@@ -255,81 +272,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                     }
                                 } catch (JSONException e) {
                                     e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
                                 }
                             }
                         }
                     });
-//                            OkHttpClient client = new OkHttpClient();
-//                            RequestBody requestBody = RequestBody.create(JSON, String.valueOf(json));
-//                            Request request = new Request.Builder()
-//                                    .url(LOGIN_URL)
-//                                    .post(requestBody)
-//                                    .build();
-//                            Response response = client.newCall(request).execute();
-//                            if (response.isSuccessful()) {
-//                                assert response.body() != null;
-//                                String string = response.body().string();
-//                                LogUtil.d("RESPONSE_STRING", string);
-//                                JSONObject jsonObject = new JSONObject(string);
-//                                boolean isSuccess = jsonObject.getBoolean("success");
-//                                if (isSuccess) {
-//                                    prosDialog.dismiss();
-//                                    editor = pref.edit();
-//                                    if (mAutoLogin.isChecked()) {
-//                                        editor.putBoolean("remember_password", true);
-//                                        editor.putString("account", account);
-//                                        editor.putString("password", password);
-//                                    } else {
-//                                        editor.clear();
-//                                    }
-//                                    editor.apply();
-//                                    JMessageClient.login(account, password, new BasicCallback() {
-//                                        @Override
-//                                        public void gotResult(int responseCode, String registerDesc) {
-//                                            LogUtil.i("LOGIN_ACTIVITY_JMESSAGE_LOGIN",
-//                                                    "JMessageClient.login " +
-//                                                            ", responseCode = " + responseCode +
-//                                                            " ; registerDesc = " + registerDesc);
-//                                        }
-//                                    });
-//                                    Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
-//                                    finish();
-//                                    startActivity(intentLogin);
-//                                } else {
-//                                    prosDialog.dismiss();
-//                                    JSONObject object = jsonObject.getJSONObject("data");
-//                                    int code = object.getInt("code");
-//                                    String message = object.getString("message");
-//                                    if (code == 403) {
-//                                        Looper.prepare();
-//                                        YoYo.with(Techniques.Shake)
-//                                                .duration(700)
-//                                                .playOn(findViewById(R.id.username_layout));
-//                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
-//                                        Looper.loop();
-//                                    } else if (code == 404) {
-//                                        Looper.prepare();
-//                                        YoYo.with(Techniques.Shake)
-//                                                .duration(700)
-//                                                .playOn(findViewById(R.id.password_layout));
-//                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
-//                                        Looper.loop();
-//                                    } else {
-//                                        Looper.prepare();
-//                                        Toast.makeText(LoginActivity.this, "请完善登陆信息", Toast.LENGTH_SHORT).show();
-//                                        Looper.loop();
-//                                    }
-//                                }
-//                            } else {
-//                                prosDialog.dismiss();
-//                                LogUtil.d("RESPONSE_BODY", "null");
-//                            }
                 } catch (JSONException e) {
                     prosDialog.dismiss();
                     e.printStackTrace();
-                    Looper.prepare();
                     Toast.makeText(LoginActivity.this, "数据异常", Toast.LENGTH_SHORT).show();
-                    Looper.loop();
                 }
             } else {
                 if (flag == 1) {

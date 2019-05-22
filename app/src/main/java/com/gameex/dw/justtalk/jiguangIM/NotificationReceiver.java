@@ -107,14 +107,10 @@ public class NotificationReceiver extends BroadcastReceiver {
 //                collapseStatusBar(context); //收起通知栏->无效
                 break;
             case CONTACT_NOTIFY_CLICKED:
-                String icon = intent.getStringExtra("user_icon");
-                String username = intent.getStringExtra("username");
-                String phone = intent.getStringExtra("phone");
                 notifyToDo.setClass(context, UserBasicInfoActivity.class);
-                notifyToDo.putExtra("user_icon", icon);
-                notifyToDo.putExtra("username", username);
-                notifyToDo.putExtra("phone", phone);
-                notifyToDo.putExtra("isInvite",true);
+                notifyToDo.putExtra("user_info_json"
+                        , intent.getStringExtra("user_info_json"));
+                notifyToDo.putExtra("isInvite", true);
                 context.startActivity(notifyToDo);
                 break;
             case CONTACT_NOTIFY_ACCEPT:

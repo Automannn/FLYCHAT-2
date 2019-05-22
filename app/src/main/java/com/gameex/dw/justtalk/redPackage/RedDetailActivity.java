@@ -41,6 +41,7 @@ public class RedDetailActivity extends BaseActivity implements View.OnClickListe
      */
     private void initData() {
         mBack.setOnClickListener(this);
+        mAmount.setText(getIntent().getStringExtra("amount"));
     }
 
     @Override

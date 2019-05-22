@@ -203,25 +203,25 @@ public class BarUtil {
 
     }
 
-//    /**
-//     * 设置状态栏深色浅色切换
-//     */
-//    public static boolean setStatusBarDarkTheme(Activity activity, boolean dark) {
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-//            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-//                setStatusBarFontIconDark(activity, TYPE_M, dark);
-//            } else if (OSUtils.isMiui()) {
+    /**
+     * 设置状态栏深色浅色切换
+     */
+    public static boolean setStatusBarDarkTheme(Activity activity, boolean dark) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                setStatusBarFontIconDark(activity, TYPE_M, dark);
+            }
+//            else if (OSUtils.isMiui()) {
 //                setStatusBarFontIconDark(activity, TYPE_MIUI, dark);
 //            } else if (OSUtils.isFlyme()) {
 //                setStatusBarFontIconDark(activity, TYPE_FLYME, dark);
 //            } else {//其他情况
 //                return false;
 //            }
-//
 //            return true;
-//        }
-//        return false;
-//    }
+        }
+        return false;
+    }
 
     /**
      * 设置 状态栏深色浅色切换

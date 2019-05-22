@@ -119,7 +119,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
                                 break;
                             case "我的群组":
                                 intent.setClass(mContext, MyGroupActivity.class);
-                                intent.putExtra("user_infos",UserInfo.collectionToJson(mUserInfos));
+                                intent.putExtra("user_infos", UserInfo.collectionToJson(mUserInfos));
                                 mContext.startActivity(intent);
                                 break;
                             default:
@@ -127,22 +127,10 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
                                 break;
                         }
                     } else {
-                        JMessageClient.getUserInfo(mUserInfos.get(getAdapterPosition() - 3).
-                                getUserName(), new GetUserInfoCallback() {
-                            @Override
-                            public void gotResult(int i, String s, UserInfo userInfo) {
-                                if (i == 0) {
-                                    LogUtil.d(TAG, "userInfo = " + userInfo.toJson());
-                                    Intent intent = new Intent(mContext, UserBasicInfoActivity.class);
-                                    intent.putExtra("user_icon", userInfo.getExtra("icon_uri") == null
-                                            ? "-1" : userInfo.getExtra("icon_uri"));
-                                    intent.putExtra("username", TextUtils.isEmpty(userInfo.getNickname())
-                                            ? userInfo.getUserName() : userInfo.getNickname());
-                                    intent.putExtra("phone", userInfo.getUserName());
-                                    mContext.startActivity(intent);
-                                }
-                            }
-                        });
+                        Intent intent = new Intent(mContext, UserBasicInfoActivity.class);
+                        intent.putExtra("user_info_json"
+                                , mUserInfos.get(getAdapterPosition()-3).toJson());
+                        mContext.startActivity(intent);
                     }
                 }
             });

@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class OkHttpUtil {
-    private static final String REALM_NAEM = "https://wechat.automannn.cn/";
+    private static final String REALM_NAME = "https://wechat.automannn.cn/";
+//    private static final String REALM_NAME = "http://192.168.137.1:8060/";
 
     public static final String METHOD_GET = "GET";
 
@@ -61,36 +62,36 @@ public class OkHttpUtil {
     /**
      * post请求
      *
-     * @param url      url
+     * @param path     路径
      * @param callBack 回调接口，onFailure方法在请求失败时调用，onResponse方法在请求成功后调用，这两个方法都执行在UI线程。
      */
-    public static void okHttpPost(String url, CallBackUtil callBack) {
-        okHttpPost(url, null, callBack);
+    public static void okHttpPost(String path, CallBackUtil callBack) {
+        okHttpPost(REALM_NAME + path, null, callBack);
     }
 
     /**
      * post请求，可以传递参数
      *
-     * @param url       url
+     * @param path      路径
      * @param paramsMap map集合，封装键值对参数
      * @param callBack  回调接口，onFailure方法在请求失败时调用，onResponse方法在请求成功后调用，这两个方法都执行在UI线程。
      */
-    public static void okHttpPost(String url, Map<String, String> paramsMap
+    public static void okHttpPost(String path, Map<String, String> paramsMap
             , CallBackUtil callBack) {
-        okHttpPost(url, paramsMap, null, callBack);
+        okHttpPost(path, paramsMap, null, callBack);
     }
 
     /**
      * post请求，可以传递参数
      *
-     * @param url       url
+     * @param path      路径
      * @param paramsMap map集合，封装键值对参数
      * @param headerMap map集合，封装请求头键值对
      * @param callBack  回调接口，onFailure方法在请求失败时调用，onResponse方法在请求成功后调用，这两个方法都执行在UI线程。
      */
-    public static void okHttpPost(String url, Map<String, String> paramsMap
+    public static void okHttpPost(String path, Map<String, String> paramsMap
             , Map<String, String> headerMap, CallBackUtil callBack) {
-        new RequestUtil(METHOD_POST, url, paramsMap, headerMap, callBack).execute();
+        new RequestUtil(METHOD_POST, REALM_NAME + path, paramsMap, headerMap, callBack).execute();
     }
 
     /**
@@ -178,7 +179,7 @@ public class OkHttpUtil {
      * @param callBack 回调接口，onFailure方法在请求失败时调用，onResponse方法在请求成功后调用，这两个方法都执行在UI线程。
      */
     public static void okHttpPostJson(String path, String jsonStr, CallBackUtil callBack) {
-        okHttpPostJson(REALM_NAEM + path, jsonStr, null, callBack);
+        okHttpPostJson(path, jsonStr, null, callBack);
     }
 
     /**
@@ -191,7 +192,7 @@ public class OkHttpUtil {
      */
     public static void okHttpPostJson(String path, String jsonStr
             , Map<String, String> headerMap, CallBackUtil callBack) {
-        new RequestUtil(METHOD_POST, REALM_NAEM + path, jsonStr, headerMap, callBack).execute();
+        new RequestUtil(METHOD_POST, REALM_NAME + path, jsonStr, headerMap, callBack).execute();
     }
 
     /**
