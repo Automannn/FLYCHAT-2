@@ -1,7 +1,9 @@
-package com.gameex.dw.justtalk.chattingPack;
+package com.gameex.dw.justtalk.singleChat;
 
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
@@ -13,7 +15,6 @@ import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.Gravity;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
@@ -24,8 +25,7 @@ import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import com.gameex.dw.justtalk.ObjPack.Msg;
-import com.gameex.dw.justtalk.ObjPack.MsgInfo;
+import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.imagePicker.GifSizeFilter;
 import com.gameex.dw.justtalk.imagePicker.Glide4Engine;
@@ -39,15 +39,16 @@ import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
-import com.zhihu.matisse.engine.impl.GlideEngine;
 import com.zhihu.matisse.filter.Filter;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
@@ -75,7 +76,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     private List<Map<String, Object>> mGridList = new ArrayList<>();
     private int[] icon = {R.drawable.icon_red_package, R.drawable.icon_photo};
     private String[] iconName = {"红包", "图片"};
-    private List<Msg> mMsgs = new ArrayList<>();
+    private List<Message> mMessages;
     private MsgInfo mMsgInfo;
     private UserInfo mUserInfo;
 
@@ -157,13 +158,8 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         mRecycler = findViewById(R.id.chat_recycler);
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setItemAnimator(animator);
-        new Handler(this.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                getMsgs();
-            }
-        });
-        mRecAdapter = new ChatRecAdapter(this, mMsgs);
+        mMessages = mConversation.getAllMessage();
+        mRecAdapter = new ChatRecAdapter(this, mMessages);
         mRecycler.setAdapter(mRecAdapter);
 
         mSendLayout = findViewById(R.id.send_linear);
@@ -251,9 +247,9 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                     , int position, long id) {
                 if (position == 1) {
                     Matisse.from(ChattingActivity.this)
-                            .choose(MimeType.ofAll())
+                            .choose(MimeType.ofImage())
                             .countable(true)
-                            .maxSelectable(9)
+                            .maxSelectable(1)
                             .addFilter(new GifSizeFilter(320, 320
                                     , 5 * Filter.K * Filter.K))
                             .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.dp_120))
@@ -292,12 +288,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                     }
                     return;
                 }
-                sendMsgCollector(content);
-                updateAdapter(new Msg(DataUtil.msFormMMDD(System.currentTimeMillis()),
-                        DataUtil.getCurrentTimeStr(), DataUtil.resourceIdToUri(
-                        this.getPackageName(), R.drawable.icon_user)
-                        , content, Msg.Type.SEND));
-                mSendText.setText("");
+                sendTextMsg(content);
                 break;
             default:
                 break;
@@ -318,12 +309,15 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     /**
      * 更新聊天数据，并滑到最后一条消息的位置
      *
-     * @param msg 消息类
+     * @param message 消息对象
      */
-    private void updateAdapter(Msg msg) {
-        mMsgs.add(msg);
+    private void updateAdapter(Message message) {
+        if (message == null) {
+            return;
+        }
+        mMessages.add(message);
         //如果有新消息，则设置适配器的长度；通知适配器有新数据插入，并让RecyclerView定位到最后一行
-        int newSize = mMsgs.size() - 1;
+        int newSize = mMessages.size() - 1;
         mRecAdapter.notifyItemInserted(newSize);
         mRecycler.scrollToPosition(newSize);
     }
@@ -336,128 +330,78 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     public void onEventMainThread(MessageEvent event) {
         Message message = event.getMessage();
         String username = message.getFromUser().getUserName();
-        long milliSecond = message.getCreateTime();
-        String date = DataUtil.msFormMMDD(milliSecond);
-        String time = DataUtil.msFormHHmmTime(milliSecond);
-        switch (message.getContentType()) {
-            case text:  //处理文字信息
-                TextContent textContent = (TextContent) message.getContent();
-                String content = textContent.getText();
-                LogUtil.d("getMessageContent", username + ":" + content);
-                if (username.equals(mUserInfo.getUserName())) {
-                    updateAdapter(new Msg(date, time, Uri.parse(mMsgInfo.getUriPath()), content, Msg.Type.RECEIVED));
-                } else {
-                    LogUtil.d("TAG", "username != userPhone");
-                }
-                break;
-            default:
-                break;
+        if (!username.equals(mUserInfo.getUserName())) {
+            return;
         }
+        updateAdapter(message);
     }
 
     /**
-     * 发送消息处理与监听
+     * 发送文字消息处理
      *
      * @param content 消息文本
      */
-    private void sendMsgCollector(String content) {
+    private void sendTextMsg(String content) {
         if (mConversation == null) {
             mConversation = Conversation.createSingleConversation(mUserInfo.getUserName());
         }
         TextContent textContent = new TextContent(content);
         assert mConversation != null;
-        Message message = mConversation.createSendMessage(textContent);
+        final Message message = mConversation.createSendMessage(textContent);
+        sendListener(message, true);
+    }
+
+    /**
+     * 发送图片消息处理
+     *
+     * @param imgBitmap 图片文件
+     */
+    private void sendImgMsg(Bitmap imgBitmap) {
+        if (mConversation == null) {
+            mConversation = Conversation.createSingleConversation(mUserInfo.getUserName());
+        }
+        ImageContent.createImageContentAsync(imgBitmap, "flychat"
+                , new ImageContent.CreateImageContentCallback() {
+                    @Override
+                    public void gotResult(int i, String s, ImageContent imageContent) {
+                        if (i == 0) {
+                            assert mConversation != null;
+                            final Message message = mConversation.createSendMessage(imageContent);
+                            sendListener(message, false);
+                        } else {
+                            Toast.makeText(ChattingActivity.this
+                                    , "发送图片失败-" + s, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 消息发送监听
+     *
+     * @param message     消息对象
+     * @param isClearText 是否清空文本编辑框
+     */
+    private void sendListener(final Message message, final boolean isClearText) {
         message.setOnSendCompleteCallback(new BasicCallback() {
             @Override
             public void gotResult(int requestCode, String responseDesc) {
                 if (requestCode == 0) {
                     LogUtil.d("requestCode = 0",
                             "发送成功" + "responseDesc = " + responseDesc);
+                    updateAdapter(message);
+                    if (isClearText) {
+                        mSendText.setText("");
+                    }
                 } else {
-                    LogUtil.d("requestCode = " + requestCode,
-                            "发送失败" + "responseDesc = " + responseDesc);
+                    Toast.makeText(ChattingActivity.this, "发送失败，请重试"
+                            , Toast.LENGTH_SHORT).show();
                 }
             }
         });
         MessageSendingOptions options = new MessageSendingOptions();
         options.setRetainOffline(true);
         JMessageClient.sendMessage(message);
-    }
-
-    /**
-     * 聊天界面测试参数
-     */
-    private void getMsgs() {
-        Conversation conversation = JMessageClient.getSingleConversation(
-                mUserInfo.getUserName());
-        if (conversation == null) {
-            return;
-        }
-        List<Message> messages = conversation.getAllMessage();
-        if (messages == null) {
-            mMsgs.add(new Msg(mMsgInfo.getDate(), DataUtil.getCurrentTimeStr()
-                    , Uri.parse(mMsgInfo.getUriPath()), mMsgInfo.getMsgLast(), Msg.Type.RECEIVED));
-        } else {
-            for (Message message : messages) {
-                goAddMsgList(message);
-            }
-        }
-    }
-
-    /**
-     * 判断message的发送状态，并做相应的处理
-     *
-     * @param message 消息体
-     */
-    private void goAddMsgList(Message message) {
-        long milliSecond = message.getCreateTime();
-        String date = DataUtil.msFormMMDD(milliSecond);
-        String time = DataUtil.msFormHHmmTime(milliSecond);
-        switch (message.getStatus()) {
-            case receive_success:
-                addMsg(date, time, Uri.parse(mMsgInfo.getUriPath()), message, Msg.Type.RECEIVED);
-                break;
-            case send_success:
-                addMsg(date, time, DataUtil.resourceIdToUri(this.getPackageName()
-                        , R.drawable.icon_user), message, Msg.Type.SEND);
-                break;
-            case send_going:
-                break;
-            case send_fail:
-                break;
-            case send_draft:
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
-     * 根据信息的类型，将获得的信息加入msg对象集合
-     *
-     * @param date    消息发送的日期
-     * @param time    消息发送的时间
-     * @param uri     消息发送方的头像
-     * @param message 消息体
-     * @param type    消息的类型（接收/发送）
-     */
-    private void addMsg(String date, String time, Uri uri,
-                        Message message, Msg.Type type) {
-        switch (message.getContentType()) {
-            case text:
-                TextContent textContent = (TextContent) message.getContent();
-                mMsgs.add(new Msg(date, time, uri, textContent.getText(), type));
-                break;
-            case image:
-                break;
-            case voice:
-                break;
-            case video:
-                break;
-            default:
-                break;
-        }
-        mRecAdapter.notifyItemInserted(mMsgs.size() - 1);
     }
 
     /**
@@ -483,19 +427,27 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode
+            , @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
+            assert data != null;
             List<Uri> path = Matisse.obtainResult(data);
-            Toast.makeText(this, path + "", Toast.LENGTH_SHORT).show();
+            try {
+                Bitmap bitmap = BitmapFactory.decodeStream(
+                        getContentResolver().openInputStream(path.get(0)));
+                sendImgMsg(bitmap);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void onBackPressed() {
-        if (mGridView.getVisibility()==View.VISIBLE){
+        if (mGridView.getVisibility() == View.VISIBLE) {
             mGridView.setVisibility(View.GONE);
-        }else{
+        } else {
             super.onBackPressed();
         }
     }

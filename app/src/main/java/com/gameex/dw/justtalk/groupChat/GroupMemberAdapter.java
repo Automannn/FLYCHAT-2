@@ -1,4 +1,4 @@
-package com.gameex.dw.justtalk.chattingPack;
+package com.gameex.dw.justtalk.groupChat;
 
 import android.content.Context;
 import android.net.Uri;

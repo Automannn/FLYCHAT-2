@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.gameex.dw.justtalk.chattingPack.ChattingActivity;
 import com.gameex.dw.justtalk.util.LogUtil;
 
 import org.json.JSONObject;

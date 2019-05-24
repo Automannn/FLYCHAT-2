@@ -84,4 +84,5 @@ dependencies {
     implementation 'com.automannn.common:commonUtils:1.1-RELEASE'
     implementation 'com.android.support:multidex:1.0.3'
     implementation 'com.zhihu.android:matisse:0.5.2-beta3'
+    implementation 'com.bm.photoview:library:1.4.1'
 }

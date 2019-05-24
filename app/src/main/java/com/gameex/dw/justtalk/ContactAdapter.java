@@ -14,17 +14,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.gameex.dw.justtalk.ObjPack.Contact;
+import com.gameex.dw.justtalk.objPack.Contact;
 import com.gameex.dw.justtalk.inviteFriends.InviteFriendsActivity;
 import com.gameex.dw.justtalk.myGroups.MyGroupActivity;
 import com.gameex.dw.justtalk.userInfo.UserBasicInfoActivity;
-import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
 
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactHolder> {

@@ -1,31 +1,29 @@
-package com.gameex.dw.justtalk.chattingPack;
+package com.gameex.dw.justtalk.groupChat;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.media.Image;
+import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.OvershootInterpolator;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.gameex.dw.justtalk.ObjPack.Msg;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.animation.AwardRotateAnimation;
+import com.gameex.dw.justtalk.imgBrowse.PhotoBrowseActivity;
 import com.gameex.dw.justtalk.redPackage.RedDetailActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
@@ -33,32 +31,42 @@ import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
+import com.github.siyamed.shapeimageview.RoundedImageView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.content.CustomContent;
+import cn.jpush.im.android.api.content.ImageContent;
+import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.model.Message;
+import cn.jpush.im.android.api.model.UserInfo;
 import okhttp3.Call;
 import okhttp3.Response;
 
-import static com.gameex.dw.justtalk.chattingPack.GroupChatActivity.sActivity;
+import static com.gameex.dw.justtalk.groupChat.GroupChatActivity.sActivity;
 
 public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.GroupChatHolder> {
     private static final String TAG = "GroupChatActivity";
     private static final String SNATCH_PACKAET = "account/snatchpacket";
 
     private Context mContext;
-    private List<Msg> mList;
+    private List<Message> mMessages;
     private String currentDate;
 
-    GroupChatAdapter(Context context, List<Msg> list) {
+    GroupChatAdapter(Context context, List<Message> messages) {
         mContext = context;
-        mList = list;
+        mMessages = messages;
         currentDate = DataUtil.msFormMMDD(System.currentTimeMillis());
     }
 
@@ -73,48 +81,147 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
     @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(@NonNull GroupChatHolder holder, int position) {
-        Msg msg = mList.get(position);
-        if (position == 0 || DataUtil.isMoreThanOneDay(mList.get(position - 1).getDate(),
-                msg.getDate())) {
-            if (currentDate.equals(msg.getDate())) {
-                holder.receiveTime.setText("今天  " + msg.getTime());
-                holder.sendTime.setText("今天  " + msg.getTime());
-            } else if (DataUtil.isMoreThanOneDay(msg.getDate(), currentDate)) {
-                holder.receiveTime.setText("昨天  " + msg.getTime());
-                holder.sendTime.setText("昨天  " + msg.getTime());
+        Message message = mMessages.get(position);
+        long milliSecond = message.getCreateTime();
+        String date = DataUtil.msFormMMDD(milliSecond);
+        String time = DataUtil.msFormHHmmTime(milliSecond);
+        if (position == 0 || DataUtil.isMoreThanOneDay(DataUtil.msFormMMDD(
+                mMessages.get(position - 1).getCreateTime()), date)) {
+            if (currentDate.equals(date)) {
+                holder.receiveTime.setText("今天  " + time);
+                holder.sendTime.setText("今天  " + time);
+            } else if (DataUtil.isMoreThanOneDay(date, currentDate)) {
+                holder.receiveTime.setText("昨天  " + time);
+                holder.sendTime.setText("昨天  " + time);
             } else {
-                holder.receiveTime.setText(msg.getDate() + "  " + msg.getTime());
-                holder.sendTime.setText(msg.getDate() + "  " + msg.getTime());
+                holder.receiveTime.setText(date + "  " + time);
+                holder.sendTime.setText(date + "  " + time);
             }
         } else {
-            holder.receiveTime.setText(msg.getTime());
-            holder.sendTime.setText(msg.getTime());
+            holder.receiveTime.setText(time);
+            holder.sendTime.setText(time);
         }
-        switch (msg.getType()) {
-            case RECEIVED:
+        switch (message.getDirect()) {
+            case receive:
                 holder.leftLayout.setVisibility(View.VISIBLE);
                 holder.rightLayout.setVisibility(View.GONE);
-                Glide.with(mContext)
-                        .load(msg.getUri())
-                        .into(holder.leftCircle);
-                holder.leftMsg.setText(msg.getContent());
+                initLeftContent(holder, message);
                 break;
-            case SEND:
+            case send:
                 holder.leftLayout.setVisibility(View.GONE);
                 holder.rightLayout.setVisibility(View.VISIBLE);
-                Glide.with(mContext)
-                        .load(msg.getUri())
-                        .into(holder.rightCircle);
-                holder.rightMsg.setText(msg.getContent());
+                initRightContent(holder, message);
                 break;
             default:
                 break;
         }
     }
 
+    /**
+     * 绑定接收的内容
+     *
+     * @param holder  ChatRecHolder
+     * @param message 消息对象
+     */
+    private void initLeftContent(final GroupChatHolder holder, Message message) {
+        UserInfo userInfo = message.getFromUser();
+        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+            @Override
+            public void gotResult(int i, String s, Bitmap bitmap) {
+                if (i == 0) {
+                    Glide.with(mContext)
+                            .load(bitmap)
+                            .into(holder.leftCircle);
+                } else {
+                    LogUtil.d(TAG, "initLeftContent: " + "responseCode = " + i
+                            + " ;desc = " + s);
+                    Glide.with(mContext)
+                            .load(R.drawable.icon_user)
+                            .into(holder.leftCircle);
+                }
+            }
+        });
+        switch (message.getContentType()) {
+            case text:
+                TextContent textContent = (TextContent) message.getContent();
+                holder.leftMsg.setVisibility(View.VISIBLE);
+                holder.leftMsg.setText(textContent.getText());
+                holder.leftImg.setVisibility(View.GONE);
+                break;
+            case image:
+                ImageContent imageContent = (ImageContent) message.getContent();
+                holder.leftMsg.setVisibility(View.GONE);
+                holder.leftImg.setVisibility(View.VISIBLE);
+                Glide.with(mContext)
+                        .load(imageContent.getLocalThumbnailPath())
+                        .placeholder(R.drawable.icon_img_reload)
+                        .error(R.drawable.icon_img_load_fail)
+                        .into(holder.leftImg);
+                break;
+            case custom:
+                CustomContent customContent = (CustomContent) message.getContent();
+                String yuan = customContent.getStringValue("yuan");
+                holder.leftMsg.setVisibility(View.VISIBLE);
+                holder.leftMsg.setText(yuan);
+                holder.leftImg.setVisibility(View.GONE);
+                break;
+        }
+    }
+
+    /**
+     * 绑定接收的内容
+     *
+     * @param holder  ChatRecHolder
+     * @param message 消息对象
+     */
+    private void initRightContent(final GroupChatHolder holder, Message message) {
+        UserInfo userInfo = message.getFromUser();
+        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+            @Override
+            public void gotResult(int i, String s, Bitmap bitmap) {
+                if (i == 0) {
+                    Glide.with(mContext)
+                            .load(bitmap)
+                            .into(holder.rightCircle);
+                } else {
+                    LogUtil.d(TAG, "initLeftContent: " + "responseCode = " + i
+                            + " ;desc = " + s);
+                    Glide.with(mContext)
+                            .load(R.drawable.icon_user)
+                            .into(holder.rightCircle);
+                }
+            }
+        });
+        switch (message.getContentType()) {
+            case text:
+                TextContent textContent = (TextContent) message.getContent();
+                holder.rightMsg.setVisibility(View.VISIBLE);
+                holder.rightMsg.setText(textContent.getText());
+                holder.rightImg.setVisibility(View.GONE);
+                break;
+            case image:
+                ImageContent imageContent = (ImageContent) message.getContent();
+                holder.rightMsg.setVisibility(View.GONE);
+                holder.rightImg.setVisibility(View.VISIBLE);
+                Glide.with(mContext)
+                        .load(imageContent.getLocalThumbnailPath())
+                        .placeholder(R.drawable.icon_img_reload)
+                        .error(R.drawable.icon_img_load_fail)
+                        .into(holder.rightImg);
+                break;
+            case custom:
+                CustomContent customContent = (CustomContent) message.getContent();
+                String yuan = customContent.getStringValue("yuan");
+                holder.rightMsg.setVisibility(View.VISIBLE);
+                holder.rightMsg.setText(yuan);
+                holder.rightImg.setVisibility(View.GONE);
+                break;
+        }
+    }
+
     @Override
     public int getItemCount() {
-        return mList == null ? 0 : mList.size();
+        return mMessages == null ? 0 : mMessages.size();
     }
 
     class GroupChatHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
@@ -122,6 +229,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
         CircularImageView leftCircle, rightCircle;
         TextView leftMsg, receiveTime, sendTime, rightMsg;
         ImageView open;
+        RoundedImageView leftImg, rightImg;
 
         private PopupWindow redPup;
 
@@ -134,11 +242,15 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
             rightMsgLayout = itemView.findViewById(R.id.msg_send_layout);
             leftCircle = itemView.findViewById(R.id.user_icon_left);
             leftCircle.setOnClickListener(this);
+            leftImg = itemView.findViewById(R.id.img_left);
+            leftImg.setOnClickListener(this);
             leftMsg = itemView.findViewById(R.id.user_msg_left);
             leftMsg.setOnClickListener(this);
             receiveTime = itemView.findViewById(R.id.msg_time_receive);
             rightCircle = itemView.findViewById(R.id.user_icon_right);
             rightCircle.setOnClickListener(this);
+            rightImg = itemView.findViewById(R.id.img_right);
+            rightImg.setOnClickListener(this);
             rightMsg = itemView.findViewById(R.id.user_msg_right);
             rightMsg.setOnClickListener(this);
             sendTime = itemView.findViewById(R.id.msg_time_send);
@@ -146,14 +258,15 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
 
         @Override
         public void onClick(View view) {
-            Msg msg = mList.get(getAdapterPosition());
-            Msg.MsgType msgType = msg.getMsgType();
+            Message message = mMessages.get(getAdapterPosition());
             switch (view.getId()) {
                 case R.id.user_icon_left:
                     Toast.makeText(mContext, "查看用户信息", Toast.LENGTH_SHORT).show();
                     break;
                 case R.id.user_msg_left:
-                    if (msgType != null && msgType.equals(Msg.MsgType.RED_PACKAGE)) {
+                    CustomContent customContentLeft = (CustomContent) message.getContent();
+                    if (customContentLeft != null &&
+                            !TextUtils.isEmpty(customContentLeft.getStringValue("yuan"))) {
                         Toast.makeText(mContext, "打开钱包", Toast.LENGTH_SHORT).show();
                         if (redPup != null) {
                             redPup.showAtLocation(rightMsg
@@ -163,7 +276,9 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                     }
                     break;
                 case R.id.user_msg_right:
-                    if (msgType != null && msgType.equals(Msg.MsgType.RED_PACKAGE)) {
+                    CustomContent customContentRight = (CustomContent) message.getContent();
+                    if (customContentRight != null &&
+                            !TextUtils.isEmpty(customContentRight.getStringValue("yuan"))) {
                         Toast.makeText(mContext, "查看钱包领取情况", Toast.LENGTH_SHORT).show();
                         if (redPup != null) {
                             redPup.showAtLocation(rightMsg
@@ -180,16 +295,56 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                     }
                     break;
                 case R.id.open:
+                    CustomContent customContentOpen = (CustomContent) message.getContent();
                     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
                     AwardRotateAnimation animation = new AwardRotateAnimation();
 //                    animation.setRepeatCount(Animation.INFINITE);
 //                    animation.setInterpolator(new OvershootInterpolator());
                     open.startAnimation(animation);
 //                    getTimer();
-                    snatchPacket(msg.getRedToken(), pref.getString("userId", ""));
+                    snatchPacket(customContentOpen.getStringValue("token")
+                            , pref.getString("userId", ""));
+                    break;
+                case R.id.img_left:
+                    browseImg(message);
+                    break;
+                case R.id.img_right:
+                    browseImg(message);
                     break;
                 default:
                     break;
+            }
+        }
+
+        /**
+         * 获得原图的本地地址并跳转前往展示
+         *
+         * @param message 消息体
+         */
+        private void browseImg(Message message) {
+            ImageContent imgContent = (ImageContent) message.getContent();
+            final Intent intent = new Intent(mContext, PhotoBrowseActivity.class);
+            final ArrayList<String> imgPath = new ArrayList<>();
+            if (imgContent.getLocalPath() != null) {
+                imgPath.add(imgContent.getLocalPath());
+                intent.putStringArrayListExtra("photo_browse", imgPath);
+                mContext.startActivity(intent);
+            } else {
+                imgContent.downloadOriginImage(message, new DownloadCompletionCallback() {
+                    @Override
+                    public void onComplete(int i, String s, File file) {
+                        if (i == 0) {
+                            LogUtil.d(TAG, "browseImg-onComplete: " + file.toString());
+                            imgPath.add(file.getPath());
+                            intent.putStringArrayListExtra("photo_browse", imgPath);
+                            mContext.startActivity(intent);
+                        } else {
+                            LogUtil.d(TAG, "browseImg-onComplete: "
+                                    + "responseCode = " + i + " ;desc = " + s);
+                            Toast.makeText(mContext, "图片下载失败，请重试", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
             }
         }
 

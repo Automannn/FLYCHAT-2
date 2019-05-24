@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context=".chattingPack.ChattingActivity">
+    tools:context=".singleChat.ChattingActivity">
 
     <com.gameex.dw.justtalk.titleBar.TitleBarView
         android:id="@+id/title_bar_chatting"

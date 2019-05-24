@@ -52,20 +52,39 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/user_msg_left"
+                        <RelativeLayout
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:background="@drawable/msg_content_bg"
-                            android:maxWidth="@dimen/dp_200"
-                            android:paddingLeft="@dimen/dp_10"
-                            android:paddingTop="@dimen/dp_5"
-                            android:paddingRight="@dimen/dp_10"
-                            android:paddingBottom="@dimen/dp_5"
-                            android:text="@string/test2_str"
-                            android:textColor="@color/colorMineThemeText"
-                            android:textSize="?smallSuperFont"
-                            tools:ignore="RtlSymmetry"/>
+                            android:layout_height="wrap_content">
+
+                            <com.github.siyamed.shapeimageview.RoundedImageView
+                                android:id="@+id/img_left"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="@dimen/dp_100"
+                                android:minHeight="@dimen/dp_160"
+                                android:src="@mipmap/group_award_background"
+                                android:visibility="gone"
+                                app:siBorderColor="@color/colorWhite"
+                                app:siBorderWidth="@dimen/dp_2"
+                                android:scaleType="center"
+                                app:siRadius="@dimen/dp_10"/>
+
+                            <TextView
+                                android:id="@+id/user_msg_left"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/msg_content_bg"
+                                android:maxWidth="@dimen/dp_200"
+                                android:paddingLeft="@dimen/dp_10"
+                                android:paddingTop="@dimen/dp_5"
+                                android:paddingRight="@dimen/dp_10"
+                                android:paddingBottom="@dimen/dp_5"
+                                android:text="@string/test2_str"
+                                android:textColor="@color/colorMineThemeText"
+                                android:textSize="?smallSuperFont"
+                                tools:ignore="RtlSymmetry"/>
+
+                        </RelativeLayout>
 
                         <TextView
                             android:id="@+id/msg_time_receive"
@@ -98,21 +117,40 @@
                         android:layout_weight="1"
                         android:orientation="vertical">
 
-                        <TextView
-                            android:id="@+id/user_msg_right"
+                        <RelativeLayout
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_gravity="end"
-                            android:background="@drawable/msg_send_content_bg"
-                            android:maxWidth="@dimen/dp_200"
-                            android:paddingLeft="@dimen/dp_10"
-                            android:paddingTop="@dimen/dp_5"
-                            android:paddingRight="@dimen/dp_10"
-                            android:paddingBottom="@dimen/dp_5"
-                            android:text="@string/test1_str"
-                            android:textColor="@color/colorMineThemeText"
-                            android:textSize="?smallSuperFont"
-                            tools:ignore="RtlSymmetry"/>
+                            android:layout_height="wrap_content">
+
+                            <com.github.siyamed.shapeimageview.RoundedImageView
+                                android:id="@+id/img_right"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:minWidth="@dimen/dp_100"
+                                android:minHeight="@dimen/dp_160"
+                                android:scaleType="center"
+                                android:src="@mipmap/group_award_background"
+                                android:visibility="gone"
+                                app:siBorderColor="@color/colorAccent"
+                                app:siBorderWidth="@dimen/dp_2"
+                                app:siRadius="@dimen/dp_10"/>
+
+                            <TextView
+                                android:id="@+id/user_msg_right"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_gravity="end"
+                                android:background="@drawable/msg_send_content_bg"
+                                android:maxWidth="@dimen/dp_200"
+                                android:paddingLeft="@dimen/dp_10"
+                                android:paddingTop="@dimen/dp_5"
+                                android:paddingRight="@dimen/dp_10"
+                                android:paddingBottom="@dimen/dp_5"
+                                android:text="@string/test1_str"
+                                android:textColor="@color/colorMineThemeText"
+                                android:textSize="?smallSuperFont"
+                                tools:ignore="RtlSymmetry"/>
+
+                        </RelativeLayout>
 
                         <TextView
                             android:id="@+id/msg_time_send"

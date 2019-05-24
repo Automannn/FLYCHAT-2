@@ -1,13 +1,14 @@
-package com.gameex.dw.justtalk.chattingPack;
+package com.gameex.dw.justtalk.groupChat;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -27,8 +28,7 @@ import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gameex.dw.justtalk.ObjPack.Msg;
-import com.gameex.dw.justtalk.ObjPack.MsgInfo;
+import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.groupInfo.GroupInfoActivity;
 import com.gameex.dw.justtalk.imagePicker.GifSizeFilter;
@@ -42,15 +42,15 @@ import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.filter.Filter;
 
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.content.CustomContent;
+import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
-import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -127,10 +127,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      * 群成员头像Uri
      */
     private List<Uri> mUris = new ArrayList<>();
-    /**
-     * 初始化消息列表
-     */
-    private List<Msg> mMsgs = new ArrayList<>();
+    private List<Message> mMessages = new ArrayList<>();
 
     private MsgInfo mMsgInfo;
     /**
@@ -238,12 +235,12 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         animatorMsg.setRemoveDuration(300);
         mMsgRecycler.setItemAnimator(animatorMsg);
         mMsgRecycler.setLayoutManager(new LinearLayoutManager(this));
-        mChatAdapter = new GroupChatAdapter(this, mMsgs);
+        mMessages = mConversation.getAllMessage();
+        mChatAdapter = new GroupChatAdapter(this, mMessages);
         mMsgRecycler.setAdapter(mChatAdapter);
         new Handler(this.getMainLooper()).post(new Runnable() {
             @Override
             public void run() {
-                getMsgs();
                 getUris();
             }
         });
@@ -331,12 +328,15 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     /**
      * 更新聊天数据，并滑到最后一条消息的位置
      *
-     * @param msg 消息类
+     * @param message 消息对象
      */
-    private void updateAdapter(Msg msg) {
-        mMsgs.add(msg);
+    private void updateAdapter(Message message) {
+        if (message == null) {
+            return;
+        }
+        mMessages.add(message);
         //如果有新消息，则设置适配器的长度；通知适配器有新数据插入，并让RecyclerView定位到最后一行
-        int newSize = mMsgs.size() - 1;
+        int newSize = mMessages.size() - 1;
         mChatAdapter.notifyItemInserted(newSize);
         mMsgRecycler.scrollToPosition(newSize);
     }
@@ -348,40 +348,11 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      */
     public void onEventMainThread(MessageEvent event) {
         Message message = event.getMessage();
-        if (message.getTargetType() == ConversationType.group) {
-            GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
-            UserInfo userInfo = message.getFromUser();
-            String username = userInfo.getUserName();
-            long milliSecond = message.getCreateTime();
-            String date = DataUtil.msFormMMDD(milliSecond);
-            String time = DataUtil.msFormHHmmTime(milliSecond);
-            Uri uri = TextUtils.isEmpty(userInfo.getExtra("icon_uri")) ? DataUtil.resourceIdToUri(getPackageName()
-                    , R.drawable.icon_user) : Uri.parse(userInfo.getExtra("icon_uri"));
-            if (groupInfo.getGroupID() == mGroupId) {
-                switch (message.getContentType()) {
-                    case text:  //处理文字信息
-                        TextContent textContent = (TextContent) message.getContent();
-                        String content = textContent.getText();
-                        LogUtil.d("getMessageContent", username + ":" + content);
-                        updateAdapter(new Msg(date, time, uri, content, Msg.Type.RECEIVED));
-                        break;
-                    case custom:
-                        CustomContent customContent = (CustomContent) message.getContent();
-                        String yuan = customContent.getStringValue("yuan");
-                        String token = customContent.getStringValue("token");
-                        LogUtil.d(TAG, "onEventMainThread-custom: " + "yuan = " + yuan);
-                        Msg msg = new Msg(date, time, uri, yuan, Msg.Type.RECEIVED);
-                        msg.setMsgType(Msg.MsgType.RED_PACKAGE);
-                        msg.setRedToken(token);
-                        updateAdapter(msg);
-                        break;
-                    default:
-                        break;
-                }
-            } else {
-                LogUtil.d("TAG", "not this group");
-            }
+        GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
+        if (groupInfo.getGroupID() == mGroupId) {
+            return;
         }
+        updateAdapter(message);
     }
 
     @Override
@@ -421,11 +392,6 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                     return;
                 }
                 sendTextMsg(content);
-                updateAdapter(new Msg(DataUtil.msFormMMDD(System.currentTimeMillis()),
-                        DataUtil.getCurrentTimeStr(), DataUtil.resourceIdToUri(
-                        this.getPackageName(), R.drawable.icon_user)
-                        , content, Msg.Type.SEND));
-                mEdit.setText("");
                 break;
         }
     }
@@ -452,22 +418,33 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         }
         TextContent textContent = new TextContent(content);
         assert mConversation != null;
-        Message message = mConversation.createSendMessage(textContent);
-        message.setOnSendCompleteCallback(new BasicCallback() {
-            @Override
-            public void gotResult(int requestCode, String responseDesc) {
-                if (requestCode == 0) {
-                    LogUtil.d("requestCode = 0",
-                            "发送成功" + "responseDesc = " + responseDesc);
-                } else {
-                    LogUtil.d("requestCode = " + requestCode,
-                            "发送失败" + "responseDesc = " + responseDesc);
-                }
-            }
-        });
-        MessageSendingOptions options = new MessageSendingOptions();
-        options.setRetainOffline(true);
-        JMessageClient.sendMessage(message);
+        final Message message = mConversation.createSendMessage(textContent);
+        sendListener(message, true);
+    }
+
+    /**
+     * 发送图片消息处理
+     *
+     * @param imgBitmap 图片文件
+     */
+    private void sendImgMsg(Bitmap imgBitmap) {
+        if (mConversation == null) {
+            mConversation = Conversation.createGroupConversation(mGroupId);
+        }
+        ImageContent.createImageContentAsync(imgBitmap, "flychat"
+                , new ImageContent.CreateImageContentCallback() {
+                    @Override
+                    public void gotResult(int i, String s, ImageContent imageContent) {
+                        if (i == 0) {
+                            assert mConversation != null;
+                            final Message message = mConversation.createSendMessage(imageContent);
+                            sendListener(message, false);
+                        } else {
+                            Toast.makeText(GroupChatActivity.this
+                                    , "发送图片失败-" + s, Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                });
     }
 
     /**
@@ -476,7 +453,36 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      * @param map 自定义消息键值对
      */
     private void sendCustomMsg(Map<String, String> map) {
-        Message message = JMessageClient.createGroupCustomMessage(mGroupId, map);
+        if (mConversation == null) {
+            mConversation = Conversation.createGroupConversation(mGroupId);
+        }
+        Message message = mConversation.createSendCustomMessage(map, "红包");
+        sendListener(message, false);
+    }
+
+    /**
+     * 消息发送监听
+     *
+     * @param message     消息对象
+     * @param isClearText 是否清空文本编辑框
+     */
+    private void sendListener(final Message message, final boolean isClearText) {
+        message.setOnSendCompleteCallback(new BasicCallback() {
+            @Override
+            public void gotResult(int requestCode, String responseDesc) {
+                if (requestCode == 0) {
+                    LogUtil.d("requestCode = 0",
+                            "发送成功" + "responseDesc = " + responseDesc);
+                    updateAdapter(message);
+                    if (isClearText) {
+                        mEdit.setText("");
+                    }
+                } else {
+                    Toast.makeText(GroupChatActivity.this, "发送失败，请重试"
+                            , Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         MessageSendingOptions options = new MessageSendingOptions();
         options.setRetainOffline(true);
         JMessageClient.sendMessage(message);
@@ -501,91 +507,9 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     }
 
     /**
-     * 初始化聊天内容
-     */
-    private void getMsgs() {
-        Conversation conversation = JMessageClient.getGroupConversation(
-                mGroupInfo.getGroupID());
-        if (conversation == null) {
-            return;
-        }
-        List<Message> messages = conversation.getAllMessage();
-        if (messages == null) {
-            mMsgs.add(new Msg(mMsgInfo.getDate(), DataUtil.getCurrentTimeStr()
-                    , Uri.parse(mMsgInfo.getUriPath()), mMsgInfo.getMsgLast(), Msg.Type.RECEIVED));
-        } else {
-            for (Message message : messages) {
-                goAddMsgList(message);
-            }
-        }
-    }
-
-    /**
-     * 判断message的发送状态，并做相应的处理
-     *
-     * @param message 消息体
-     */
-    private void goAddMsgList(Message message) {
-        long milliSecond = message.getCreateTime();
-        String date = DataUtil.msFormMMDD(milliSecond);
-        String time = DataUtil.msFormHHmmTime(milliSecond);
-        UserInfo userInfo = message.getFromUser();
-        Uri uri = TextUtils.isEmpty(userInfo.getExtra("icon_uri")) ? DataUtil.resourceIdToUri(getPackageName()
-                , R.drawable.icon_user) : Uri.parse(userInfo.getExtra("icon_uri"));
-        switch (message.getDirect()) {
-            case send:
-                addMsg(date, time, DataUtil.resourceIdToUri(this.getPackageName()
-                        , R.drawable.icon_user), message, Msg.Type.SEND);
-                break;
-            case receive:
-                addMsg(date, time, uri, message, Msg.Type.RECEIVED);
-                break;
-            default:
-                break;
-        }
-    }
-
-    /**
-     * 根据信息的类型，将获得的信息加入msg对象集合
-     *
-     * @param date    消息发送的日期
-     * @param time    消息发送的时间
-     * @param uri     消息发送方的头像
-     * @param message 消息体
-     * @param type    消息的类型（接收/发送）
-     */
-    private void addMsg(String date, String time, Uri uri,
-                        Message message, Msg.Type type) {
-        switch (message.getContentType()) {
-            case text:
-                TextContent textContent = (TextContent) message.getContent();
-                mMsgs.add(new Msg(date, time, uri, textContent.getText(), type));
-                break;
-            case image:
-                break;
-            case voice:
-                break;
-            case video:
-                break;
-            case custom:
-                CustomContent customContent = (CustomContent) message.getContent();
-                String yuan = customContent.getStringValue("yuan");
-                String token = customContent.getStringValue("token");
-                Msg msg = new Msg(date, time, uri, yuan, type);
-                msg.setMsgType(Msg.MsgType.RED_PACKAGE);
-                msg.setRedToken(token);
-                mMsgs.add(msg);
-                break;
-            default:
-                break;
-        }
-        mChatAdapter.notifyItemInserted(mMsgs.size() - 1);
-    }
-
-    /**
      * 初始化底部功能栏布局
      *
-     * @return List<Map                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               <                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               String                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Object>>
+     * @return List<Map                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               <                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               String                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Object>>
      */
     private List<Map<String, Object>> initGridList() {
         for (int i = 0; i < icon.length; i++) {
@@ -603,13 +527,6 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
             if (data != null) {
                 String[] yuan = data.getStringExtra("yuan").split("￥");
                 String token = data.getStringExtra("token");
-                Msg msg = new Msg(DataUtil.msFormMMDD(System.currentTimeMillis()),
-                        DataUtil.getCurrentTimeStr(), DataUtil.resourceIdToUri(
-                        this.getPackageName(), R.drawable.icon_user)
-                        , data.getStringExtra("yuan"), Msg.Type.SEND);
-                msg.setMsgType(Msg.MsgType.RED_PACKAGE);
-                msg.setRedToken(token);
-                updateAdapter(msg);
                 Map<String, String> map = new HashMap<>();
                 map.put("yuan", yuan[1]);
                 map.put("token", token);
@@ -618,8 +535,15 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                         + " ;yuan[0] = " + yuan[0] + " ;yuan[1] = " + yuan[1]);
             }
         } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
+            assert data != null;
             List<Uri> path = Matisse.obtainResult(data);
-            Toast.makeText(this, path + "", Toast.LENGTH_SHORT).show();
+            try {
+                Bitmap bitmap = BitmapFactory.decodeStream(
+                        getContentResolver().openInputStream(path.get(0)));
+                sendImgMsg(bitmap);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }

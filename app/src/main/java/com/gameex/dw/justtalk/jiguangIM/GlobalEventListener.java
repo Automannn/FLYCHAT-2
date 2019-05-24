@@ -14,10 +14,10 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
-import com.gameex.dw.justtalk.ObjPack.MsgInfo;
+import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.chattingPack.ChattingActivity;
-import com.gameex.dw.justtalk.chattingPack.GroupChatActivity;
+import com.gameex.dw.justtalk.singleChat.ChattingActivity;
+import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 
@@ -27,7 +27,6 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.content.EventNotificationContent;
 import cn.jpush.im.android.api.content.TextContent;
-import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.ContactNotifyEvent;
 import cn.jpush.im.android.api.event.LoginStateChangeEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
@@ -198,6 +197,12 @@ public class GlobalEventListener {
                 intent.putExtra("is_notify", true);
                 updateMsgInfo(message, intent);
                 break;
+            case image:
+                intent.putExtra("date", date);
+                intent.putExtra("msg_last", "图片");
+                intent.putExtra("is_notify", true);
+                updateMsgInfo(message, intent);
+                break;
             case eventNotification:
                 GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
                 EventNotificationContent notificationContent = (EventNotificationContent) message.getContent();
@@ -278,7 +283,7 @@ public class GlobalEventListener {
         } else if (flag == 1) {
             intent.setAction(CONTACT_NOTIFY_CLICKED);
             intent.putExtra(NOTIFY_TYPE_EXTRA, NOTIFY_TYPE_ONE);
-            intent.putExtra("user_info_json",userInfo.toJson());
+            intent.putExtra("user_info_json", userInfo.toJson());
         } else if (flag == 0) {
             intent.setAction(CONTACT_NOTIFY_ACCEPT);
             intent.putExtra("username", username);

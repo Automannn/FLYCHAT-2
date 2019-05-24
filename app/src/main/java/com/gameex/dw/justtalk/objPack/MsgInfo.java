@@ -1,4 +1,4 @@
-package com.gameex.dw.justtalk.ObjPack;
+package com.gameex.dw.justtalk.objPack;
 
 import android.os.Parcel;
 import android.os.Parcelable;

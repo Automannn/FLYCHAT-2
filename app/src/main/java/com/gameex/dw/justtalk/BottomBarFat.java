@@ -37,11 +37,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.gameex.dw.justtalk.ObjPack.Contact;
-import com.gameex.dw.justtalk.ObjPack.MsgInfo;
+import com.gameex.dw.justtalk.objPack.Contact;
+import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.payPackage.ChangeActivity;
 import com.gameex.dw.justtalk.publicInterface.FragmentCallBack;
-import com.gameex.dw.justtalk.publicInterface.RecyclerItemClick;
 import com.gameex.dw.justtalk.userInfo.SettingActivity;
 import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 import com.gameex.dw.justtalk.util.DataUtil;

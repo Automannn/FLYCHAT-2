@@ -1,4 +1,4 @@
-package com.gameex.dw.justtalk.objPack;
+package com.gameex.dw.justtalk.ObjPack;
 
 import android.net.Uri;
 

@@ -6,7 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.IBinder;
 
-import com.gameex.dw.justtalk.ObjPack.User;
+import com.gameex.dw.justtalk.objPack.User;
 import com.gameex.dw.justtalk.util.LogUtil;
 
 import org.json.JSONArray;
