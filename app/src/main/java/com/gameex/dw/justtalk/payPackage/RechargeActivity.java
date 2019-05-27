@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.payOrder.PayOrderActivity;
 import com.gameex.dw.justtalk.util.WindowUtil;
 
 import java.util.ArrayList;
@@ -175,6 +176,8 @@ public class RechargeActivity extends AppCompatActivity implements View.OnClickL
                 break;
             case R.id.next_step:
                 if (mYuan == null) {
+                    intent.setClass(this, PayOrderActivity.class);
+                    startActivity(intent);
                     Toast.makeText(this, "请选择金额", Toast.LENGTH_SHORT).show();
                     return;
                 }

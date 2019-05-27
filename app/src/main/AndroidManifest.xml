@@ -46,6 +46,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
+        <activity android:name=".redPackage.SingleRedActivity">
+        </activity>
+        <activity android:name=".payOrder.PayOrderActivity">
+        </activity>
         <activity android:name=".imgBrowse.PhotoBrowseActivity">
         </activity>
         <activity android:name=".payPackage.VerifyIdentityActivity">

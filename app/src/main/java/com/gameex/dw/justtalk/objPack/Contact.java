@@ -1,17 +1,12 @@
-package com.gameex.dw.justtalk.ObjPack;
+package com.gameex.dw.justtalk.objPack;
 
 import android.graphics.Bitmap;
 import android.net.Uri;
 
-import com.gameex.dw.justtalk.BottomBarActivity;
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.util.DataUtil;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.model.UserInfo;
 
 /**
  * 联系人对象，存储单个联系人信息

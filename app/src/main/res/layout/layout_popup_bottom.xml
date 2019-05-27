@@ -16,13 +16,15 @@
 
         <!-- 6位密码框布局，需要一个圆角边框的shape作为layout的背景 -->
         <LinearLayout
+            android:id="@+id/pay_pwd_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/dp_40"
             android:layout_marginTop="@dimen/dp_20"
             android:layout_marginRight="@dimen/dp_40"
             android:background="@drawable/shape_input_area"
-            android:orientation="horizontal">
+            android:orientation="horizontal"
+            tools:ignore="UselessParent">
 
             <!--
                  inputType设置隐藏密码明文  
@@ -117,13 +119,66 @@
 
     </LinearLayout>
 
-
     <!-- 输入键盘 -->
     <LinearLayout
+        android:id="@+id/pwd_keyboard_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhite">
+
+            <ImageView
+                android:id="@+id/safe_keyboard"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_5"
+                android:layout_marginRight="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_5"
+                android:src="@drawable/icon_safety"
+                tools:ignore="ContentDescription"/>
+
+            <TextView
+                android:layout_width="@dimen/dp_1"
+                android:layout_height="@dimen/dp_20"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="@dimen/dp_2"
+                android:layout_marginBottom="@dimen/dp_2"
+                android:layout_toEndOf="@id/safe_keyboard"
+                android:layout_toRightOf="@id/safe_keyboard"
+                android:background="@color/colorLightGray"/>
+
+            <TextView
+                android:layout_width="@dimen/dp_1"
+                android:layout_height="@dimen/dp_20"
+                android:layout_centerVertical="true"
+                android:layout_marginTop="@dimen/dp_2"
+                android:layout_marginBottom="@dimen/dp_2"
+                android:layout_toStartOf="@id/close"
+                android:layout_toLeftOf="@id/close"
+                android:background="@color/colorLightGray"/>
+
+            <ImageView
+                android:id="@+id/close"
+                android:layout_width="@dimen/dp_30"
+                android:layout_height="@dimen/dp_30"
+                android:layout_alignParentEnd="true"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/dp_10"
+                android:layout_marginTop="@dimen/dp_5"
+                android:layout_marginRight="@dimen/dp_10"
+                android:layout_marginBottom="@dimen/dp_5"
+                android:background="@drawable/light_gray_rip_out"
+                android:src="@drawable/icon_close_keyboard"
+                tools:ignore="ContentDescription"/>
+        </RelativeLayout>
 
         <View
             android:id="@+id/vw1"
@@ -136,13 +191,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorBlackAlpha11"
-            android:verticalSpacing="@dimen/dp_3"
             android:horizontalSpacing="@dimen/dp_3"
-            android:paddingTop="@dimen/dp_5"
-            android:paddingBottom="@dimen/dp_3"
+            android:numColumns="3"
             android:paddingLeft="@dimen/dp_7"
+            android:paddingTop="@dimen/dp_5"
             android:paddingRight="@dimen/dp_7"
-            android:numColumns="3"/>
+            android:paddingBottom="@dimen/dp_3"
+            android:verticalSpacing="@dimen/dp_3"/>
 
     </LinearLayout>
 

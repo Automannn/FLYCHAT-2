@@ -148,7 +148,7 @@ public class BottomBarActivity extends BaseActivity
         viewPager.addOnPageChangeListener(mPageChangeListener);
         navigation.setSelectedItemId(R.id.navigation_home);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
-        viewPager.setOffscreenPageLimit(2);
+        viewPager.setOffscreenPageLimit(1);
     }
 
     /**

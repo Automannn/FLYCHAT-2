@@ -3,34 +3,58 @@ package com.gameex.dw.justtalk.singleChat;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.animation.AwardRotateAnimation;
+import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
 import com.gameex.dw.justtalk.imgBrowse.PhotoBrowseActivity;
+import com.gameex.dw.justtalk.redPackage.RedDetailActivity;
+import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.OkHttpUtil;
+import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.github.siyamed.shapeimageview.RoundedImageView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
+import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import okhttp3.Call;
+import okhttp3.Response;
+
+import static com.gameex.dw.justtalk.groupChat.GroupChatActivity.sActivity;
+import static com.gameex.dw.justtalk.groupChat.GroupChatAdapter.SNATCH_PACKAET;
 
 public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecHolder> {
     private static final String TAG = "ChatRecAdapter";
@@ -121,16 +145,25 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
                 TextContent textContent = (TextContent) message.getContent();
                 holder.leftMsg.setText(textContent.getText());
                 holder.leftImg.setVisibility(View.GONE);
+                holder.leftMsg.setVisibility(View.VISIBLE);
+                holder.redMsgLeft.setVisibility(View.GONE);
                 break;
             case image:
                 ImageContent imageContent = (ImageContent) message.getContent();
+                holder.redMsgLeft.setVisibility(View.GONE);
                 holder.leftMsg.setVisibility(View.GONE);
                 holder.leftImg.setVisibility(View.VISIBLE);
                 Glide.with(mContext)
                         .load(imageContent.getLocalThumbnailPath())
-                        .placeholder(R.drawable.icon_img_reload)
-                        .error(R.drawable.icon_img_load_fail)
                         .into(holder.leftImg);
+                break;
+            case custom:
+                CustomContent customContent = (CustomContent) message.getContent();
+                String blessings = customContent.getStringValue("blessings");
+                holder.leftMsg.setVisibility(View.GONE);
+                holder.leftImg.setVisibility(View.GONE);
+                holder.redMsgLeft.setVisibility(View.VISIBLE);
+                holder.redMessageLeft.setText(blessings);
                 break;
         }
     }
@@ -163,17 +196,26 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             case text:
                 TextContent textContent = (TextContent) message.getContent();
                 holder.rightMsg.setText(textContent.getText());
+                holder.redMsgRight.setVisibility(View.GONE);
                 holder.rightImg.setVisibility(View.GONE);
+                holder.rightMsg.setVisibility(View.VISIBLE);
                 break;
             case image:
                 ImageContent imageContent = (ImageContent) message.getContent();
+                holder.redMsgRight.setVisibility(View.GONE);
                 holder.rightMsg.setVisibility(View.GONE);
                 holder.rightImg.setVisibility(View.VISIBLE);
                 Glide.with(mContext)
                         .load(imageContent.getLocalThumbnailPath())
-                        .placeholder(R.drawable.icon_img_reload)
-                        .error(R.drawable.icon_img_load_fail)
                         .into(holder.rightImg);
+                break;
+            case custom:
+                CustomContent customContent = (CustomContent) message.getContent();
+                String blessings = customContent.getStringValue("blessings");
+                holder.rightMsg.setVisibility(View.GONE);
+                holder.rightImg.setVisibility(View.GONE);
+                holder.redMsgRight.setVisibility(View.VISIBLE);
+                holder.redMessageRight.setText(blessings);
                 break;
         }
     }
@@ -185,13 +227,18 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
 
     public class ChatRecHolder extends RecyclerView.ViewHolder
             implements View.OnClickListener {
-        LinearLayout leftLayout, rightLayout, leftMsgLayout, rightMsgLayout;
+        LinearLayout leftLayout, rightLayout, leftMsgLayout, rightMsgLayout, redMsgLeft, redMsgRight;
         CircularImageView leftCircle, rightCircle;
-        TextView leftMsg, receiveTime, sendTime, rightMsg;
+        TextView leftMsg, receiveTime, sendTime, rightMsg, redMessageLeft, redMessageRight;
+        ImageView open;
         RoundedImageView leftImg, rightImg;
+
+        private PopupWindow redPup;
 
         ChatRecHolder(@NonNull View itemView) {
             super(itemView);
+            showRedPup();
+            int[] ints = WindowUtil.getWH(ChattingActivity.sBaseActivity);
             leftLayout = itemView.findViewById(R.id.left_msg_linear);
             leftMsgLayout = itemView.findViewById(R.id.msg_receive_layout);
             rightLayout = itemView.findViewById(R.id.right_msg_linear);
@@ -199,13 +246,21 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             leftCircle = itemView.findViewById(R.id.user_icon_left);
             leftCircle.setOnClickListener(this);
             leftImg = itemView.findViewById(R.id.img_left);
+            leftImg.setMaxWidth(ints[0] / 2);
+            leftImg.setMaxHeight(ints[1] / 3);
             leftImg.setOnClickListener(this);
             leftMsg = itemView.findViewById(R.id.user_msg_left);
+            redMsgLeft = itemView.findViewById(R.id.red_msg_left);
+            redMessageLeft = itemView.findViewById(R.id.red_message_left);
             receiveTime = itemView.findViewById(R.id.msg_time_receive);
             rightCircle = itemView.findViewById(R.id.user_icon_right);
             rightImg = itemView.findViewById(R.id.img_right);
+            rightImg.setMaxWidth(ints[0] / 2);
+            rightImg.setMaxHeight(ints[1] / 3);
             rightImg.setOnClickListener(this);
             rightMsg = itemView.findViewById(R.id.user_msg_right);
+            redMsgRight = itemView.findViewById(R.id.red_msg_right);
+            redMessageRight = itemView.findViewById(R.id.red_message_right);
             sendTime = itemView.findViewById(R.id.msg_time_send);
         }
 
@@ -215,6 +270,48 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             switch (view.getId()) {
                 case R.id.user_icon_left:
                     Toast.makeText(mContext, "查看用户信息", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.red_msg_left:
+                    CustomContent customContentLeft = (CustomContent) message.getContent();
+                    if (customContentLeft != null &&
+                            !TextUtils.isEmpty(customContentLeft.getStringValue("yuan"))) {
+                        Toast.makeText(mContext, "打开钱包", Toast.LENGTH_SHORT).show();
+                        if (redPup != null) {
+                            redPup.showAtLocation(rightMsg
+                                    , Gravity.CENTER, 0, 0);
+                            WindowUtil.showBackgroundAnimator(sActivity, 0.5f);
+                        }
+                    }
+                    break;
+//                case R.id.red_msg_right:
+//                    CustomContent customContentRight = (CustomContent) message.getContent();
+//                    if (customContentRight != null &&
+//                            !TextUtils.isEmpty(customContentRight.getStringValue("yuan"))) {
+//                        Toast.makeText(mContext, "查看钱包领取情况", Toast.LENGTH_SHORT).show();
+//                        if (redPup != null) {
+//                            redPup.showAtLocation(rightMsg
+//                                    , Gravity.CENTER, 0, 0);
+//                            WindowUtil.showBackgroundAnimator(sActivity, 0.5f);
+//                        }
+//                    }
+//                    break;
+                case R.id.user_icon_right:
+                    Toast.makeText(mContext, "查看自己的信息", Toast.LENGTH_SHORT).show();
+                case R.id.close:
+                    if (redPup != null && redPup.isShowing()) {
+                        redPup.dismiss();
+                    }
+                    break;
+                case R.id.open:
+                    CustomContent customContentOpen = (CustomContent) message.getContent();
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+                    AwardRotateAnimation animation = new AwardRotateAnimation();
+//                    animation.setRepeatCount(Animation.INFINITE);
+//                    animation.setInterpolator(new OvershootInterpolator());
+                    open.startAnimation(animation);
+//                    getTimer();
+                    snatchPacket(customContentOpen.getStringValue("token")
+                            , pref.getString("userId", ""));
                     break;
                 case R.id.img_left:
                     browseImg(message);
@@ -257,6 +354,97 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
                     }
                 });
             }
+        }
+
+        /**
+         * 红包弹出框
+         */
+        private void showRedPup() {
+            LayoutInflater inflater = LayoutInflater.from(mContext);
+            View view = inflater.inflate(R.layout.popup_red_package, null);
+            ImageView close = view.findViewById(R.id.close);
+            close.setOnClickListener(this);
+            open = view.findViewById(R.id.open);
+            open.setOnClickListener(this);
+            redPup = new PopupWindow(view, LinearLayout.LayoutParams.WRAP_CONTENT,
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
+            redPup.setFocusable(true);
+            redPup.setOutsideTouchable(true);
+            redPup.setTouchInterceptor(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View view, MotionEvent motionEvent) {
+                    if (motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                        redPup.dismiss();
+                        return true;
+                    }
+                    return false;
+                }
+            });
+            redPup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+                @Override
+                public void onDismiss() {
+                    WindowUtil.setWindowBackgroundAlpha(sActivity, 1f);
+                }
+            });
+            redPup.setAnimationStyle(R.style.translate_scale_alpha_style);
+            redPup.update();
+        }
+
+        /**
+         * 抢红包
+         *
+         * @param token  pubKey
+         * @param userId 自家服务器上的userId
+         */
+        private void snatchPacket(String token, String userId) {
+            HashMap<String, String> paramsMap = new HashMap<>();
+            paramsMap.put("token", token);
+            paramsMap.put("userId", userId);
+            OkHttpUtil.okHttpPost(SNATCH_PACKAET, paramsMap, new CallBackUtil.CallBackDefault() {
+                @Override
+                public void onFailure(Call call, Exception e) {
+                    LogUtil.d(TAG, "snatchPacket-onFailure: ");
+                    e.printStackTrace();
+                    Toast.makeText(mContext, "网络异常", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onResponse(Response response) {
+                    if (response != null && response.isSuccessful()) {
+                        try {
+                            JSONObject object = null;
+                            if (response.body() != null) {
+                                object = new JSONObject(response.body().string());
+                            }
+                            if (object != null) {
+                                Intent intent = new Intent(mContext, RedDetailActivity.class);
+                                boolean success = object.getBoolean("success");
+                                if (success) {
+                                    String data = object.getString("data");
+                                    Toast.makeText(mContext, data + "", Toast.LENGTH_SHORT).show();
+                                    intent.putExtra("amount", data);
+                                } else {
+                                    JSONObject dataObject = object.getJSONObject("data");
+                                    int code = dataObject.getInt("code");
+                                    String message = dataObject.getString("message");
+                                    LogUtil.d(TAG, "snatchPacket-onResponse-success=false: " +
+                                            "code = " + code + " ;message = " + message);
+                                    Toast.makeText(mContext, message + "", Toast.LENGTH_SHORT).show();
+                                    intent.putExtra("amount", message);
+                                }
+                                if (redPup.isShowing()) {
+                                    redPup.dismiss();
+                                }
+                                mContext.startActivity(intent);
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            });
         }
     }
 }

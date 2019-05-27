@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite"
+    android:orientation="vertical"
+    tools:context=".payOrder.PayOrderActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_74"
+        android:background="@color/colorPrimary"
+        android:gravity="bottom"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/dp_35"
+            android:layout_height="@dimen/dp_49"
+            android:layout_marginStart="@dimen/dp_3"
+            android:layout_marginLeft="@dimen/dp_3"
+            android:background="@drawable/light_gray_rip_out"
+            android:paddingStart="@dimen/dp_10"
+            android:paddingLeft="@dimen/dp_10"
+            android:src="@drawable/left_arrow"
+            tools:ignore="ContentDescription,RtlSymmetry"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_49"
+            android:layout_marginStart="@dimen/dp_12"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:gravity="center"
+            android:text="@string/pay_order_str"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_20"/>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_14"
+            android:layout_marginLeft="@dimen/dp_14"
+            android:orientation="vertical">
+
+            <ImageView
+                android:layout_width="@dimen/dp_200"
+                android:layout_height="@dimen/dp_56"
+                android:src="@drawable/alipay_bg"
+                tools:ignore="ContentDescription"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_1"
+                android:background="@color/colorLightGray"/>
+
+            <ImageView
+                android:layout_width="@dimen/dp_200"
+                android:layout_height="@dimen/dp_56"
+                android:paddingTop="@dimen/dp_14"
+                android:paddingBottom="@dimen/dp_10"
+                android:scaleType="fitStart"
+                android:src="@drawable/wepay_bg"
+                tools:ignore="ContentDescription"/>
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_120"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:orientation="vertical"
+            android:paddingEnd="@dimen/dp_14"
+            android:paddingRight="@dimen/dp_14"
+            tools:ignore="RtlSymmetry,UselessParent">
+
+            <RadioGroup
+                android:id="@+id/pay_group"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <RadioButton
+                    android:id="@+id/alipay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+
+                <RadioButton
+                    android:id="@+id/wepay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"/>
+            </RadioGroup>
+
+        </LinearLayout>
+    </RelativeLayout>
+
+    <Button
+        android:id="@+id/pay"
+        android:layout_width="@dimen/dp_290"
+        android:layout_height="@dimen/dp_40"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="@dimen/dp_100"
+        android:background="@drawable/blue_bg"
+        android:text="@string/pay_str"
+        android:textColor="@color/colorWhite"/>
+
+</LinearLayout>

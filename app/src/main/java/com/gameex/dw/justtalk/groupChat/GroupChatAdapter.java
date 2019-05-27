@@ -58,7 +58,7 @@ import static com.gameex.dw.justtalk.groupChat.GroupChatActivity.sActivity;
 
 public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.GroupChatHolder> {
     private static final String TAG = "GroupChatActivity";
-    private static final String SNATCH_PACKAET = "account/snatchpacket";
+    public static final String SNATCH_PACKAET = "account/snatchpacket";
 
     private Context mContext;
     private List<Message> mMessages;
@@ -147,23 +147,24 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                 holder.leftMsg.setVisibility(View.VISIBLE);
                 holder.leftMsg.setText(textContent.getText());
                 holder.leftImg.setVisibility(View.GONE);
+                holder.redMsgLeft.setVisibility(View.GONE);
                 break;
             case image:
                 ImageContent imageContent = (ImageContent) message.getContent();
                 holder.leftMsg.setVisibility(View.GONE);
+                holder.redMsgLeft.setVisibility(View.GONE);
                 holder.leftImg.setVisibility(View.VISIBLE);
                 Glide.with(mContext)
                         .load(imageContent.getLocalThumbnailPath())
-                        .placeholder(R.drawable.icon_img_reload)
-                        .error(R.drawable.icon_img_load_fail)
                         .into(holder.leftImg);
                 break;
             case custom:
                 CustomContent customContent = (CustomContent) message.getContent();
-                String yuan = customContent.getStringValue("yuan");
-                holder.leftMsg.setVisibility(View.VISIBLE);
-                holder.leftMsg.setText(yuan);
+                String blessings = customContent.getStringValue("blessings");
+                holder.leftMsg.setVisibility(View.GONE);
                 holder.leftImg.setVisibility(View.GONE);
+                holder.redMsgLeft.setVisibility(View.VISIBLE);
+                holder.redMessageLeft.setText(blessings);
                 break;
         }
     }
@@ -198,23 +199,24 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                 holder.rightMsg.setVisibility(View.VISIBLE);
                 holder.rightMsg.setText(textContent.getText());
                 holder.rightImg.setVisibility(View.GONE);
+                holder.redMsgRight.setVisibility(View.GONE);
                 break;
             case image:
                 ImageContent imageContent = (ImageContent) message.getContent();
                 holder.rightMsg.setVisibility(View.GONE);
                 holder.rightImg.setVisibility(View.VISIBLE);
+                holder.redMsgRight.setVisibility(View.GONE);
                 Glide.with(mContext)
                         .load(imageContent.getLocalThumbnailPath())
-                        .placeholder(R.drawable.icon_img_reload)
-                        .error(R.drawable.icon_img_load_fail)
                         .into(holder.rightImg);
                 break;
             case custom:
                 CustomContent customContent = (CustomContent) message.getContent();
-                String yuan = customContent.getStringValue("yuan");
-                holder.rightMsg.setVisibility(View.VISIBLE);
-                holder.rightMsg.setText(yuan);
+                String blessings = customContent.getStringValue("blessings");
+                holder.rightMsg.setVisibility(View.GONE);
                 holder.rightImg.setVisibility(View.GONE);
+                holder.redMsgRight.setVisibility(View.VISIBLE);
+                holder.redMessageRight.setText(blessings);
                 break;
         }
     }
@@ -225,9 +227,9 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
     }
 
     class GroupChatHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        LinearLayout leftLayout, rightLayout, leftMsgLayout, rightMsgLayout;
+        LinearLayout leftLayout, rightLayout, leftMsgLayout, rightMsgLayout, redMsgLeft, redMsgRight;
         CircularImageView leftCircle, rightCircle;
-        TextView leftMsg, receiveTime, sendTime, rightMsg;
+        TextView leftMsg, receiveTime, sendTime, rightMsg, redMessageLeft, redMessageRight;
         ImageView open;
         RoundedImageView leftImg, rightImg;
 
@@ -236,6 +238,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
         GroupChatHolder(@NonNull View itemView) {
             super(itemView);
             showRedPup();
+            int[] ints = WindowUtil.getWH(GroupChatActivity.sActivity);
             leftLayout = itemView.findViewById(R.id.left_msg_linear);
             leftMsgLayout = itemView.findViewById(R.id.msg_receive_layout);
             rightLayout = itemView.findViewById(R.id.right_msg_linear);
@@ -243,16 +246,26 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
             leftCircle = itemView.findViewById(R.id.user_icon_left);
             leftCircle.setOnClickListener(this);
             leftImg = itemView.findViewById(R.id.img_left);
+            leftImg.setMaxWidth(ints[0] / 2);
+            leftImg.setMaxHeight(ints[1] / 3);
+            leftImg.setScaleType(ImageView.ScaleType.CENTER);
             leftImg.setOnClickListener(this);
             leftMsg = itemView.findViewById(R.id.user_msg_left);
             leftMsg.setOnClickListener(this);
+            redMsgLeft = itemView.findViewById(R.id.red_msg_left);
+            redMessageLeft = itemView.findViewById(R.id.red_message_left);
             receiveTime = itemView.findViewById(R.id.msg_time_receive);
             rightCircle = itemView.findViewById(R.id.user_icon_right);
             rightCircle.setOnClickListener(this);
             rightImg = itemView.findViewById(R.id.img_right);
+            rightImg.setMaxWidth(ints[0] / 2);
+            rightImg.setMaxHeight(ints[1] / 3);
+            rightImg.setScaleType(ImageView.ScaleType.CENTER);
             rightImg.setOnClickListener(this);
             rightMsg = itemView.findViewById(R.id.user_msg_right);
             rightMsg.setOnClickListener(this);
+            redMsgRight = itemView.findViewById(R.id.red_msg_right);
+            redMessageRight = itemView.findViewById(R.id.red_message_right);
             sendTime = itemView.findViewById(R.id.msg_time_send);
         }
 
@@ -263,7 +276,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                 case R.id.user_icon_left:
                     Toast.makeText(mContext, "查看用户信息", Toast.LENGTH_SHORT).show();
                     break;
-                case R.id.user_msg_left:
+                case R.id.red_msg_left:
                     CustomContent customContentLeft = (CustomContent) message.getContent();
                     if (customContentLeft != null &&
                             !TextUtils.isEmpty(customContentLeft.getStringValue("yuan"))) {
@@ -275,7 +288,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                         }
                     }
                     break;
-                case R.id.user_msg_right:
+                case R.id.red_msg_right:
                     CustomContent customContentRight = (CustomContent) message.getContent();
                     if (customContentRight != null &&
                             !TextUtils.isEmpty(customContentRight.getStringValue("yuan"))) {

@@ -2,6 +2,8 @@ package com.gameex.dw.justtalk.util;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.Context;
+import android.util.DisplayMetrics;
 import android.view.Window;
 import android.view.WindowManager;
 
@@ -34,5 +36,18 @@ public class WindowUtil {
         });
         animator.setDuration(500);
         animator.start();
+    }
+
+    /**
+     * 获得屏幕的宽高
+     */
+    public static int[] getWH(Activity activity) {
+        int[] ints = new int[2];
+        WindowManager windowManager = activity.getWindowManager();
+        DisplayMetrics metrics = new DisplayMetrics();
+        windowManager.getDefaultDisplay().getMetrics(metrics);
+        ints[0] = metrics.widthPixels;
+        ints[1] = metrics.heightPixels;
+        return ints;
     }
 }

@@ -25,11 +25,14 @@ import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.imagePicker.GifSizeFilter;
 import com.gameex.dw.justtalk.imagePicker.Glide4Engine;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
+import com.gameex.dw.justtalk.redPackage.SetYuanActivity;
+import com.gameex.dw.justtalk.redPackage.SingleRedActivity;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.gameex.dw.justtalk.userInfo.UserBasicInfoActivity;
@@ -57,12 +60,18 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 
+import static com.gameex.dw.justtalk.groupChat.GroupChatActivity.REQUEST_GROUP_RED_PACKAGE;
+
 public class ChattingActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "ChattingActivity";
     /**
      * ZhiHu`s image picker`s request code
      */
     private static final int REQUEST_CODE_CHOOSE = 23;
+    /**
+     * 单聊红包请求码
+     */
+    private static final int REQUEST_SINGLE_RED_PACKAGE = 102;
 
     private TitleBarView mTitleBar;
     private RecyclerView mRecycler;
@@ -158,7 +167,9 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         mRecycler = findViewById(R.id.chat_recycler);
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setItemAnimator(animator);
-        mMessages = mConversation.getAllMessage();
+        if (mConversation != null) {
+            mMessages = mConversation.getAllMessage();
+        }
         mRecAdapter = new ChatRecAdapter(this, mMessages);
         mRecycler.setAdapter(mRecAdapter);
 
@@ -245,7 +256,11 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view
                     , int position, long id) {
-                if (position == 1) {
+                if (position == 0) {
+                    Intent intent = new Intent(ChattingActivity.this
+                            , SingleRedActivity.class);
+                    startActivityForResult(intent, REQUEST_SINGLE_RED_PACKAGE);
+                } else if (position == 1) {
                     Matisse.from(ChattingActivity.this)
                             .choose(MimeType.ofImage())
                             .countable(true)
@@ -377,6 +392,19 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     }
 
     /**
+     * 创建自定义消息
+     *
+     * @param map 自定义消息键值对
+     */
+    private void sendCustomMsg(Map<String, String> map) {
+        if (mConversation == null) {
+            mConversation = Conversation.createSingleConversation(mUserInfo.getUserName());
+        }
+        Message message = mConversation.createSendCustomMessage(map, "红包");
+        sendListener(message, false);
+    }
+
+    /**
      * 消息发送监听
      *
      * @param message     消息对象
@@ -439,6 +467,19 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 sendImgMsg(bitmap);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
+            }
+        } else if (requestCode == REQUEST_SINGLE_RED_PACKAGE && resultCode == RESULT_OK) {
+            if (data != null) {
+                String[] yuan = data.getStringExtra("yuan").split("￥");
+                String token = data.getStringExtra("token");
+                String blessings=data.getStringExtra("blessings");
+                Map<String, String> map = new HashMap<>();
+                map.put("yuan", yuan[1]);
+                map.put("token", token);
+                map.put("blessings",blessings);
+                sendCustomMsg(map);
+                LogUtil.d(TAG, "onActivityResult: " + "yuan.length = " + yuan.length
+                        + " ;yuan[0] = " + yuan[0] + " ;yuan[1] = " + yuan[1]);
             }
         }
     }

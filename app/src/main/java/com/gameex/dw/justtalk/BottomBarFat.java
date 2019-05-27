@@ -16,6 +16,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.annotation.RequiresApi;
@@ -61,8 +62,10 @@ import java.util.Objects;
 
 import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
+import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 
 public class BottomBarFat extends Fragment implements View.OnClickListener {
@@ -559,43 +562,71 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     private void updateMsgInfo(final Context context, String name, final String date
             , final String msg, final boolean isNotify
             , final boolean isSingle, final String groupInfoJson) {
-        JMessageClient.getUserInfo(name, new GetUserInfoCallback() {
-            @Override
-            public void gotResult(int i, String s, UserInfo userInfo) {
-                if (i == 0) {
-                    LogUtil.d(TAG, "onReceiver: " + "userInfo = " + userInfo.toJson());
-                    MsgInfo msgInfo = new MsgInfo(
-                            userInfo.getExtra("username") == null
-                                    ? userInfo.getUserName() : userInfo.getExtra("username")
-                            , date, msg, isNotify);
-                    msgInfo.setUriPath(userInfo.getExtra("icon_uri") == null ?
-                            DataUtil.resourceIdToUri(context.getPackageName(), R.drawable.icon_user).toString()
-                            : userInfo.getExtra("icon_uri"));
-                    msgInfo.setSingle(isSingle);
-                    msgInfo.setUserInfoJson(userInfo.toJson());
-                    if (groupInfoJson != null) {
-                        msgInfo.setGroupInfoJson(groupInfoJson);
+        if (isSingle) {
+            JMessageClient.getUserInfo(name, new GetUserInfoCallback() {
+                @Override
+                public void gotResult(int i, String s, UserInfo userInfo) {
+                    if (i == 0) {
+                        LogUtil.d(TAG, "onReceiver: " + "userInfo = " + userInfo.toJson());
+                        MsgInfo msgInfo = new MsgInfo(
+                                userInfo.getExtra("username") == null
+                                        ? userInfo.getUserName() : userInfo.getExtra("username")
+                                , date, msg, isNotify);
+                        msgInfo.setUriPath(userInfo.getExtra("icon_uri") == null ?
+                                DataUtil.resourceIdToUri(context.getPackageName(), R.drawable.icon_user).toString()
+                                : userInfo.getExtra("icon_uri"));
+                        msgInfo.setSingle(isSingle);
+                        msgInfo.setUserInfoJson(userInfo.toJson());
+                        if (groupInfoJson != null) {
+                            msgInfo.setGroupInfoJson(groupInfoJson);
+                        }
+                        int isExist = isMsgExist(userInfo);
+                        if (isExist == -1) {
+                            mMsgInfos.add(msgInfo);
+                            mAdapter.notifyItemInserted(1);
+                        } else {
+                            mMsgInfos.set(isExist, msgInfo);
+                            mAdapter.notifyItemChanged(isExist);
+                        }
+                        Gson gson = new Gson();
+                        String msgsStr = gson.toJson(mMsgInfos);
+                        mEditor = mPref.edit();
+                        mEditor.putString("msg_list", msgsStr);
+                        mEditor.apply();
+                    } else {
+                        LogUtil.d(TAG, "onReceiver: " +
+                                "responseCode = " + i + " ; desc = " + s);
+                        Toast.makeText(context, "好友添加失败", Toast.LENGTH_SHORT).show();
                     }
-                    int isExist = isMsgExist(userInfo);
-                    if (isExist == -1) {
+                }
+            });
+        } else {
+            GroupInfo groupInfo = GroupInfo.fromJson(groupInfoJson);
+            final MsgInfo msgInfo = new MsgInfo(groupInfo.getGroupName(), date, msg, isNotify);
+            groupInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                @Override
+                public void gotResult(int i, String s, Bitmap bitmap) {
+                    if (i == 0) {
+                        msgInfo.setUriPath(Uri.parse(MediaStore.Images
+                                .Media
+                                .insertImage(getActivity().getContentResolver()
+                                        , bitmap, null, null)).toString());
+                        msgInfo.setSingle(isSingle);
+                        msgInfo.setGroupInfoJson(groupInfoJson);
                         mMsgInfos.add(msgInfo);
                         mAdapter.notifyItemInserted(1);
+                        Gson gson = new Gson();
+                        String msgsStr = gson.toJson(mMsgInfos);
+                        mEditor = mPref.edit();
+                        mEditor.putString("msg_list", msgsStr);
+                        mEditor.apply();
                     } else {
-                        mMsgInfos.set(isExist, msgInfo);
-                        mAdapter.notifyItemChanged(isExist);
+                        LogUtil.d(TAG, "updateMsgInfo-group: "
+                                + "responseCode = " + i + " ;desc = " + s);
                     }
-                    Gson gson = new Gson();
-                    String msgsStr = gson.toJson(mMsgInfos);
-                    mEditor = mPref.edit();
-                    mEditor.putString("msg_list", msgsStr);
-                    mEditor.apply();
-                } else {
-                    LogUtil.d(TAG, "onReceiver: " +
-                            "responseCode = " + i + " ; desc = " + s);
-                    Toast.makeText(context, "好友添加失败", Toast.LENGTH_SHORT).show();
                 }
-            }
-        });
+            });
+        }
     }
 
     /**

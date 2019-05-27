@@ -65,8 +65,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     public static UserInfoActivity sUserInfoActivity;
     public static final String UPDATE_USER_INFO = "com.gameex.dw.flychat.UPDATE_USER";
 
-    private static int[] ints;
-
     private LinearLayout mLinearLayout;
     private TitleBarView mBarView;
     private RelativeLayout mIconInfo, mQRCode, mFlyCode, mFlySign, mNumInfo;
@@ -331,18 +329,6 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         });
         mEditPup.setAnimationStyle(R.style.pop_anim);
         mEditPup.update();
-    }
-
-    /**
-     * 获得屏幕的宽高
-     */
-    private void getWH() {
-        ints = new int[2];
-        WindowManager windowManager = this.getWindowManager();
-        DisplayMetrics metrics = new DisplayMetrics();
-        windowManager.getDefaultDisplay().getMetrics(metrics);
-        ints[0] = metrics.widthPixels;
-        ints[1] = metrics.heightPixels;
     }
 
     @Override

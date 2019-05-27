@@ -14,16 +14,20 @@ import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
 
-public class PayPasswordView extends RelativeLayout {
+public class PayPasswordView extends RelativeLayout implements View.OnClickListener {
 
     Context context;
+    private LinearLayout mPayLayout, mKeyboardLayout;
     private String strPassword; // 输入的密码
     private TextView[] tvList; // 就6个输入框不会变了，用数组内存申请固定空间，比List省空间
+    private ImageView closeKeyboard;
     private GridView gridView; // 用GrideView布局键盘，其实并不是真正的键盘，只是模拟键盘的功能
     private ArrayList<Map<String, String>> valueList; // 要用Adapter中适配，用数组不能往adapter中填充
     private int currentIndex = -1; // 用于记录当前输入密码格位置
@@ -37,6 +41,8 @@ public class PayPasswordView extends RelativeLayout {
         this.context = context;
         //view布局
         View view = View.inflate(context, R.layout.layout_popup_bottom, null);
+        //初始化密码框
+        mPayLayout = view.findViewById(R.id.pay_pwd_layout);
         valueList = new ArrayList<>();
         tvList = new TextView[6];
         //初始化控件
@@ -47,6 +53,10 @@ public class PayPasswordView extends RelativeLayout {
         tvList[4] = view.findViewById(R.id.tv_pass5);
         tvList[5] = view.findViewById(R.id.tv_pass6);
 
+        //初始化密码键盘
+        mKeyboardLayout = view.findViewById(R.id.pwd_keyboard_layout);
+        //初始化收起键
+        closeKeyboard = view.findViewById(R.id.close);
         //初始化键盘
         gridView = view.findViewById(R.id.pay_pwd_key_board);
         //设置键盘显示按钮到集合
@@ -59,17 +69,23 @@ public class PayPasswordView extends RelativeLayout {
     //设置按钮显示内容
     private void setView() {
 
+        //设置密码框点击展示密码键盘监听
+        mPayLayout.setOnClickListener(this);
+
+        //设置点击关闭键盘时收起密码键盘
+        closeKeyboard.setOnClickListener(this);
+
         // 初始化按钮上应该显示的数字
         for (int i = 1; i < 13; i++) {
             Map<String, String> map = new HashMap<>();
             if (i < 10) {
                 map.put("name", String.valueOf(i));
             } else if (i == 10) {
-                map.put("name", "");
-            } else if (i == 12) {
-                map.put("name", "<<-");
+                map.put("name", "↩");
             } else if (i == 11) {
                 map.put("name", String.valueOf(0));
+            } else {
+                map.put("name", "🔙");
             }
             valueList.add(map);
         }
@@ -95,6 +111,8 @@ public class PayPasswordView extends RelativeLayout {
                         if (currentIndex - 1 >= -1) {
                             tvList[currentIndex--].setText("");
                         }
+                    } else {
+                        Toast.makeText(context, "某种逻辑", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -174,7 +192,7 @@ public class PayPasswordView extends RelativeLayout {
                 //设置按钮背景
                 viewHolder.btnKey.setBackgroundResource(R.drawable.selector_key_del);
                 //设置按钮不可点击
-                viewHolder.btnKey.setEnabled(false);
+                //viewHolder.btnKey.setEnabled(false);
             }
             if (position == 11) {
                 //设置按钮背景
@@ -184,6 +202,18 @@ public class PayPasswordView extends RelativeLayout {
         }
 
     };
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.close:
+                mKeyboardLayout.setVisibility(GONE);
+                break;
+            case R.id.pay_pwd_layout:
+                mKeyboardLayout.setVisibility(VISIBLE);
+                break;
+        }
+    }
 
     public final class ViewHolder {
         public TextView btnKey;
