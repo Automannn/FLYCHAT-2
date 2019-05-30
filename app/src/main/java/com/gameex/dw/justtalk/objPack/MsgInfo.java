@@ -5,6 +5,10 @@ import android.os.Parcelable;
 
 public class MsgInfo implements Parcelable {
     /**
+     * 自定义消息体唯一标识
+     */
+    private String id;
+    /**
      * 用户头像
      */
     private String uriPath;
@@ -52,6 +56,7 @@ public class MsgInfo implements Parcelable {
     }
 
     protected MsgInfo(Parcel in) {
+        id = in.readString();
         uriPath = in.readString();
         username = in.readString();
         date = in.readString();
@@ -73,6 +78,14 @@ public class MsgInfo implements Parcelable {
             return new MsgInfo[size];
         }
     };
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getUriPath() {
         return uriPath;
@@ -141,7 +154,8 @@ public class MsgInfo implements Parcelable {
     @Override
     public String toString() {
         return "MsgInfo{" +
-                "uriPath='" + uriPath + '\'' +
+                "id='" + id + '\'' +
+                ", uriPath='" + uriPath + '\'' +
                 ", username='" + username + '\'' +
                 ", date='" + date + '\'' +
                 ", msgLast='" + msgLast + '\'' +
@@ -159,6 +173,7 @@ public class MsgInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id);
         parcel.writeString(uriPath);
         parcel.writeString(username);
         parcel.writeString(date);

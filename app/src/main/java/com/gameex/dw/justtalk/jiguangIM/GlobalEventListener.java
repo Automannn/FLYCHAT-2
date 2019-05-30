@@ -35,7 +35,7 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 
-import static com.gameex.dw.justtalk.BottomBarFat.UPDATE_MSG_INFO;
+import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_MSG_INFO;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.CONTACT_NOTIFY_ACCEPT;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.CONTACT_NOTIFY_CLICKED;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.CONTACT_NOTIFY_DELETE;
@@ -122,10 +122,10 @@ public class GlobalEventListener {
                 ringtone.play();
                 vibrator.vibrate(new long[]{0, 200, 200, 100}, -1);
                 Intent intent = new Intent(UPDATE_MSG_INFO);
-                intent.putExtra("username", cnEvent.getFromUsername());
-                intent.putExtra("date", DataUtil.getCurrentDateStr());
-                intent.putExtra("msg_last", "我同意加你为好友了，你想和我聊点什么...");
-                intent.putExtra("is_notify", true);
+                MsgInfo msgInfo=new MsgInfo(cnEvent.getFromUsername(),DataUtil.getCurrentDateStr()
+                        ,"我同意加你为好友了，你想和我聊点什么...",true);
+                msgInfo.setSingle(true);
+                intent.putExtra("msg_info",msgInfo);
                 appContext.sendBroadcast(intent);
                 break;
             case invite_declined:   //对方拒绝了你的好友请求
@@ -187,21 +187,23 @@ public class GlobalEventListener {
      * @param message 消息体
      */
     private void goUpdateMsgInfos(Message message) {
-        Intent intent = new Intent(UPDATE_MSG_INFO);
         String date = DataUtil.msFormMMDD(message.getCreateTime());
+        MsgInfo msgInfo = new MsgInfo();
+        msgInfo.setDate(date);
+        msgInfo.setIsNotify(true);
         switch (message.getContentType()) {
             case text:
                 TextContent content = (TextContent) message.getContent();
-                intent.putExtra("date", date);
-                intent.putExtra("msg_last", content.getText());
-                intent.putExtra("is_notify", true);
-                updateMsgInfo(message, intent);
+                msgInfo.setMsgLast(content.getText());
+                updateMsgInfo(message, msgInfo);
                 break;
             case image:
-                intent.putExtra("date", date);
-                intent.putExtra("msg_last", "图片");
-                intent.putExtra("is_notify", true);
-                updateMsgInfo(message, intent);
+                msgInfo.setMsgLast("图片");
+                updateMsgInfo(message, msgInfo);
+                break;
+            case custom:
+                msgInfo.setMsgLast("红包");
+                updateMsgInfo(message, msgInfo);
                 break;
             case eventNotification:
                 GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
@@ -304,24 +306,24 @@ public class GlobalEventListener {
      * 判断是群组信息还是单聊信息，做最后处理，并发送广播更新飞聊标签页
      *
      * @param message 信息体
-     * @param intent  intent
+     * @param msgInfo 自定义信息体
      */
-    private void updateMsgInfo(Message message, Intent intent) {
+    private void updateMsgInfo(Message message, MsgInfo msgInfo) {
+        Intent intent = new Intent(UPDATE_MSG_INFO);
         switch (message.getTargetType()) {
             case single:
                 UserInfo userInfo = message.getFromUser();
-                String username = userInfo.getUserName();
-                intent.putExtra("username", username);
-                intent.putExtra("is_single", true);
+                msgInfo.setUsername(userInfo.getUserName());
+                msgInfo.setSingle(true);
                 break;
             case group:
                 GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
-                String groupName = groupInfo.getGroupName();
-                intent.putExtra("username", groupName);
-                intent.putExtra("is_single", false);
-                intent.putExtra("group_json", ((GroupInfo) message.getTargetInfo()).toJson());
+                msgInfo.setUsername(groupInfo.getGroupName());
+                msgInfo.setSingle(false);
+                msgInfo.setGroupInfoJson(groupInfo.toJson());
                 break;
         }
+        intent.putExtra("msg_info", msgInfo);
         appContext.sendBroadcast(intent);
     }
 

@@ -1,20 +1,42 @@
 package com.gameex.dw.justtalk.payPackage;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.util.CallBackUtil;
+import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.OkHttpUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.UserInfo;
+import okhttp3.Call;
+import okhttp3.Response;
 
 public class AddBankCardActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "AddBankCardActivity";
+    /**
+     * 用户绑卡路径
+     */
+    private static final String ACCOUNT_CARD_BIND = "account/cardbind";
     /**
      * 返回
      */
@@ -31,6 +53,10 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
      * 卡号
      */
     private EditText mCardNumber;
+    /**
+     * 所属银行
+     */
+    private Spinner mBelong;
     /**
      * 下一步
      */
@@ -53,6 +79,7 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
         mIdNumber = findViewById(R.id.id_number);
         mCardNumber = findViewById(R.id.card_number);
         mNext = findViewById(R.id.next_step);
+        mBelong = findViewById(R.id.belong);
     }
 
     /**
@@ -104,11 +131,90 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
 
             @Override
             public void afterTextChanged(Editable editable) {
-                mNext.setAlpha(1f);
-                Toast.makeText(AddBankCardActivity.this, editable + "", Toast.LENGTH_SHORT).show();
+                if (TextUtils.isEmpty(editable)) {
+                    mNext.setEnabled(false);
+                    mNext.setAlpha(0.5f);
+                } else {
+                    mNext.setEnabled(true);
+                    mNext.setAlpha(1f);
+                }
             }
         });
         mNext.setOnClickListener(this);
+    }
+
+    /**
+     * 获取自己服务器上的用户id
+     *
+     * @return string
+     */
+    private String getUserId() {
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        return pref.getString("userId", null);
+    }
+
+    /**
+     * 开始绑卡
+     */
+    private void goBindCard() {
+        UserInfo userInfo = JMessageClient.getMyInfo();
+        if (userInfo == null) {
+            Toast.makeText(this, "点击重试", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        HashMap<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("userId", getUserId());
+        paramsMap.put("IDcard", mIdNumber.getText().toString());
+        paramsMap.put("bankCard", mCardNumber.getText().toString());
+        paramsMap.put("userName", mName.getText().toString());
+        paramsMap.put("bankName", mBelong.getSelectedItem().toString());
+        bindCard(paramsMap);
+    }
+
+    /**
+     * 开始绑卡
+     *
+     * @param paramsMap 表单参数
+     */
+    private void bindCard(HashMap<String, String> paramsMap) {
+        OkHttpUtil.okHttpPost(ACCOUNT_CARD_BIND, paramsMap
+                , new CallBackUtil.CallBackDefault() {
+                    @Override
+                    public void onFailure(Call call, Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(AddBankCardActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+                    }
+
+                    @Override
+                    public void onResponse(Response response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            try {
+                                JSONObject json = new JSONObject(response.body().string());
+                                boolean success = json.getBoolean("success");
+                                JSONObject data = json.getJSONObject("data");
+                                if (success) {
+                                    String bankCardNumber = data.getString("bankCardNumber");
+                                    String id = data.getString("id");
+                                    LogUtil.d(TAG, "bindCard-onResponse: "
+                                            + "bankCardNumber = " + bankCardNumber + " ;id = " + id);
+                                    finish();
+                                } else {
+                                    int code = data.getInt("code");
+                                    String message = data.getString("message");
+                                    LogUtil.d(TAG, "bindCard-onResponse: "
+                                            + "code = " + code + " ;message = " + message);
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            LogUtil.d(TAG, "bindCard-onResponse: " + "response = " + response);
+                        }
+                    }
+                });
     }
 
     @Override
@@ -119,8 +225,9 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
                 finish();
                 break;
             case R.id.next_step:
-                intent.setClass(this, VerifyIdentityActivity.class);
-                startActivity(intent);
+//                intent.setClass(this, VerifyIdentityActivity.class);
+//                startActivity(intent);
+                goBindCard();
                 break;
         }
     }

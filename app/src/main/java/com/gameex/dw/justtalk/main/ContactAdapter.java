@@ -1,4 +1,4 @@
-package com.gameex.dw.justtalk;
+package com.gameex.dw.justtalk.main;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,6 +14,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.objPack.Contact;
 import com.gameex.dw.justtalk.inviteFriends.InviteFriendsActivity;
 import com.gameex.dw.justtalk.myGroups.MyGroupActivity;
@@ -25,12 +26,12 @@ import java.util.List;
 import cn.jpush.im.android.api.model.UserInfo;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactHolder> {
-    private static final String TAG = "CONTACT_ADAPTER";
+    private static final String TAG = "ContactAdapter";
     private Context mContext;
     private List<Contact> mContacts;
     private List<UserInfo> mUserInfos;
 
-    public ContactAdapter(Context context, List<Contact> contacts, List<UserInfo> userInfos) {
+    ContactAdapter(Context context, List<Contact> contacts, List<UserInfo> userInfos) {
         mContext = context;
         this.mContacts = contacts;
         mUserInfos = userInfos;
@@ -126,7 +127,7 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
                     } else {
                         Intent intent = new Intent(mContext, UserBasicInfoActivity.class);
                         intent.putExtra("user_info_json"
-                                , mUserInfos.get(getAdapterPosition()-3).toJson());
+                                , mUserInfos.get(getAdapterPosition() - 3).toJson());
                         mContext.startActivity(intent);
                     }
                 }

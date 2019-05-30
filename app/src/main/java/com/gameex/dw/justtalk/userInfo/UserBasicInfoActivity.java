@@ -9,7 +9,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gameex.dw.justtalk.BottomBarActivity;
+import com.gameex.dw.justtalk.main.BottomBarActivity;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.singleChat.ChattingActivity;
@@ -27,10 +27,10 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 
-import static com.gameex.dw.justtalk.BottomBarFat.ADD_CONTACT;
-import static com.gameex.dw.justtalk.BottomBarFat.REMOVE_CONTACT;
-import static com.gameex.dw.justtalk.BottomBarFat.UPDATE_MSG_INFO;
-import static com.gameex.dw.justtalk.jiguangIM.JGApplication.APP_KEY;
+import static com.gameex.dw.justtalk.main.BottomBarFat.ADD_CONTACT;
+import static com.gameex.dw.justtalk.main.BottomBarFat.REMOVE_CONTACT;
+import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_MSG_INFO;
+import static com.gameex.dw.justtalk.JGApplication.APP_KEY;
 
 public class UserBasicInfoActivity extends BaseActivity implements View.OnClickListener {
     /**
@@ -254,10 +254,10 @@ public class UserBasicInfoActivity extends BaseActivity implements View.OnClickL
                         if (i == 0) {
                             Intent intent = new Intent();
                             intent.setAction(UPDATE_MSG_INFO);
-                            intent.putExtra("username", mUserInfo.getUserName());
-                            intent.putExtra("date", DataUtil.getCurrentDateStr());
-                            intent.putExtra("msg_last", "你们已经是好友了，聊点什么吧...");
-                            intent.putExtra("is_notify", true);
+                            MsgInfo msgInfo=new MsgInfo(mUserInfo.getUserName(),DataUtil.getCurrentDateStr()
+                                    ,"你们已经是好友了，聊点什么吧...",true);
+                            msgInfo.setSingle(true);
+                            intent.putExtra("msg_info",msgInfo);
                             sendBroadcast(intent);
                             Intent addContact = new Intent(ADD_CONTACT);
                             addContact.putExtra("username", mUserInfo.getUserName());

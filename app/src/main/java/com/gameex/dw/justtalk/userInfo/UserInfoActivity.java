@@ -1,28 +1,21 @@
 package com.gameex.dw.justtalk.userInfo;
 
 import android.Manifest;
-import android.animation.ValueAnimator;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
-import android.os.Build;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
-import android.util.DisplayMetrics;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -31,8 +24,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
-import com.gameex.dw.justtalk.BottomBarActivity;
+import com.gameex.dw.justtalk.main.BottomBarActivity;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
@@ -44,14 +36,12 @@ import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 
+import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_USER_INFO;
 import static com.gameex.dw.justtalk.util.DataUtil.CHOOSE_PHOTO;
 import static com.gameex.dw.justtalk.util.DataUtil.CROP_PHOTO;
 import static com.gameex.dw.justtalk.util.DataUtil.TAKE_PHOTO;
@@ -63,13 +53,20 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private static final String TAG = "UserInfoActivity";
     @SuppressLint("StaticFieldLeak")
     public static UserInfoActivity sUserInfoActivity;
-    public static final String UPDATE_USER_INFO = "com.gameex.dw.flychat.UPDATE_USER";
+    /**
+     * 修改昵称请求
+     */
+    public static final int EDIT_NICK_REQUEST_CODE = 201;
+    /**
+     * 修改个性签名请求
+     */
+    public static final int EDIT_SIGNATURE_REQUEST_CODE = 202;
 
     private LinearLayout mLinearLayout;
     private TitleBarView mBarView;
     private RelativeLayout mIconInfo, mQRCode, mFlyCode, mFlySign, mNumInfo;
     private CircularImageView mIconImg;
-    private TextView mNickName, mChangeIconText, mFlyCodeText, mFlySignText, mNumText, mShareCard, mLoginOut;
+    private TextView mNickName, mFlyCodeText, mFlySignText, mNumText, mShareCard, mLoginOut;
 
     private AlertDialog mDialog;
     private Uri mPhotoUri;
@@ -78,6 +75,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private PopupWindow mEditPup;
 
     private UserInfo mUserInfo;
+
+    private boolean flag = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -117,9 +116,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         mIconInfo = findViewById(R.id.mine_icon_info_layout);
         mIconInfo.setOnClickListener(this);
         mIconImg = findViewById(R.id.mine_icon_info);
+        mIconImg.setOnClickListener(this);
         mNickName = findViewById(R.id.mine_nick);
-        mChangeIconText = findViewById(R.id.change_icon_text);
-        mChangeIconText.setOnClickListener(this);
         mQRCode = findViewById(R.id.mine_qr_code_layout);
         mFlyCode = findViewById(R.id.fly_code_info_layout);
         mFlyCode.setOnClickListener(this);
@@ -155,13 +153,16 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void onClick(View view) {
-        Intent intent=new Intent();
+        Intent intent = new Intent();
         switch (view.getId()) {
-            case R.id.mine_icon_info_layout:
-                Toast.makeText(this, "修改用户名", Toast.LENGTH_SHORT).show();
-                break;
-            case R.id.change_icon_text:
+            case R.id.mine_icon_info:
                 showTypeDialog();
+                break;
+            case R.id.mine_icon_info_layout:
+                intent.setClass(this, EditMyInfoActivity.class);
+                intent.putExtra("title", "昵称");
+                intent.putExtra("my_nick", mNickName.getText());
+                startActivityForResult(intent, EDIT_NICK_REQUEST_CODE);
                 break;
             case R.id.mine_qr_code_layout:
                 Toast.makeText(this, "展示二维码", Toast.LENGTH_SHORT).show();
@@ -173,7 +174,10 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                 }
                 break;
             case R.id.fly_sign_info_layout:
-                Toast.makeText(this, "修改个性签名", Toast.LENGTH_SHORT).show();
+                intent.setClass(this, EditMyInfoActivity.class);
+                intent.putExtra("title", "个性签名");
+                intent.putExtra("my_signature", mFlySignText.getText());
+                startActivityForResult(intent, EDIT_SIGNATURE_REQUEST_CODE);
                 break;
             case R.id.mine_num_info_layout:
                 Toast.makeText(this, "修改账号", Toast.LENGTH_SHORT).show();
@@ -222,9 +226,42 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     assert extras != null;
                     mIcon = extras.getParcelable("data");
                     if (mIcon != null) {
-                        DataUtil.setPicToView(this, mIcon, "user_icon.jpg");
-                        mIconImg.setImageBitmap(mIcon);
+                        File file = DataUtil.setPicToView(this, mIcon, "user_icon.jpg");
+                        JMessageClient.updateUserAvatar(file, "user_icon", new BasicCallback() {
+                            @Override
+                            public void gotResult(int i, String s) {
+                                LogUtil.d(TAG, "onActivityResult-CROP_PHOTO: " +
+                                        "responseCode = " + i + " ;desc = " + s);
+                                Toast.makeText(UserInfoActivity.this, "正在上传头像"
+                                        , Toast.LENGTH_SHORT).show();
+                                if (i == 0) {
+                                    flag = true;
+                                    mIconImg.setImageBitmap(mIcon);
+                                    Toast.makeText(UserInfoActivity.this, "头像上传成功"
+                                            , Toast.LENGTH_SHORT).show();
+                                } else {
+                                    Toast.makeText(UserInfoActivity.this, "头像上传失败"
+                                            , Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        });
                     }
+                }
+                break;
+            case EDIT_NICK_REQUEST_CODE:
+                if (data != null && resultCode == RESULT_OK) {
+                    String nick = data.getStringExtra("my_nick");
+                    mNickName.setText(nick);
+                    mUserInfo.setNickname(nick);
+                    flag = true;
+                }
+                break;
+            case EDIT_SIGNATURE_REQUEST_CODE:
+                if (data != null && resultCode == RESULT_OK) {
+                    String signature = data.getStringExtra("my_signature");
+                    mFlySignText.setText(signature);
+                    mUserInfo.setSignature(signature);
+                    flag = true;
                 }
                 break;
             default:
@@ -333,14 +370,26 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        Intent intent = new Intent(UPDATE_USER_INFO);
-        intent.putExtra("icon_uri", DataUtil.getPhotoUri(this
-                , new File(getExternalCacheDir(), "crop_icon.jpg")
-                , "crop_user_icon.jpg").toString());
-        intent.putExtra("username", mFlyCodeText.getText().toString());
-        intent.putExtra("user_signed", "nothing");
-        sendBroadcast(intent);
-        finish();
+        if (flag) {
+            JMessageClient.updateMyInfo(UserInfo.Field.all, mUserInfo, new BasicCallback() {
+                @Override
+                public void gotResult(int i, String s) {
+                    LogUtil.d(TAG, "onBackPressed-gotResult: "
+                            + "responseCode = " + i + " ; desc = " + s);
+                    if (i == 0) {
+                        Intent intent = new Intent(UPDATE_USER_INFO);
+                        sendBroadcast(intent);
+                        Toast.makeText(UserInfoActivity.this
+                                , "用户信息更新成功", Toast.LENGTH_SHORT).show();
+                        finish();
+                    } else {
+                        Toast.makeText(UserInfoActivity.this
+                                , "用户信息更新失败", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        } else {
+            super.onBackPressed();
+        }
     }
 }

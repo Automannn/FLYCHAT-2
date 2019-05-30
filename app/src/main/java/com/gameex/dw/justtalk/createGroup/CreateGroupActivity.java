@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.createGroup;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -36,6 +37,7 @@ import cn.jpush.im.api.BasicCallback;
 public class CreateGroupActivity extends BaseActivity
         implements View.OnClickListener, FragmentCallBack, DoneCreateGroupCallBack {
     private static final String TAG = "CreateGroupActivity";
+    @SuppressLint("StaticFieldLeak")
     public static CreateGroupActivity sActivity;
     /**
      * 返回箭头
@@ -54,19 +56,10 @@ public class CreateGroupActivity extends BaseActivity
      */
     private FragmentManager mFragmentManager;
 
-    private FragmentTransaction mTransaction;
     /**
      * 选择用户的fragment
      */
     private ChooseContactFragment mChooseFragment;
-    /**
-     * 设置群头像和群名称的fragment
-     */
-    private DoneCreateFragment mDoneCreateFragment;
-    /**
-     * 承接userInfo集合的json String
-     */
-    private String mUserInfosStr;
     /**
      * 承接联系人选择fragment的userInfo集合
      */
@@ -79,10 +72,6 @@ public class CreateGroupActivity extends BaseActivity
      * 群名称
      */
     private String mGroupName;
-    /**
-     * 群成员头像
-     */
-    private List<Uri> mGroupMemberIcons = new ArrayList<>();
 
     @Override
     public void sendMessage(String value) {
@@ -101,7 +90,7 @@ public class CreateGroupActivity extends BaseActivity
 
     @Override
     public void sendUris(List<Uri> uris) {
-        mGroupMemberIcons = uris;
+        //群成员头像
     }
 
     @Override
@@ -137,8 +126,10 @@ public class CreateGroupActivity extends BaseActivity
         mNext.setOnClickListener(this);
 
         mFragmentManager = getSupportFragmentManager();
-        mUserInfosStr = getIntent().getStringExtra("user_infos");
-        mChooseFragment = ChooseContactFragment.newInstance(mUserInfosStr);
+
+        //承接userInfo集合的json String
+        String userInfosStr = getIntent().getStringExtra("user_infos");
+        mChooseFragment = ChooseContactFragment.newInstance(userInfosStr);
         showFragment(mChooseFragment);
     }
 
@@ -159,8 +150,10 @@ public class CreateGroupActivity extends BaseActivity
                     goCreateGroup();
                     return;
                 }
-                mDoneCreateFragment = DoneCreateFragment.newInstance(mUserChoosedStr);
-                showFragment(mDoneCreateFragment);
+
+                //设置群头像和群名称的fragment
+                DoneCreateFragment doneCreateFragment = DoneCreateFragment.newInstance(mUserChoosedStr);
+                showFragment(doneCreateFragment);
                 mTitle.setText("群聊");
                 mNext.setText("完成");
                 break;
@@ -175,9 +168,9 @@ public class CreateGroupActivity extends BaseActivity
      * @param fragment 需要展示的fragment
      */
     private void showFragment(Fragment fragment) {
-        mTransaction = mFragmentManager.beginTransaction();
-        mTransaction.replace(R.id.container_create, fragment);
-        mTransaction.commit();
+        FragmentTransaction transaction = mFragmentManager.beginTransaction();
+        transaction.replace(R.id.container_create, fragment);
+        transaction.commit();
     }
 
     /**

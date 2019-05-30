@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.managePack;
 
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -18,6 +19,8 @@ import com.gameex.dw.justtalk.login.LoginActivity;
 import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
 
+import java.util.Objects;
+
 /**
  * 与ActivityCollector管理其他activity
  */
@@ -26,7 +29,6 @@ public abstract class BaseActivity extends AppCompatActivity {
     public static final String LOGIN_OUT = "com.gameex.dw.justtalk.LOGIN_OUT";
 
     private SharedPreferences mPref;
-    private SharedPreferences.Editor mEditor;
     private static int mState = -1;
 
     public static void setState(int state) {
@@ -135,16 +137,17 @@ public abstract class BaseActivity extends AppCompatActivity {
         } else {
             setTheme(R.style.AppTheme_LargeSuperUIStyle);
         }
-        mEditor = mPref.edit();
-        mEditor.putInt("ui_state", fontState);
-        mEditor.apply();
+        SharedPreferences.Editor editor = mPref.edit();
+        editor.putInt("ui_state", fontState);
+        editor.apply();
     }
 
     public class BaseBroadcastReceiver extends BroadcastReceiver {
 
+        @SuppressLint("NewApi")
         @Override
         public void onReceive(Context context, Intent intent) {
-            switch (intent.getAction()) {
+            switch (Objects.requireNonNull(intent.getAction())) {
                 case LOGIN_OUT:
                     if (context == UserInfoActivity.sUserInfoActivity) {
                         ActivityCollector.finishAll();  //销毁所有活动

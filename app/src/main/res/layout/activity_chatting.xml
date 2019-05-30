@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/view_single"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -40,14 +41,15 @@
             app:siBorderColor="@color/colorGray"
             app:siBorderWidth="@dimen/dp_1"/>
 
-        <EditText
+        <com.vanniktech.emoji.EmojiEditText
             android:id="@+id/send_edit"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:background="@drawable/chat_edit_bg"
             android:hint="@string/chat_edit_hint_str"
-            android:inputType="textMultiLine"
+            android:imeOptions="actionSend"
+            android:inputType="textMultiLine|textCapSentences"
             android:paddingLeft="5dp"
             android:paddingRight="5dp"
             android:paddingBottom="@dimen/dp_5"
@@ -63,7 +65,6 @@
             android:layout_marginStart="@dimen/dp_10"
             android:layout_marginLeft="@dimen/dp_10"
             android:background="@drawable/light_gray_rip_out"
-            android:padding="@dimen/dp_2"
             android:src="@drawable/emoji"
             app:siBorderColor="@color/colorWhite"/>
 

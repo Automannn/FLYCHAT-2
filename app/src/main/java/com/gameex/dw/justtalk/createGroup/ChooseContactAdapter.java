@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.createGroup;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.drawable.AnimatedVectorDrawable;
@@ -20,7 +21,6 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.publicInterface.RecyclerItemClick;
-import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -73,7 +73,7 @@ public class ChooseContactAdapter extends RecyclerView.Adapter<ChooseContactAdap
     public void onBindViewHolder(@NonNull final ChooseContactHolder holder
             , final int position) {
 
-        Map<Integer, Boolean> map = new HashMap<>();
+        @SuppressLint("UseSparseArrays") Map<Integer, Boolean> map = new HashMap<>();
         map.put(position, true);
         if (mUserChoosed.contains(map)) {
             holder.userCheck.setImageResource(R.drawable.play_hook_check_vector);
@@ -113,14 +113,14 @@ public class ChooseContactAdapter extends RecyclerView.Adapter<ChooseContactAdap
         TextView name;
         ImageView userCheck;
 
-        public ChooseContactHolder(@NonNull View itemView) {
+        ChooseContactHolder(@NonNull View itemView) {
             super(itemView);
             index = itemView.findViewById(R.id.index_text_contact);
             layout = itemView.findViewById(R.id.contact_info_layout);
             layout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Map<Integer, Boolean> map = new HashMap<>();
+                    @SuppressLint("UseSparseArrays") Map<Integer, Boolean> map = new HashMap<>();
                     map.put(getAdapterPosition(), true);
                     if (mUserChoosed.contains(map)) {
                         mUserChoosed.remove(map);

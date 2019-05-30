@@ -23,7 +23,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.animation.AwardRotateAnimation;
-import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
 import com.gameex.dw.justtalk.imgBrowse.PhotoBrowseActivity;
 import com.gameex.dw.justtalk.redPackage.RedDetailActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
@@ -33,6 +32,7 @@ import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.github.siyamed.shapeimageview.RoundedImageView;
+import com.vanniktech.emoji.EmojiTextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -53,7 +53,6 @@ import cn.jpush.im.android.api.model.UserInfo;
 import okhttp3.Call;
 import okhttp3.Response;
 
-import static com.gameex.dw.justtalk.groupChat.GroupChatActivity.sActivity;
 import static com.gameex.dw.justtalk.groupChat.GroupChatAdapter.SNATCH_PACKAET;
 
 public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecHolder> {
@@ -229,7 +228,8 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             implements View.OnClickListener {
         LinearLayout leftLayout, rightLayout, leftMsgLayout, rightMsgLayout, redMsgLeft, redMsgRight;
         CircularImageView leftCircle, rightCircle;
-        TextView leftMsg, receiveTime, sendTime, rightMsg, redMessageLeft, redMessageRight;
+        EmojiTextView leftMsg, rightMsg;
+        TextView receiveTime, sendTime, redMessageLeft, redMessageRight;
         ImageView open;
         RoundedImageView leftImg, rightImg;
 
@@ -251,6 +251,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             leftImg.setOnClickListener(this);
             leftMsg = itemView.findViewById(R.id.user_msg_left);
             redMsgLeft = itemView.findViewById(R.id.red_msg_left);
+            redMsgLeft.setOnClickListener(this);
             redMessageLeft = itemView.findViewById(R.id.red_message_left);
             receiveTime = itemView.findViewById(R.id.msg_time_receive);
             rightCircle = itemView.findViewById(R.id.user_icon_right);
@@ -260,6 +261,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             rightImg.setOnClickListener(this);
             rightMsg = itemView.findViewById(R.id.user_msg_right);
             redMsgRight = itemView.findViewById(R.id.red_msg_right);
+            redMsgRight.setOnClickListener(this);
             redMessageRight = itemView.findViewById(R.id.red_message_right);
             sendTime = itemView.findViewById(R.id.msg_time_send);
         }
@@ -279,7 +281,8 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
                         if (redPup != null) {
                             redPup.showAtLocation(rightMsg
                                     , Gravity.CENTER, 0, 0);
-                            WindowUtil.showBackgroundAnimator(sActivity, 0.5f);
+                            WindowUtil.showBackgroundAnimator(ChattingActivity.sBaseActivity
+                                    , 0.5f);
                         }
                     }
                     break;
@@ -361,7 +364,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
          */
         private void showRedPup() {
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            View view = inflater.inflate(R.layout.popup_red_package, null);
+            @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.popup_red_package, null);
             ImageView close = view.findViewById(R.id.close);
             close.setOnClickListener(this);
             open = view.findViewById(R.id.open);
@@ -371,6 +374,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             redPup.setFocusable(true);
             redPup.setOutsideTouchable(true);
             redPup.setTouchInterceptor(new View.OnTouchListener() {
+                @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
                     if (motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
@@ -383,7 +387,8 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             redPup.setOnDismissListener(new PopupWindow.OnDismissListener() {
                 @Override
                 public void onDismiss() {
-                    WindowUtil.setWindowBackgroundAlpha(sActivity, 1f);
+                    WindowUtil.setWindowBackgroundAlpha(ChattingActivity.sBaseActivity
+                            , 1f);
                 }
             });
             redPup.setAnimationStyle(R.style.translate_scale_alpha_style);

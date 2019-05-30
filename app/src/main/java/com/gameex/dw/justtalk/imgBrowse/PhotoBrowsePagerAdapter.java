@@ -16,7 +16,7 @@ public class PhotoBrowsePagerAdapter extends PagerAdapter {
     private List<String> photoBrowseList;
     private Context mContext;
 
-    public PhotoBrowsePagerAdapter(List<String> photoBrowseList, Context context) {
+    PhotoBrowsePagerAdapter(List<String> photoBrowseList, Context context) {
         this.photoBrowseList = photoBrowseList;
         this.mContext = context;
     }

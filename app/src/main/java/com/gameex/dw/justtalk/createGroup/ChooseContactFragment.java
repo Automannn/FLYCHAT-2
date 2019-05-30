@@ -1,6 +1,5 @@
 package com.gameex.dw.justtalk.createGroup;
 
-import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,7 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.RecScrollHelper;
+import com.gameex.dw.justtalk.util.RecScrollHelper;
 import com.gameex.dw.justtalk.publicInterface.FragmentCallBack;
 import com.gameex.dw.justtalk.publicInterface.RecyclerItemClick;
 import com.gameex.dw.justtalk.util.LogUtil;
@@ -24,7 +23,6 @@ import com.gjiazhe.wavesidebar.WaveSideBar;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 
 import static com.gameex.dw.justtalk.createGroup.CreateGroupActivity.sActivity;
@@ -35,10 +33,6 @@ public class ChooseContactFragment extends Fragment {
             "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z", "#"};
     public static final String ARG_PARAM = "user_infos";
 
-    /**
-     *
-     */
-    private Activity mActivity;
     /**
      * 搜索栏
      */
@@ -51,10 +45,6 @@ public class ChooseContactFragment extends Fragment {
      * 索引栏
      */
     private WaveSideBar mSlideBar;
-    /**
-     * 联系人adapter
-     */
-    private ChooseContactAdapter mAdapter;
     /**
      * 联系人集合
      */
@@ -79,7 +69,7 @@ public class ChooseContactFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mActivity = (Activity) context;
+        assert getArguments() != null;
         mUserInfos = (List<UserInfo>) UserInfo.fromJsonToCollection(
                 getArguments().getString(ARG_PARAM));
         mCallBack = (FragmentCallBack) getActivity();
@@ -167,8 +157,9 @@ public class ChooseContactFragment extends Fragment {
         animator.setRemoveDuration(300);
         mRecyclerView.setItemAnimator(animator);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(sActivity));
-        mAdapter = new ChooseContactAdapter(sActivity, mUserInfos);
-        mAdapter.setItemClick(new RecyclerItemClick() {
+        //联系人adapter
+        ChooseContactAdapter adapter = new ChooseContactAdapter(sActivity, mUserInfos);
+        adapter.setItemClick(new RecyclerItemClick() {
             @Override
             public void onClick(int position) {
                 UserInfo userInfo = mUserInfos.get(position);
@@ -192,7 +183,7 @@ public class ChooseContactFragment extends Fragment {
 
             }
         });
-        mRecyclerView.setAdapter(mAdapter);
+        mRecyclerView.setAdapter(adapter);
 
         mSlideBar.setIndexItems(indexStr);
         mSlideBar.setOnSelectIndexItemListener(new WaveSideBar.OnSelectIndexItemListener() {

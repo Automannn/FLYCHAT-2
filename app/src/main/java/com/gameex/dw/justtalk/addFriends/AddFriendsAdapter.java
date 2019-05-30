@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.addFriends;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
@@ -37,7 +38,8 @@ public class AddFriendsAdapter extends RecyclerView.Adapter<AddFriendsAdapter.Ad
     }
 
     @Override
-    public void onBindViewHolder(@NonNull AddFriendsHolder holder, final int position) {
+    public void onBindViewHolder(@NonNull AddFriendsHolder holder
+            , @SuppressLint("RecyclerView") final int position) {
         if (mItemClick != null) {
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -55,9 +57,9 @@ public class AddFriendsAdapter extends RecyclerView.Adapter<AddFriendsAdapter.Ad
         }
 
         UserInfo user = mUsers.get(position);
-        if (user.getExtra("username")!=null){
+        if (user.getExtra("username") != null) {
             holder.name.setText(user.getExtra("username"));
-        }else{
+        } else {
             holder.name.setText(user.getUserName());
         }
     }
@@ -71,7 +73,7 @@ public class AddFriendsAdapter extends RecyclerView.Adapter<AddFriendsAdapter.Ad
         CircularImageView mCircleView;
         TextView name;
 
-        public AddFriendsHolder(@NonNull View itemView) {
+        AddFriendsHolder(@NonNull View itemView) {
             super(itemView);
             mCircleView = itemView.findViewById(R.id.icon_add_friends);
             name = itemView.findViewById(R.id.name_add_friends);

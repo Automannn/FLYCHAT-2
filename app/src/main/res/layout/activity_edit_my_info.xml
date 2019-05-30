@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/colorWhite"
+    tools:context=".userInfo.EditMyInfoActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_74"
+        android:background="@color/colorPrimary"
+        android:gravity="bottom">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/dp_35"
+            android:layout_height="@dimen/dp_49"
+            android:layout_marginStart="@dimen/dp_3"
+            android:layout_marginLeft="@dimen/dp_3"
+            android:background="@drawable/light_gray_rip_out"
+            android:paddingStart="@dimen/dp_10"
+            android:paddingLeft="@dimen/dp_10"
+            android:src="@drawable/left_arrow"
+            tools:ignore="ContentDescription,RtlSymmetry"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_49"
+            android:layout_marginStart="@dimen/dp_12"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:gravity="center"
+            android:layout_centerHorizontal="true"
+            android:text="@string/nick_str"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_20"/>
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="@dimen/dp_20"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal">
+
+        <EditText
+            android:id="@+id/signature"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_100"
+            android:hint="@string/fly_sign_str"
+            android:inputType="textMultiLine"
+            android:background="@drawable/login_et_bg"
+            android:padding="@dimen/dp_10"
+            android:gravity="bottom"
+            android:layout_margin="@dimen/dp_20"
+            android:textColor="@color/login_edit_text_selector_color"
+            android:textColorHint="@color/colorLightGray"
+            android:textCursorDrawable="@drawable/cursor_dra"
+            android:layout_marginTop="@dimen/dp_20"
+            android:textSize="?smallFont"
+            tools:ignore="Autofill"
+            android:visibility="gone"/>
+
+        <EditText
+            android:id="@+id/nick_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/nick_str"
+            android:inputType="text"
+            android:background="@drawable/login_et_bg"
+            android:padding="@dimen/dp_10"
+            android:layout_margin="@dimen/dp_20"
+            android:textColor="@color/login_edit_text_selector_color"
+            android:textColorHint="@color/colorLightGray"
+            android:textCursorDrawable="@drawable/cursor_dra"
+            android:layout_marginTop="@dimen/dp_20"
+            android:textSize="?smallFont"
+            android:visibility="gone"
+            tools:ignore="Autofill"/>
+
+        <Button
+            android:id="@+id/done"
+            android:layout_width="?widthD"
+            android:layout_height="?heightC"
+            android:background="@drawable/dark_gray_light_blue_rip"
+            android:text="@string/done_str"
+            android:textColor="@color/colorWhite"
+            android:textSize="?normalFont"
+            android:layout_marginTop="@dimen/dp_30"/>
+
+    </LinearLayout>
+
+</LinearLayout>

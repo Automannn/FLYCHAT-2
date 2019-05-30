@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -18,17 +19,17 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.gameex.dw.justtalk.RecScrollHelper;
+import com.gameex.dw.justtalk.emoji.PageTransformer;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.groupInfo.GroupInfoActivity;
@@ -39,6 +40,16 @@ import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
+import com.vanniktech.emoji.EmojiEditText;
+import com.vanniktech.emoji.EmojiImageView;
+import com.vanniktech.emoji.EmojiPopup;
+import com.vanniktech.emoji.emoji.Emoji;
+import com.vanniktech.emoji.listeners.OnEmojiBackspaceClickListener;
+import com.vanniktech.emoji.listeners.OnEmojiClickListener;
+import com.vanniktech.emoji.listeners.OnEmojiPopupDismissListener;
+import com.vanniktech.emoji.listeners.OnEmojiPopupShownListener;
+import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
+import com.vanniktech.emoji.listeners.OnSoftKeyboardOpenListener;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.filter.Filter;
@@ -52,6 +63,7 @@ import java.util.Map;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -61,7 +73,10 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 
+import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_MSG_INFO;
+
 public class GroupChatActivity extends AppCompatActivity implements View.OnClickListener {
+    @SuppressLint("StaticFieldLeak")
     public static GroupChatActivity sActivity;
     private static final String TAG = "GroupChatActivity";
     /**
@@ -72,6 +87,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      * ZhiHu`s image picker`s request code
      */
     private static final int REQUEST_CODE_CHOOSE = 23;
+    private ViewGroup mRootView;
     /**
      * 返回箭头
      */
@@ -107,11 +123,15 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     /**
      * 编辑框
      */
-    private EditText mEdit;
+    private EmojiEditText mEdit;
     /**
      * 发送表情按钮
      */
     private CircularImageView mEmoji;
+    /**
+     * 表情弹出窗
+     */
+    private EmojiPopup mEmojiPopup;
     /**
      * 发送及跟多功能按钮
      */
@@ -121,20 +141,11 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      */
     private GridView mGridView;
     /**
-     * 底部功能栏适配器
-     */
-    private SimpleAdapter mSimpleAdapter;
-    /**
      * 群成员头像Uri
      */
     private List<Uri> mUris = new ArrayList<>();
     private List<Message> mMessages = new ArrayList<>();
 
-    private MsgInfo mMsgInfo;
-    /**
-     * 群头像
-     */
-    private Uri mGroupIcon;
     /**
      * 群id
      */
@@ -176,6 +187,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        JMessageClient.exitConversation();
         JMessageClient.unRegisterEventReceiver(this);
     }
 
@@ -184,6 +196,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      */
     private void initView() {
         setContentView(R.layout.activity_group_chat);
+        mRootView = findViewById(R.id.container);
         mBack = findViewById(R.id.back);
         mNameNum = findViewById(R.id.group_name_member_num);
         mGroup = findViewById(R.id.group_info);
@@ -208,10 +221,8 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         mGroupId = getIntent().getLongExtra("group_id", -1);
         mConversation = JMessageClient.getGroupConversation(mGroupId);
 
-        mMsgInfo = getIntent().getParcelableExtra("msg_info");
-        mGroupInfo = GroupInfo.fromJson(mMsgInfo.getGroupInfoJson());
-
-        mGroupIcon = getIntent().getParcelableExtra("group_icon");
+        MsgInfo msgInfo = getIntent().getParcelableExtra("msg_info");
+        mGroupInfo = GroupInfo.fromJson(msgInfo.getGroupInfoJson());
 
         mBack.setOnClickListener(this);
 
@@ -294,13 +305,16 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
             }
         });
         mEmoji.setOnClickListener(this);
+        initEmojiPopup();
         mSend.setOnClickListener(this);
 
         mGridView = findViewById(R.id.function_grid);
-        mSimpleAdapter = new SimpleAdapter(this, initGridList()
+
+        //底部功能栏适配器
+        SimpleAdapter simpleAdapter = new SimpleAdapter(this, initGridList()
                 , R.layout.function_item, new String[]{"icon", "icon_name"}
                 , new int[]{R.id.function_img, R.id.function_name});
-        mGridView.setAdapter(mSimpleAdapter);
+        mGridView.setAdapter(simpleAdapter);
         mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -329,6 +343,52 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     }
 
     /**
+     * 初始化emoji表情框
+     */
+    private void initEmojiPopup() {
+        mEmojiPopup = EmojiPopup.Builder.fromRootView(mRootView)
+                .setOnEmojiBackspaceClickListener(new OnEmojiBackspaceClickListener() {
+                    @Override
+                    public void onEmojiBackspaceClick(View v) {
+                        LogUtil.d(TAG, "Clicked on Backspace");
+                    }
+                })
+                .setOnEmojiClickListener(new OnEmojiClickListener() {
+                    @Override
+                    public void onEmojiClick(@NonNull EmojiImageView emoji, @NonNull Emoji imageView) {
+                        LogUtil.d(TAG, "Clicked on emoji");
+                    }
+                })
+                .setOnEmojiPopupShownListener(new OnEmojiPopupShownListener() {
+                    @Override
+                    public void onEmojiPopupShown() {
+                        LogUtil.d(TAG, "Emoji popup id shown");
+                    }
+                })
+                .setOnSoftKeyboardOpenListener(new OnSoftKeyboardOpenListener() {
+                    @Override
+                    public void onKeyboardOpen(int keyBoardHeight) {
+                        LogUtil.d(TAG, "Opened soft keyboard");
+                    }
+                })
+                .setOnEmojiPopupDismissListener(new OnEmojiPopupDismissListener() {
+                    @Override
+                    public void onEmojiPopupDismiss() {
+                        LogUtil.d(TAG, "Emoji popup id dismiss");
+                    }
+                })
+                .setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
+                    @Override
+                    public void onKeyboardClose() {
+                        LogUtil.d(TAG, "Closed soft keyboard");
+                    }
+                })
+                .setKeyboardAnimationStyle(R.style.emoji_fade_animation_style)
+                .setPageTransformer(new PageTransformer())
+                .build(mEdit);
+    }
+
+    /**
      * 更新聊天数据，并滑到最后一条消息的位置
      *
      * @param message 消息对象
@@ -342,6 +402,37 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         final int newSize = mMessages.size() - 1;
         mChatAdapter.notifyItemInserted(newSize);
         mMsgRecycler.scrollToPosition(newSize);
+        goUpdateMsgInfos(message);
+    }
+
+    /**
+     * 准备刷主界面消息列表
+     *
+     * @param message 消息体
+     */
+    private void goUpdateMsgInfos(Message message) {
+        String data=DataUtil.msFormMMDD(message.getCreateTime());
+        MsgInfo msgInfo = new MsgInfo();
+        msgInfo.setUsername(mGroupInfo.getGroupName());
+        msgInfo.setDate(data);
+        msgInfo.setIsNotify(true);
+        msgInfo.setSingle(false);
+        msgInfo.setGroupInfoJson(mGroupInfo.toJson());
+        switch (message.getContentType()) {
+            case text:
+                TextContent textContent= (TextContent) message.getContent();
+                msgInfo.setMsgLast(textContent.getText());
+                break;
+            case image:
+                msgInfo.setMsgLast("图片");
+                break;
+            case custom:
+                msgInfo.setMsgLast("红包");
+                break;
+        }
+        Intent intent=new Intent(UPDATE_MSG_INFO);
+        intent.putExtra("msg_info",msgInfo);
+        sendBroadcast(intent);
     }
 
     /**
@@ -376,7 +467,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                 Toast.makeText(this, "发送语音", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.emoji_circle:
-                Toast.makeText(this, "发送表情", Toast.LENGTH_SHORT).show();
+                mEmojiPopup.toggle();
                 break;
             case R.id.send_circle:
                 String content = mEdit.getText().toString();
@@ -512,7 +603,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     /**
      * 初始化底部功能栏布局
      *
-     * @return List<Map                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               <                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               String                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               ,                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               Object>>
+     * @return list-map.string,object
      */
     private List<Map<String, Object>> initGridList() {
         for (int i = 0; i < icon.length; i++) {
@@ -530,11 +621,11 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
             if (data != null) {
                 String[] yuan = data.getStringExtra("yuan").split("￥");
                 String token = data.getStringExtra("token");
-                String blessings=data.getStringExtra("blessings");
+                String blessings = data.getStringExtra("blessings");
                 Map<String, String> map = new HashMap<>();
                 map.put("yuan", yuan[1]);
                 map.put("token", token);
-                map.put("blessings",blessings);
+                map.put("blessings", blessings);
                 sendCustomMsg(map);
                 LogUtil.d(TAG, "onActivityResult: " + "yuan.length = " + yuan.length
                         + " ;yuan[0] = " + yuan[0] + " ;yuan[1] = " + yuan[1]);

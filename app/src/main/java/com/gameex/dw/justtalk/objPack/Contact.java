@@ -39,19 +39,6 @@ public class Contact {
     private String phone;
 
     /**
-     * 构造
-     *
-     * @param index 索引
-     * @param uri   头像uri
-     * @param name  用户名
-     */
-    public Contact(String index, Uri uri, String name) {
-        this.index = index;
-        this.iconUri = uri;
-        this.name = name;
-    }
-
-    /**
      * gouzao
      *
      * @param index        索引

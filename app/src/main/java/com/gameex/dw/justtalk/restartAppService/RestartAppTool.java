@@ -9,7 +9,7 @@ public class RestartAppTool {
     /**
      * 重启整个App
      *
-     * @param context
+     * @param context 上下文
      * @param delayed 延迟多少秒
      */
     public static void restartApp(Context context, long delayed) {
@@ -26,7 +26,7 @@ public class RestartAppTool {
     /**
      * 重启整个App
      *
-     * @param context
+     * @param context 上下文
      */
     public static void restartApp(Context context) {
         restartApp(context, 2000);

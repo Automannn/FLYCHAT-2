@@ -4,11 +4,8 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -16,15 +13,13 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
-import com.gameex.dw.justtalk.BottomBarActivity;
+import com.gameex.dw.justtalk.main.BottomBarActivity;
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.dataStream.GetUserService;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.signUp.SignUpActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
@@ -34,20 +29,15 @@ import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.api.BasicCallback;
 import okhttp3.Call;
-import okhttp3.Callback;
-import okhttp3.MediaType;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -63,11 +53,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
 
     private CircularImageView mCircularImg;
     private EditText mUsername, mPassword;
-    private Button mLoginBtn;
     private CheckBox mAutoLogin;
-    private TextView mQuickSign, mForgotPwd;
 
-    private Intent mIntentGetUser;
     private ProgressDialog prosDialog;
 
     @Override
@@ -90,16 +77,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         mCircularImg = findViewById(R.id.circle_img_login);
         mUsername = findViewById(R.id.username_text);
         mPassword = findViewById(R.id.pwd_text);
-        mLoginBtn = findViewById(R.id.login_btn);
-        mLoginBtn.setOnClickListener(this);
+        Button loginBtn = findViewById(R.id.login_btn);
+        loginBtn.setOnClickListener(this);
         mAutoLogin = findViewById(R.id.auto_login_box);
         mAutoLogin.setOnCheckedChangeListener(this);
-        mQuickSign = findViewById(R.id.quick_sign_up);
-        mQuickSign.setOnClickListener(this);
-        mForgotPwd = findViewById(R.id.forgot_pwd);
-        mForgotPwd.setOnClickListener(this);
-
-        mIntentGetUser = new Intent(LoginActivity.this, GetUserService.class);
+        TextView quickSign = findViewById(R.id.quick_sign_up);
+        quickSign.setOnClickListener(this);
+        TextView forgotPwd = findViewById(R.id.forgot_pwd);
+        forgotPwd.setOnClickListener(this);
     }
 
     @Override
@@ -193,96 +178,92 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 prosDialog.show();
                 final String account = mUsername.getText().toString();
                 final String password = mPassword.getText().toString();
-                JSONObject json = new JSONObject();
-                try {
-                    if (DataUtil.isMobileNumber(account)) {
-                        json.put("phoneNumber", account);
-                    } else {
-                        json.put("username", account);
+                HashMap<String, String> paramsMap = new HashMap<>();
+                if (DataUtil.isMobileNumber(account)) {
+                    paramsMap.put("phoneNumber", account);
+                } else {
+                    paramsMap.put("username", account);
+                }
+                paramsMap.put("password", password);
+                OkHttpUtil.okHttpPost(LOGIN_PATH, paramsMap, new CallBackUtil.CallBackDefault() {
+                    @Override
+                    public void onFailure(Call call, Exception e) {
+                        prosDialog.dismiss();
+                        e.printStackTrace();
+                        LogUtil.d(TAG, "checkToLogin-CallBackUtil-onFailure: ");
+                        Toast.makeText(LoginActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
                     }
-                    json.put("password", password);
-                    OkHttpUtil.okHttpPostJson(LOGIN_PATH, json.toString(), null, new CallBackUtil.CallBackDefault() {
-                        @Override
-                        public void onFailure(Call call, Exception e) {
-                            prosDialog.dismiss();
-                            e.printStackTrace();
-                            LogUtil.d(TAG, "checkToLogin-CallBackUtil-onFailure: ");
-                            Toast.makeText(LoginActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
-                        }
 
-                        @Override
-                        public void onResponse(Response response) {
-                            if (response != null) {
-                                LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
-                                        + "response" + response);
-                                try {
-                                    assert response.body() != null;
-                                    JSONObject jsonObject = new JSONObject(response.body().string());
-                                    JSONObject object = jsonObject.getJSONObject("data");
-                                    boolean isSuccess = jsonObject.getBoolean("success");
-                                    if (isSuccess) {
-                                        String userId = object.getString("id");
-                                        prosDialog.dismiss();
-                                        editor = pref.edit();
-                                        if (mAutoLogin.isChecked()) {
-                                            editor.putBoolean("remember_password", true);
-                                            editor.putString("account", account);
-                                            editor.putString("password", password);
-                                            editor.putString("userId", userId);
-                                        } else {
-                                            editor.clear();
-                                        }
-                                        editor.apply();
-                                        JMessageClient.login(account, password, new BasicCallback() {
-                                            @Override
-                                            public void gotResult(int responseCode, String registerDesc) {
-                                                LogUtil.i("LOGIN_ACTIVITY_JMESSAGE_LOGIN",
-                                                        "JMessageClient.login " +
-                                                                ", responseCode = " + responseCode +
-                                                                " ; registerDesc = " + registerDesc);
-                                                if (responseCode == 0) {
-                                                    Intent intentLogin = new Intent(
-                                                            LoginActivity.this, BottomBarActivity.class);
-                                                    finish();
-                                                    startActivity(intentLogin);
-                                                } else {
-                                                    prosDialog.dismiss();
-                                                    Toast.makeText(LoginActivity.this,
-                                                            "登陆失败……", Toast.LENGTH_SHORT).show();
-                                                }
-                                            }
-                                        });
+                    @Override
+                    public void onResponse(Response response) {
+                        if (response != null) {
+                            LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
+                                    + "response" + response);
+                            try {
+                                assert response.body() != null;
+                                JSONObject jsonObject = new JSONObject(response.body().string());
+                                JSONObject object = jsonObject.getJSONObject("data");
+                                boolean isSuccess = jsonObject.getBoolean("success");
+                                if (isSuccess) {
+                                    String userId = object.getString("id");
+                                    prosDialog.dismiss();
+                                    editor = pref.edit();
+                                    if (mAutoLogin.isChecked()) {
+                                        editor.putBoolean("remember_password", true);
+                                        editor.putString("account", account);
+                                        editor.putString("password", password);
+                                        editor.putString("userId", userId);
                                     } else {
-                                        prosDialog.dismiss();
-                                        int code = object.getInt("code");
-                                        String message = object.getString("message");
-                                        if (code == 403) {
-                                            YoYo.with(Techniques.Shake)
-                                                    .duration(700)
-                                                    .playOn(findViewById(R.id.username_layout));
-                                            Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
-                                        } else if (code == 404) {
-                                            YoYo.with(Techniques.Shake)
-                                                    .duration(700)
-                                                    .playOn(findViewById(R.id.password_layout));
-                                            Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
-                                        } else {
-                                            Toast.makeText(LoginActivity.this, "请完善登陆信息", Toast.LENGTH_SHORT).show();
-                                        }
+                                        editor.clear();
                                     }
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                } catch (IOException e) {
-                                    e.printStackTrace();
+                                    editor.apply();
+                                    JMessageClient.login(account, password, new BasicCallback() {
+                                        @Override
+                                        public void gotResult(int responseCode, String registerDesc) {
+                                            LogUtil.i("LOGIN_ACTIVITY_JMESSAGE_LOGIN",
+                                                    "JMessageClient.login " +
+                                                            ", responseCode = " + responseCode +
+                                                            " ; registerDesc = " + registerDesc);
+                                            if (responseCode == 0) {
+                                                Intent intentLogin = new Intent(
+                                                        LoginActivity.this, BottomBarActivity.class);
+                                                finish();
+                                                startActivity(intentLogin);
+                                            } else {
+                                                prosDialog.dismiss();
+                                                Toast.makeText(LoginActivity.this,
+                                                        "登陆失败……", Toast.LENGTH_SHORT).show();
+                                            }
+                                        }
+                                    });
+                                } else {
+                                    prosDialog.dismiss();
+                                    int code = object.getInt("code");
+                                    String message = object.getString("message");
+                                    if (code == 403) {
+                                        YoYo.with(Techniques.Shake)
+                                                .duration(700)
+                                                .playOn(findViewById(R.id.username_layout));
+                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+                                    } else if (code == 404) {
+                                        YoYo.with(Techniques.Shake)
+                                                .duration(700)
+                                                .playOn(findViewById(R.id.password_layout));
+                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
+                                                + "code = " + code + " ;message = " + message);
+                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            } catch (IOException e) {
+                                e.printStackTrace();
                             }
                         }
-                    });
-                } catch (JSONException e) {
-                    prosDialog.dismiss();
-                    e.printStackTrace();
-                    Toast.makeText(LoginActivity.this, "数据异常", Toast.LENGTH_SHORT).show();
-                }
+                    }
+                });
             } else {
                 if (flag == 1) {
                     YoYo.with(Techniques.Shake)

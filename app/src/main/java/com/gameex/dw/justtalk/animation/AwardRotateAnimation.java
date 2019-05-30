@@ -10,8 +10,8 @@ import android.view.animation.Transformation;
  * Created by HuoWei on 2017/12/20.
  */
 public class AwardRotateAnimation extends Animation {
-    int centerX, centerY;
-    Camera camera = new Camera();
+    private int centerX, centerY;
+    private Camera camera = new Camera();
 
     @Override
     public void initialize(int width, int height, int parentWidth,

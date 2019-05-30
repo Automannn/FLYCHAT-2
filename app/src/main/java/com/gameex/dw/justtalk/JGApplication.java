@@ -1,10 +1,13 @@
-package com.gameex.dw.justtalk.jiguangIM;
+package com.gameex.dw.justtalk;
 
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.support.multidex.MultiDexApplication;
 
+import com.gameex.dw.justtalk.jiguangIM.GlobalEventListener;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.vanniktech.emoji.EmojiManager;
+import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,6 +27,10 @@ public class JGApplication extends MultiDexApplication {
      * 极光AppKey
      */
     public static final String APP_KEY = "fa964c46085d5543e75797c0";
+    /**
+     * 微信appId
+     */
+    public static final String WE_CHAT_APP_ID = "wx440625ae89c4244d";
 
     public static final String CONV_TITLE = "conv_title";
     public static final int IMAGE_MESSAGE = 1;
@@ -52,6 +59,7 @@ public class JGApplication extends MultiDexApplication {
         JMessageClient.registerEventReceiver(
                 new GlobalEventListener(getApplicationContext()));
 
+        EmojiManager.install(new TwitterEmojiProvider());
 //        upateUser();
     }
 

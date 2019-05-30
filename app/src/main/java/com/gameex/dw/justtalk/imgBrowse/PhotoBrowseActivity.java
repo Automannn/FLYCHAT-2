@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.imgBrowse;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
@@ -11,11 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PhotoBrowseActivity extends BaseActivity {
+    @SuppressLint("StaticFieldLeak")
     public static PhotoBrowseActivity sPhotoBrowseActivity;
-    /**
-     * 要浏览的图片集合
-     */
-    private List<String> photoBrowseList;
     /**
      *
      */
@@ -24,10 +22,6 @@ public class PhotoBrowseActivity extends BaseActivity {
      * 横滑布局
      */
     private ViewPager mViewPager;
-    /**
-     * 横滑布局适配器
-     */
-    private PhotoBrowsePagerAdapter mPhotoBrowsePagerAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,20 +61,18 @@ public class PhotoBrowseActivity extends BaseActivity {
      */
     private void initData() {
         sPhotoBrowseActivity = this;
-        photoBrowseList = new ArrayList<>();
+
+        //要浏览的图片集合
+        List<String> photoBrowseList = new ArrayList<>();
         if (getIntent() != null) {
             Intent intent = getIntent();
             photoBrowseList = intent.getStringArrayListExtra("photo_browse");
             current = intent.getIntExtra("current_browse", 0);
         }
-        mPhotoBrowsePagerAdapter = new PhotoBrowsePagerAdapter(photoBrowseList, getApplicationContext());
-        mViewPager.setAdapter(mPhotoBrowsePagerAdapter);
+
+        //横滑布局适配器
+        PhotoBrowsePagerAdapter photoBrowsePagerAdapter = new PhotoBrowsePagerAdapter(photoBrowseList, getApplicationContext());
+        mViewPager.setAdapter(photoBrowsePagerAdapter);
         mViewPager.setCurrentItem(current);
     }
-
-    /*
-    public static PhotoBrowseActivity getPhotoBrowseActivity() {
-        return sPhotoBrowseActivity;
-    }
-    */
 }

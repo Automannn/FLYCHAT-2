@@ -1,4 +1,4 @@
-package com.gameex.dw.justtalk;
+package com.gameex.dw.justtalk.util;
 
 import android.content.Context;
 import android.support.v7.widget.LinearLayoutManager;

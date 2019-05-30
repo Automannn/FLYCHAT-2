@@ -1,32 +1,28 @@
 package com.gameex.dw.justtalk.jiguangIM;
 
-import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Build;
 import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
-import com.gameex.dw.justtalk.BottomBarActivity;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.login.LoginActivity;
 import com.gameex.dw.justtalk.managePack.ActivityCollector;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
+import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.userInfo.UserBasicInfoActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 
-import java.lang.reflect.Method;
-
 import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.api.BasicCallback;
 
-import static com.gameex.dw.justtalk.BottomBarFat.ADD_CONTACT;
-import static com.gameex.dw.justtalk.BottomBarFat.UPDATE_MSG_INFO;
-import static com.gameex.dw.justtalk.jiguangIM.JGApplication.APP_KEY;
+import static com.gameex.dw.justtalk.main.BottomBarFat.ADD_CONTACT;
+import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_MSG_INFO;
+import static com.gameex.dw.justtalk.JGApplication.APP_KEY;
 
 public class NotificationReceiver extends BroadcastReceiver {
     public static final String TAG = "NOTIFICATION_RECEIVER";
@@ -120,10 +116,10 @@ public class NotificationReceiver extends BroadcastReceiver {
                     public void gotResult(int i, String s) {
                         if (i == 0) {
                             notifyToDo.setAction(UPDATE_MSG_INFO);
-                            notifyToDo.putExtra("username", nameAccept);
-                            notifyToDo.putExtra("date", DataUtil.getCurrentDateStr());
-                            notifyToDo.putExtra("msg_last", "你们已经是好友了，聊点什么吧...");
-                            notifyToDo.putExtra("is_notify", true);
+                            MsgInfo msgInfo=new MsgInfo(nameAccept,DataUtil.getCurrentDateStr()
+                                    ,"你们已经是好友了，聊点什么吧...",true);
+                            msgInfo.setSingle(true);
+                            notifyToDo.putExtra("msg_info",msgInfo);
                             context.sendBroadcast(notifyToDo);
                             Intent addContact = new Intent(ADD_CONTACT);
                             addContact.putExtra("username", nameAccept);
@@ -156,58 +152,6 @@ public class NotificationReceiver extends BroadcastReceiver {
                 break;
             default:
                 break;
-        }
-    }
-
-    /**
-     * 收起通知栏
-     *
-     * @param context 上下文参数
-     */
-    public void collapseStatusBar(Context context) {
-        try {
-            @SuppressLint("WrongConstant") Object statusBarManager = context.getSystemService("statusbar");
-            Method collapse;
-            if (Build.VERSION.SDK_INT <= 16) {
-                collapse = statusBarManager.getClass().getMethod("collapse");
-            } else {
-                collapse = statusBarManager.getClass().getMethod("collapsePanels");
-            }
-            collapse.invoke(statusBarManager);
-        } catch (Exception localException) {
-            localException.printStackTrace();
-        }
-    }
-
-    /**
-     * 展开通知栏
-     *
-     * @param context 上下文参数
-     */
-    public static void expandNotification(Context context) {
-        @SuppressLint("WrongConstant") Object service = context.getSystemService("statusbar");
-        if (null == service) {
-            return;
-        }
-        try {
-            @SuppressLint("PrivateApi") Class<?> clazz = Class.forName("android.app.StatusBarManager");
-            int sdkVersion = android.os.Build.VERSION.SDK_INT;
-            Method expand;
-            if (sdkVersion <= 16) {
-                expand = clazz.getMethod("expand");
-            } else {
-                /*
-                * Android SDK 16之后的版本展开通知栏有两个接口可以处理
-                * expandNotificationsPanel()
-                * expandSettingsPanel()
-                */
-                expand = clazz.getMethod("expandNotificationsPanel");
-//                expand = clazz.getMethod("expandSettingsPanel");
-            }
-            expand.setAccessible(true);
-            expand.invoke(service);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 }

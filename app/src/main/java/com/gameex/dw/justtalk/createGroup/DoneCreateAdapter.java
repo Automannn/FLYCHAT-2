@@ -24,7 +24,7 @@ public class DoneCreateAdapter extends RecyclerView.Adapter<DoneCreateAdapter.Do
     private Context mContext;
     private List<UserInfo> mUserInfos;
 
-    public DoneCreateAdapter(Context context, List<UserInfo> userInfos) {
+    DoneCreateAdapter(Context context, List<UserInfo> userInfos) {
         mContext = context;
         mUserInfos = userInfos;
     }
@@ -63,7 +63,7 @@ public class DoneCreateAdapter extends RecyclerView.Adapter<DoneCreateAdapter.Do
         CircularImageView icon;
         TextView name;
 
-        public DoneCreateHolder(@NonNull View itemView) {
+        DoneCreateHolder(@NonNull View itemView) {
             super(itemView);
             layout = itemView.findViewById(R.id.contact_info_layout);
             icon = itemView.findViewById(R.id.icon_contact);

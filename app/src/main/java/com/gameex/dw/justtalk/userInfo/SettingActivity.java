@@ -2,26 +2,20 @@ package com.gameex.dw.justtalk.userInfo;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.util.TypedValue;
 import android.view.KeyEvent;
 import android.view.View;
-import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.gameex.dw.justtalk.BottomBarActivity;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.managePack.ActivityCollector;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
-import com.gameex.dw.justtalk.restartAppService.RestartAppTool;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.warkiz.widget.IndicatorSeekBar;

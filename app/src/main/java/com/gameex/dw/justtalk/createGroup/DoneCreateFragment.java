@@ -1,6 +1,7 @@
 package com.gameex.dw.justtalk.createGroup;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -34,6 +35,7 @@ import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import cn.jpush.im.android.api.model.UserInfo;
 
@@ -50,7 +52,6 @@ public class DoneCreateFragment extends Fragment implements View.OnClickListener
     private EditText mName;
     private TextView mNum;
     private RecyclerView mView;
-    private DoneCreateAdapter mAdapter;
 
     private List<UserInfo> mUserInfos = new ArrayList<>();
     private AlertDialog mDialog;
@@ -72,6 +73,7 @@ public class DoneCreateFragment extends Fragment implements View.OnClickListener
     public void onAttach(Context context) {
         super.onAttach(context);
 //        mActivity = (Activity) context;
+        assert getArguments() != null;
         mUserInfos = (List<UserInfo>) UserInfo.fromJsonToCollection(
                 getArguments().getString(ARG_PARAM));
         mCallBack = (DoneCreateGroupCallBack) getActivity();
@@ -171,12 +173,13 @@ public class DoneCreateFragment extends Fragment implements View.OnClickListener
         animator.setRemoveDuration(300);
         mView.setItemAnimator(animator);
         mView.setLayoutManager(new LinearLayoutManager(sActivity));
-        mAdapter = new DoneCreateAdapter(sActivity, mUserInfos);
-        mView.setAdapter(mAdapter);
+        DoneCreateAdapter adapter = new DoneCreateAdapter(sActivity, mUserInfos);
+        mView.setAdapter(adapter);
 
         setUris();
     }
 
+    @SuppressLint("NewApi")
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
@@ -200,7 +203,7 @@ public class DoneCreateFragment extends Fragment implements View.OnClickListener
                         DataUtil.setPicToView(sActivity, icon, "crop_group_icon.jpg");
                         mIcon.setImageBitmap(icon);
                         mCallBack.sendGroupIcon(Uri.parse(MediaStore.Images.Media
-                                .insertImage(getActivity().getContentResolver()
+                                .insertImage(Objects.requireNonNull(getActivity()).getContentResolver()
                                         , icon, null, null)));
                     }
                 }
@@ -249,6 +252,7 @@ public class DoneCreateFragment extends Fragment implements View.OnClickListener
     /**
      * 提取已选联系人的头像信息
      */
+    @SuppressLint("NewApi")
     private void setUris() {
         if (mUserInfos == null) {
             return;
@@ -256,7 +260,7 @@ public class DoneCreateFragment extends Fragment implements View.OnClickListener
         for (UserInfo userInfo : mUserInfos) {
             String uri = userInfo.getExtra("icon_uri");
             mUris.add(TextUtils.isEmpty(uri) ? DataUtil.resourceIdToUri(
-                    getActivity().getPackageName(), R.drawable.icon_user) : Uri.parse(uri));
+                    Objects.requireNonNull(getActivity()).getPackageName(), R.drawable.icon_user) : Uri.parse(uri));
         }
         mCallBack.sendUris(mUris);
     }

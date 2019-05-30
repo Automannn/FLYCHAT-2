@@ -61,6 +61,8 @@
                                 android:layout_width="@dimen/dp_160"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/light_gray_red_deep_rip"
+                                android:clickable="true"
+                                android:focusable="true"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
                                 android:visibility="gone">
@@ -98,7 +100,7 @@
                                 app:siBorderWidth="@dimen/dp_2"
                                 app:siRadius="@dimen/dp_10"/>
 
-                            <TextView
+                            <com.vanniktech.emoji.EmojiTextView
                                 android:id="@+id/user_msg_left"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -108,9 +110,9 @@
                                 android:paddingTop="@dimen/dp_5"
                                 android:paddingRight="@dimen/dp_10"
                                 android:paddingBottom="@dimen/dp_5"
-                                android:visibility="gone"
                                 android:textColor="@color/colorMineThemeText"
                                 android:textSize="?smallSuperFont"
+                                android:visibility="gone"
                                 tools:ignore="RtlSymmetry"/>
 
                         </RelativeLayout>
@@ -155,6 +157,8 @@
                                 android:layout_width="@dimen/dp_160"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/light_gray_red_deep_rip"
+                                android:clickable="true"
+                                android:focusable="true"
                                 android:gravity="center_vertical"
                                 android:orientation="horizontal"
                                 android:visibility="gone">
@@ -192,7 +196,7 @@
                                 app:siBorderWidth="@dimen/dp_2"
                                 app:siRadius="@dimen/dp_10"/>
 
-                            <TextView
+                            <com.vanniktech.emoji.EmojiTextView
                                 android:id="@+id/user_msg_right"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
@@ -203,9 +207,9 @@
                                 android:paddingTop="@dimen/dp_5"
                                 android:paddingRight="@dimen/dp_10"
                                 android:paddingBottom="@dimen/dp_5"
-                                android:visibility="gone"
                                 android:textColor="@color/colorMineThemeText"
                                 android:textSize="?smallSuperFont"
+                                android:visibility="gone"
                                 tools:ignore="RtlSymmetry"/>
 
                         </RelativeLayout>

@@ -1,4 +1,4 @@
-package com.gameex.dw.justtalk;
+package com.gameex.dw.justtalk.main;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -27,6 +27,7 @@ import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.Toast;
 
+import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.addFriends.AddFriendsActivity;
 import com.gameex.dw.justtalk.createGroup.CreateGroupActivity;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
@@ -41,7 +42,9 @@ import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
-import static com.gameex.dw.justtalk.BottomBarFat.REQUEST_CODE_SCAN;
+import java.util.Objects;
+
+import static com.gameex.dw.justtalk.main.BottomBarFat.REQUEST_CODE_SCAN;
 
 /**
  * 主界面activity
@@ -56,7 +59,6 @@ public class BottomBarActivity extends BaseActivity
     private LinearLayout mTitleRightLL;
     private ViewPager viewPager;
     private BottomNavigationView navigation;
-    private MenuItem menuItem;
 
     private PopupWindow mTitlePup;
 
@@ -101,6 +103,7 @@ public class BottomBarActivity extends BaseActivity
     /**
      * 绑定id，设置监听，完善相关属性
      */
+    @SuppressLint("NewApi")
     private void initView() {
         setContentView(R.layout.activity_bottom_bar);
 
@@ -136,7 +139,7 @@ public class BottomBarActivity extends BaseActivity
                 return false;
             }
         });
-        getSupportActionBar().setTitle("");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("");
         mTitleRightLL = findViewById(R.id.layout_right);
 
         navigation = findViewById(R.id.navigation);
@@ -200,6 +203,7 @@ public class BottomBarActivity extends BaseActivity
         mTitlePup.setFocusable(true);
         mTitlePup.setOutsideTouchable(true);
         mTitlePup.setTouchInterceptor(new View.OnTouchListener() {
+            @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View view, MotionEvent motionEvent) {
                 if (motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
@@ -281,7 +285,7 @@ public class BottomBarActivity extends BaseActivity
 
         @Override
         public void onPageSelected(int position) {
-            menuItem = navigation.getMenu().getItem(position);
+            MenuItem menuItem = navigation.getMenu().getItem(position);
             menuItem.setChecked(true);
             switch (position) {
                 case 0:
@@ -413,7 +417,8 @@ public class BottomBarActivity extends BaseActivity
      * 处理activity返回的数据
      */
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode
+            , @Nullable Intent data) {
         //搜索栏若开启声音搜索模式，此处处理其返回的数据
         /*if (requestCode == MaterialSearchView.REQUEST_VOICE && resultCode == RESULT_OK) {
             ArrayList<String> matches = data.getStringArrayListExtra(RecognizerIntent.EXTRA_RESULTS);

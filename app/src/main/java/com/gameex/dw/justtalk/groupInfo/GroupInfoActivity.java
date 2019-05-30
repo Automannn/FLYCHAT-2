@@ -12,15 +12,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.titleBar.OnViewClick;
-import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
 
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.GroupMemberInfo;
 import cn.jpush.im.api.BasicCallback;

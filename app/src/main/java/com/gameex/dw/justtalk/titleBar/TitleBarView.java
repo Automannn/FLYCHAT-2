@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.titleBar;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -44,7 +45,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
         super(context, attrs, defStyleAttr);
         LayoutInflater.from(context).inflate(R.layout.title_bar_layout, this);
         initView();
-        TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.titleBarView, defStyleAttr, 0);
+        @SuppressLint("CustomViewStyleable") TypedArray array = context.obtainStyledAttributes(attrs, R.styleable.titleBarView, defStyleAttr, 0);
         int count = array.getIndexCount();
         for (int i = 0; i < count; i++) {
             int attr = array.getIndex(i);
@@ -82,7 +83,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 接口回调监听点击
      *
-     * @param click
+     * @param click 点击监听接口对象
      */
     public void setOnViewClick(OnViewClick click) {
         this.mClick = click;
@@ -91,7 +92,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 接口回调监听searchView的展示状态
      *
-     * @param listen
+     * @param listen 搜索监听接口对象
      */
     public void setOnSearchListen(OnSearchListen listen) {
         this.mSearchListen = listen;
@@ -100,7 +101,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 接口回调searchView搜索状态
      *
-     * @param queryListen
+     * @param queryListen 搜索框内容变化监听接口对象
      */
     public void setQueryListen(OnSearchQueryListen queryListen) {
         mQueryListen = queryListen;
@@ -109,7 +110,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 设置标题
      *
-     * @param title
+     * @param title 标题
      */
     public void setTitle(String title) {
         if (!TextUtils.isEmpty(title)) {
@@ -120,18 +121,18 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 设置标题大小
      *
-     * @param size
+     * @param size 大小
      */
     public void setTitleSize(int size) {
         if (titleTV != null) {
-            titleTV.setTextSize(TypedValue.COMPLEX_UNIT_SP,size);
+            titleTV.setTextSize(TypedValue.COMPLEX_UNIT_SP, size);
         }
     }
 
     /**
      * 设置左图标可见否
      *
-     * @param visible
+     * @param visible 可见否
      */
     public void setLeftIVVisible(int visible) {
         leftLayout.setVisibility(visible);
@@ -140,7 +141,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 设置搜索circular可见否
      *
-     * @param visible
+     * @param visible 可见否
      */
     public void setSearchIVVisible(int visible) {
         searchLayout.setVisibility(visible);
@@ -149,7 +150,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 将自定义toolBar设置成app标题栏
      *
-     * @param activity
+     * @param activity activity
      */
     public void setToolbarBeActionBar(AppCompatActivity activity) {
         activity.setSupportActionBar(mToolbar);
@@ -158,7 +159,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 设置工具栏是否可见
      *
-     * @param visible
+     * @param visible 可见否
      */
     public void setToolbarVisible(int visible) {
         mToolbar.setVisibility(visible);
@@ -167,20 +168,16 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 判断searchView是否展示
      *
-     * @return
+     * @return boolean
      */
     public boolean isSearchViewOpening() {
-        if (mSearchView.isSearchOpen()) {
-            return true;
-        } else {
-            return false;
-        }
+        return mSearchView.isSearchOpen();
     }
 
     /**
      * 设置searView是否展示
      *
-     * @param isShow
+     * @param isShow 展开否
      */
     public void setSearchViewShow(boolean isShow) {
         if (isShow) {
@@ -193,7 +190,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 设置右图标可见否
      *
-     * @param visible
+     * @param visible 可见否
      */
     public void setRightIVVisible(int visible) {
         rightIV.setVisibility(visible);
@@ -202,7 +199,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 设置右图资源
      *
-     * @param resourceId
+     * @param resourceId 资源id
      */
     public void setRightIVImg(int resourceId) {
         rightIV.setImageResource(resourceId);
@@ -211,7 +208,7 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 点击监听事件
      *
-     * @param view
+     * @param view view
      */
     @Override
     public void onClick(View view) {
@@ -249,8 +246,8 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 搜索文本提交监听
      *
-     * @param query
-     * @return
+     * @param query 文本
+     * @return boolean
      */
     @Override
     public boolean onQueryTextSubmit(String query) {
@@ -260,8 +257,8 @@ public class TitleBarView extends RelativeLayout implements View.OnClickListener
     /**
      * 搜索文本改变监听
      *
-     * @param newText
-     * @return
+     * @param newText 新闻本
+     * @return boolean
      */
     @Override
     public boolean onQueryTextChange(String newText) {

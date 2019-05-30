@@ -2,7 +2,6 @@ package com.gameex.dw.justtalk.signUp;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Looper;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
@@ -30,14 +29,9 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import okhttp3.Call;
-import okhttp3.FormBody;
 import okhttp3.Headers;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
 import okhttp3.Response;
 
 /**
@@ -65,7 +59,6 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
 
     private EditText mPhone, mVerifyCode, mPwd;
     private TextView mVerifyCodeText;
-    private Button mSignUp;
     private Intent postJsonSer;
 
     private Map<String, String> header = new HashMap<>();
@@ -104,8 +97,8 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
         mVerifyCodeText = findViewById(R.id.verification_code_text);
         mVerifyCodeText.setOnClickListener(this);
         mPwd = findViewById(R.id.pwd_edit);
-        mSignUp = findViewById(R.id.sign_up_btn);
-        mSignUp.setOnClickListener(this);
+        Button signUp = findViewById(R.id.sign_up_btn);
+        signUp.setOnClickListener(this);
     }
 
     @Override
@@ -244,7 +237,7 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
             public void onResponse(Response response) {
                 if (response.isSuccessful()) {
                     if (response.body() != null) {
-                        String string ;
+                        String string;
                         try {
                             string = response.body().string();
                             JSONObject jsonObject = new JSONObject(string);
@@ -253,7 +246,8 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
                             if (success) {
                                 header.clear();
                                 LogUtil.d("VERIFICATION_CODE_CHECK_RESULT", data + "");
-                                postJsonSer = new Intent(SignUpActivity.this, PostJsonService.class);
+                                postJsonSer = new Intent(SignUpActivity.this
+                                        , PostJsonService.class);
                                 postJsonSer.putExtra("sign_info", new String[]{
                                         phone, pwd, SIGN_PATH});
                                 startService(postJsonSer);

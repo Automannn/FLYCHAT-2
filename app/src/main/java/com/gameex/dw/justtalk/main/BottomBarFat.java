@@ -1,4 +1,4 @@
-package com.gameex.dw.justtalk;
+package com.gameex.dw.justtalk.main;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -38,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.objPack.Contact;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.payPackage.ChangeActivity;
@@ -46,6 +47,7 @@ import com.gameex.dw.justtalk.userInfo.SettingActivity;
 import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.RecScrollHelper;
 import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.gjiazhe.wavesidebar.WaveSideBar;
@@ -124,13 +126,6 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
         if (getArguments() != null) {
             param = getArguments().getString(ARG_PARAM);
         }
-        mFragmentReceiver = new UpdateFragmentReceiver();
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(UPDATE_MSG_INFO);
-        filter.addAction(UPDATE_USER_INFO);
-        filter.addAction(REMOVE_CONTACT);
-        filter.addAction(ADD_CONTACT);
-        BottomBarActivity.sBottomBarActivity.registerReceiver(mFragmentReceiver, filter);
         mUserInfo = JMessageClient.getMyInfo();
     }
 
@@ -141,6 +136,13 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
             , @Nullable Bundle savedInstanceState) {
         switch (param) {
             case "0":
+                mFragmentReceiver = new UpdateFragmentReceiver();
+                IntentFilter filter = new IntentFilter();
+                filter.addAction(UPDATE_MSG_INFO);
+                filter.addAction(UPDATE_USER_INFO);
+                filter.addAction(REMOVE_CONTACT);
+                filter.addAction(ADD_CONTACT);
+                BottomBarActivity.sBottomBarActivity.registerReceiver(mFragmentReceiver, filter);
                 mView = inflater.inflate(R.layout.message_layout, container, false);
                 return mView;
             case "1":
@@ -289,6 +291,8 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                 });
                 break;
             case "2":
+                userIcon = mView.findViewById(R.id.circle_img_user);
+                userName = mView.findViewById(R.id.mine_name);
                 ImageView qrCode = mView.findViewById(R.id.qr_code_img);
                 qrCode.setOnClickListener(this);
                 RelativeLayout mineInfoLayout, flyChatStoreLayout, looseChangeLayout,
@@ -318,25 +322,11 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
      * 初始化用户信息(我 标签页信息)
      */
     private void initDataOfMine() {
-        switch (param) {
-            case "0":
-                break;
-            case "1":
-                break;
-            case "2":
-                userIcon = mView.findViewById(R.id.circle_img_user);
-                userName = mView.findViewById(R.id.mine_name);
-                if (mUserInfo == null) {
-                    mUserInfo = JMessageClient.getMyInfo();
-                }
-                UserInfoUtils.initUserIcon(mUserInfo, BottomBarActivity.sBottomBarActivity
-                        , userIcon);
-                userName.setText(TextUtils.isEmpty(mUserInfo.getNickname())
-                        ? mUserInfo.getUserName() : mUserInfo.getNickname());
-                break;
-            default:
-                break;
-        }
+        mUserInfo = JMessageClient.getMyInfo();
+        UserInfoUtils.initUserIcon(mUserInfo, BottomBarActivity.sBottomBarActivity
+                , userIcon);
+        userName.setText(TextUtils.isEmpty(mUserInfo.getNickname())
+                ? mUserInfo.getUserName() : mUserInfo.getNickname());
     }
 
     /**
@@ -473,7 +463,9 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        BottomBarActivity.sBottomBarActivity.unregisterReceiver(mFragmentReceiver);
+        if (param.equals("0")) {
+            BottomBarActivity.sBottomBarActivity.unregisterReceiver(mFragmentReceiver);
+        }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -551,58 +543,47 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
     }
 
     /**
-     * 更新飞聊标签页
+     * 准备更新信息列表
      *
-     * @param context  上下文
-     * @param name     极光上的username
-     * @param date     信息发送的日期
-     * @param msg      最后一条未读信息
-     * @param isNotify 是否设置不提醒
+     * @param msgInfo 自定义信息体
      */
-    private void updateMsgInfo(final Context context, String name, final String date
-            , final String msg, final boolean isNotify
-            , final boolean isSingle, final String groupInfoJson) {
-        if (isSingle) {
-            JMessageClient.getUserInfo(name, new GetUserInfoCallback() {
+    private void goUpdateMsgInfo(final MsgInfo msgInfo) {
+        if (msgInfo.isSingle()) {
+            JMessageClient.getUserInfo(msgInfo.getUsername(), new GetUserInfoCallback() {
                 @Override
-                public void gotResult(int i, String s, UserInfo userInfo) {
+                public void gotResult(int i, String s, final UserInfo userInfo) {
                     if (i == 0) {
                         LogUtil.d(TAG, "onReceiver: " + "userInfo = " + userInfo.toJson());
-                        MsgInfo msgInfo = new MsgInfo(
-                                userInfo.getExtra("username") == null
-                                        ? userInfo.getUserName() : userInfo.getExtra("username")
-                                , date, msg, isNotify);
-                        msgInfo.setUriPath(userInfo.getExtra("icon_uri") == null ?
-                                DataUtil.resourceIdToUri(context.getPackageName(), R.drawable.icon_user).toString()
-                                : userInfo.getExtra("icon_uri"));
-                        msgInfo.setSingle(isSingle);
-                        msgInfo.setUserInfoJson(userInfo.toJson());
-                        if (groupInfoJson != null) {
-                            msgInfo.setGroupInfoJson(groupInfoJson);
-                        }
-                        int isExist = isMsgExist(userInfo);
-                        if (isExist == -1) {
-                            mMsgInfos.add(msgInfo);
-                            mAdapter.notifyItemInserted(1);
-                        } else {
-                            mMsgInfos.set(isExist, msgInfo);
-                            mAdapter.notifyItemChanged(isExist);
-                        }
-                        Gson gson = new Gson();
-                        String msgsStr = gson.toJson(mMsgInfos);
-                        mEditor = mPref.edit();
-                        mEditor.putString("msg_list", msgsStr);
-                        mEditor.apply();
+                        msgInfo.setId(userInfo.getUserName());
+                        msgInfo.setUsername(TextUtils.isEmpty(userInfo.getNickname())
+                                ? userInfo.getUserName() : userInfo.getNickname());
+                        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                            @Override
+                            public void gotResult(int i, String s, Bitmap bitmap) {
+                                if (i == 0) {
+                                    msgInfo.setUriPath(Uri.parse(MediaStore.Images.Media
+                                            .insertImage(getActivity().getContentResolver()
+                                                    , bitmap, null, null))
+                                            .toString());
+                                } else {
+                                    msgInfo.setUriPath(DataUtil.resourceIdToUri(
+                                            getActivity().getPackageName(), R.drawable.icon_user)
+                                            .toString());
+                                }
+                                msgInfo.setUserInfoJson(userInfo.toJson());
+                                updateMsgInfo(msgInfo);
+                            }
+                        });
                     } else {
                         LogUtil.d(TAG, "onReceiver: " +
                                 "responseCode = " + i + " ; desc = " + s);
-                        Toast.makeText(context, "好友添加失败", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), "信息列表更新失败", Toast.LENGTH_SHORT).show();
                     }
                 }
             });
         } else {
-            GroupInfo groupInfo = GroupInfo.fromJson(groupInfoJson);
-            final MsgInfo msgInfo = new MsgInfo(groupInfo.getGroupName(), date, msg, isNotify);
+            GroupInfo groupInfo = GroupInfo.fromJson(msgInfo.getGroupInfoJson());
+            msgInfo.setId(String.valueOf(groupInfo.getGroupID()));
             groupInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
                 @Override
                 public void gotResult(int i, String s, Bitmap bitmap) {
@@ -611,38 +592,46 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
                                 .Media
                                 .insertImage(getActivity().getContentResolver()
                                         , bitmap, null, null)).toString());
-                        msgInfo.setSingle(isSingle);
-                        msgInfo.setGroupInfoJson(groupInfoJson);
-                        mMsgInfos.add(msgInfo);
-                        mAdapter.notifyItemInserted(1);
-                        Gson gson = new Gson();
-                        String msgsStr = gson.toJson(mMsgInfos);
-                        mEditor = mPref.edit();
-                        mEditor.putString("msg_list", msgsStr);
-                        mEditor.apply();
                     } else {
                         LogUtil.d(TAG, "updateMsgInfo-group: "
                                 + "responseCode = " + i + " ;desc = " + s);
+                        msgInfo.setUriPath(DataUtil.resourceIdToUri(getActivity().getPackageName()
+                                , R.drawable.icon_group).toString());
                     }
+                    updateMsgInfo(msgInfo);
                 }
             });
         }
     }
 
     /**
-     * 判断新信息的来源是否已存在列表中
+     * 判断新信息的来源是否已存在列表中,并执行对应刷新事件
      *
-     * @param userInfo 新信息来源的userInfo
-     * @return 若存在列表中则返回所在位置，否则返回-1
+     * @param msgInfo 自定义信息体
      */
-    private Integer isMsgExist(UserInfo userInfo) {
-        for (int i = 0; i < mMsgInfos.size(); i++) {
-            UserInfo user = UserInfo.fromJson(mMsgInfos.get(i).getUserInfoJson());
-            if (user.getUserName().equals(userInfo.getUserName())) {
-                return i;
+    private void updateMsgInfo(MsgInfo msgInfo) {
+        if (mMsgInfos.size() == 0) {
+            mMsgInfos.add(msgInfo);
+            mAdapter.notifyDataSetChanged();
+        } else {
+            int i = 0;
+            for (; i < mMsgInfos.size(); i++) {
+                if (mMsgInfos.get(i).getId().equals(msgInfo.getId())) {
+                    mMsgInfos.set(i, msgInfo);
+                    mAdapter.notifyItemChanged(i);
+                    break;
+                }
+            }
+            if (i == mMsgInfos.size()) {
+                mMsgInfos.add(0, msgInfo);
+                mAdapter.notifyItemInserted(0);
             }
         }
-        return -1;
+        Gson gson = new Gson();
+        String msgsStr = gson.toJson(mMsgInfos);
+        mEditor = mPref.edit();
+        mEditor.putString("msg_list", msgsStr);
+        mEditor.apply();
     }
 
     /**
@@ -656,25 +645,15 @@ public class BottomBarFat extends Fragment implements View.OnClickListener {
             assert action != null;
             switch (action) {
                 case UPDATE_MSG_INFO:
-                    String name = intent.getStringExtra("username");
-                    String date = intent.getStringExtra("date");
-                    String msg = intent.getStringExtra("msg_last");
-                    boolean isNotify = intent.getBooleanExtra("is_notify", true);
-                    boolean isSingle = intent.getBooleanExtra("is_single", true);
-                    String groupInfoJson = intent.getStringExtra("group_json");
-                    updateMsgInfo(context, name, date, msg, isNotify, isSingle, groupInfoJson);
+                    MsgInfo msgInfo = intent.getParcelableExtra("msg_info");
+                    goUpdateMsgInfo(msgInfo);
                     break;
                 case UPDATE_USER_INFO:
-                    try {
-                        Uri uri = Uri.parse(intent.getStringExtra("icon_uri"));
-                        Glide.with(BottomBarActivity.sBottomBarActivity)
-                                .load(uri)
-                                .into(userIcon);
-                    } catch (NullPointerException npe) {
-                        npe.printStackTrace();
-                    }
-                    String username = intent.getStringExtra("username");
-                    userName.setText(username);
+                    mUserInfo = JMessageClient.getMyInfo();
+                    UserInfoUtils.initUserIcon(mUserInfo, BottomBarActivity.sBottomBarActivity
+                            , userIcon);
+                    userName.setText(TextUtils.isEmpty(mUserInfo.getNickname())
+                            ? mUserInfo.getUserName() : mUserInfo.getNickname());
                     break;
                 case REMOVE_CONTACT:
                     String phone = intent.getStringExtra("phone");

@@ -32,6 +32,7 @@ import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.github.siyamed.shapeimageview.RoundedImageView;
+import com.vanniktech.emoji.EmojiTextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -229,8 +230,9 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
     class GroupChatHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         LinearLayout leftLayout, rightLayout, leftMsgLayout, rightMsgLayout, redMsgLeft, redMsgRight;
         CircularImageView leftCircle, rightCircle;
-        TextView leftMsg, receiveTime, sendTime, rightMsg, redMessageLeft, redMessageRight;
+        TextView receiveTime, sendTime, redMessageLeft, redMessageRight;
         ImageView open;
+        EmojiTextView leftMsg, rightMsg;
         RoundedImageView leftImg, rightImg;
 
         private PopupWindow redPup;
@@ -253,6 +255,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
             leftMsg = itemView.findViewById(R.id.user_msg_left);
             leftMsg.setOnClickListener(this);
             redMsgLeft = itemView.findViewById(R.id.red_msg_left);
+            redMsgLeft.setOnClickListener(this);
             redMessageLeft = itemView.findViewById(R.id.red_message_left);
             receiveTime = itemView.findViewById(R.id.msg_time_receive);
             rightCircle = itemView.findViewById(R.id.user_icon_right);
@@ -265,6 +268,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
             rightMsg = itemView.findViewById(R.id.user_msg_right);
             rightMsg.setOnClickListener(this);
             redMsgRight = itemView.findViewById(R.id.red_msg_right);
+            redMsgRight.setOnClickListener(this);
             redMessageRight = itemView.findViewById(R.id.red_message_right);
             sendTime = itemView.findViewById(R.id.msg_time_send);
         }
@@ -366,7 +370,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
          */
         private void showRedPup() {
             LayoutInflater inflater = LayoutInflater.from(mContext);
-            View view = inflater.inflate(R.layout.popup_red_package, null);
+            @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.popup_red_package, null);
             ImageView close = view.findViewById(R.id.close);
             close.setOnClickListener(this);
             open = view.findViewById(R.id.open);
@@ -376,6 +380,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
             redPup.setFocusable(true);
             redPup.setOutsideTouchable(true);
             redPup.setTouchInterceptor(new View.OnTouchListener() {
+                @SuppressLint("ClickableViewAccessibility")
                 @Override
                 public boolean onTouch(View view, MotionEvent motionEvent) {
                     if (motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
@@ -450,21 +455,6 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                     }
                 }
             });
-        }
-
-        /**
-         * 定时执行的动作
-         */
-        private void getTimer() {
-            new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    mContext.startActivity(new Intent(mContext, RedDetailActivity.class));
-                    if (redPup.isShowing()) {
-                        redPup.dismiss();
-                    }
-                }
-            }, 850);
         }
     }
 }

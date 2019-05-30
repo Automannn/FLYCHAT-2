@@ -75,6 +75,10 @@ public class PayPasswordView extends RelativeLayout implements View.OnClickListe
         //设置点击关闭键盘时收起密码键盘
         closeKeyboard.setOnClickListener(this);
 
+        for (TextView textView : tvList) {
+            textView.setOnClickListener(this);
+        }
+
         // 初始化按钮上应该显示的数字
         for (int i = 1; i < 13; i++) {
             Map<String, String> map = new HashMap<>();
@@ -85,7 +89,7 @@ public class PayPasswordView extends RelativeLayout implements View.OnClickListe
             } else if (i == 11) {
                 map.put("name", String.valueOf(0));
             } else {
-                map.put("name", "🔙");
+                map.put("name", "⬅");
             }
             valueList.add(map);
         }
@@ -209,7 +213,7 @@ public class PayPasswordView extends RelativeLayout implements View.OnClickListe
             case R.id.close:
                 mKeyboardLayout.setVisibility(GONE);
                 break;
-            case R.id.pay_pwd_layout:
+            default:
                 mKeyboardLayout.setVisibility(VISIBLE);
                 break;
         }

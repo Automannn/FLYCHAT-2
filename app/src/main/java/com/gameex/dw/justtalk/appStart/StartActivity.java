@@ -86,9 +86,9 @@ public class StartActivity extends AppCompatActivity {
     /**
      * 重写onKeyDown监听返回按钮
      *
-     * @param keyCode
-     * @param event
-     * @return
+     * @param keyCode keyCode
+     * @param event   keyEvent
+     * @return boolean
      */
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {

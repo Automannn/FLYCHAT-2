@@ -11,6 +11,8 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.RecyclerView;
@@ -23,10 +25,13 @@ import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -245,9 +250,16 @@ public class DataUtil {
      * @param uri 需裁剪的uri
      */
     public static void cropPhoto(Activity activity, Fragment fragment, Uri uri) {
+//        Uri outputUri = Uri.fromFile(new File(Environment.getExternalStorageDirectory()
+//                .getAbsolutePath() + "/" + System.currentTimeMillis() + ".jpg"));
         Intent intent = new Intent("com.android.camera.action.CROP");
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        }
         intent.setDataAndType(uri, "image/*");
+        //是否可裁剪
         intent.putExtra("crop", "true");
+//        intent.putExtra("scale", "true");
         // aspectX aspectY 是宽高比列
         intent.putExtra("aspectX", 1);
         intent.putExtra("aspectY", 1);
@@ -255,6 +267,8 @@ public class DataUtil {
         intent.putExtra("outputX", 200);
         intent.putExtra("outputY", 200);
         intent.putExtra("return-data", true);
+//        intent.putExtra(MediaStore.EXTRA_OUTPUT, outputUri);
+//        intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
         if (fragment != null) {
             fragment.startActivityForResult(intent, CROP_PHOTO);
         } else {
@@ -267,7 +281,7 @@ public class DataUtil {
      *
      * @param bitmap 缓存头像
      */
-    public static void setPicToView(Context context, Bitmap bitmap, String fileName) {
+    public static File setPicToView(Context context, Bitmap bitmap, String fileName) {
         FileOutputStream b = null;
         File file = new File(context.getExternalCacheDir(), fileName);
         if (file.exists()) {
@@ -293,6 +307,7 @@ public class DataUtil {
                 e.printStackTrace();
             }
         }
+        return file;
     }
 
     /**
@@ -309,6 +324,31 @@ public class DataUtil {
             else
                 return BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
         return null;
+    }
+
+    /**
+     * 将bitmap转化为file
+     * @param bitmap    位图
+     * @return file
+     */
+    public File bitmapToFile(Bitmap bitmap) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 50, baos);
+        File file = new File(Environment.getExternalStorageDirectory() + "/temp.jpg");
+        try {
+            file.createNewFile();
+            FileOutputStream fos = new FileOutputStream(file);
+            InputStream is = new ByteArrayInputStream(baos.toByteArray());
+            int x = 0;
+            byte[] b = new byte[1024 * 100];
+            while ((x = is.read(b)) != -1) {
+                fos.write(b, 0, x);
+            }
+            fos.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
     }
 
 

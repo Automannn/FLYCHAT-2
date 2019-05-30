@@ -6,10 +6,6 @@ import android.os.Handler;
 import android.os.IBinder;
 
 public class RestartAppService extends Service {
-    /**
-     * 关闭应用后多久重新启动
-     */
-    private static long mStopDelayed = 50;
     private Handler mHandler;
     private String mPackageName;
 
@@ -19,7 +15,9 @@ public class RestartAppService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        mStopDelayed = intent.getLongExtra("delayed", 50);
+
+        //关闭应用后多久重新启动
+        long stopDelayed = intent.getLongExtra("delayed", 50);
         mPackageName = intent.getStringExtra("package_name");
         mHandler.postDelayed(new Runnable() {
             @Override
@@ -28,7 +26,7 @@ public class RestartAppService extends Service {
                 startActivity(launchIntent);
                 RestartAppService.this.stopSelf();
             }
-        }, mStopDelayed);
+        }, stopDelayed);
         return super.onStartCommand(intent, flags, startId);
     }
 

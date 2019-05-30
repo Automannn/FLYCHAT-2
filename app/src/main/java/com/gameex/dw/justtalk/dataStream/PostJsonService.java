@@ -5,7 +5,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.Build;
 import android.os.IBinder;
-import android.os.Looper;
 import android.support.annotation.RequiresApi;
 import android.widget.Toast;
 

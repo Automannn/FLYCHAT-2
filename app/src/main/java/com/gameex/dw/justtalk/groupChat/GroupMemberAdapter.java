@@ -20,7 +20,7 @@ public class GroupMemberAdapter extends RecyclerView.Adapter<GroupMemberAdapter.
     private Context mContext;
     private List<Uri> mUris;
 
-    public GroupMemberAdapter(Context context, List<Uri> uris) {
+    GroupMemberAdapter(Context context, List<Uri> uris) {
         mContext = context;
         mUris = uris;
     }
@@ -53,7 +53,7 @@ public class GroupMemberAdapter extends RecyclerView.Adapter<GroupMemberAdapter.
         CircularImageView icon;
         TextView groupMaster;
 
-        public GroupMemberHolder(@NonNull View itemView) {
+        GroupMemberHolder(@NonNull View itemView) {
             super(itemView);
             icon = itemView.findViewById(R.id.group_member_circle);
             groupMaster = itemView.findViewById(R.id.group_master);

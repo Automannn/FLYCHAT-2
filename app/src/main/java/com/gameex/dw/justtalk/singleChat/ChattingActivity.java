@@ -8,6 +8,7 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -16,22 +17,21 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
-import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
+import com.gameex.dw.justtalk.emoji.PageTransformer;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.imagePicker.GifSizeFilter;
 import com.gameex.dw.justtalk.imagePicker.Glide4Engine;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
-import com.gameex.dw.justtalk.redPackage.SetYuanActivity;
 import com.gameex.dw.justtalk.redPackage.SingleRedActivity;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
@@ -40,6 +40,16 @@ import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
+import com.vanniktech.emoji.EmojiEditText;
+import com.vanniktech.emoji.EmojiImageView;
+import com.vanniktech.emoji.EmojiPopup;
+import com.vanniktech.emoji.emoji.Emoji;
+import com.vanniktech.emoji.listeners.OnEmojiBackspaceClickListener;
+import com.vanniktech.emoji.listeners.OnEmojiClickListener;
+import com.vanniktech.emoji.listeners.OnEmojiPopupDismissListener;
+import com.vanniktech.emoji.listeners.OnEmojiPopupShownListener;
+import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
+import com.vanniktech.emoji.listeners.OnSoftKeyboardOpenListener;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.filter.Filter;
@@ -60,7 +70,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 
-import static com.gameex.dw.justtalk.groupChat.GroupChatActivity.REQUEST_GROUP_RED_PACKAGE;
+import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_MSG_INFO;
 
 public class ChattingActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "ChattingActivity";
@@ -73,19 +83,21 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
      */
     private static final int REQUEST_SINGLE_RED_PACKAGE = 102;
 
+    private ViewGroup mRootView;
     private TitleBarView mTitleBar;
     private RecyclerView mRecycler;
     private ChatRecAdapter mRecAdapter;
     private LinearLayout mSendLayout;
-    private EditText mSendText;
+    private EmojiEditText mSendText;
     private CircularImageView mVoiceCircle, mEmojiCircle, mCircleView;
+    private EmojiPopup mEmojiPopup;
     private GridView mGridView;
     private SimpleAdapter mSimpleAdapter;
 
     private List<Map<String, Object>> mGridList = new ArrayList<>();
     private int[] icon = {R.drawable.icon_red_package, R.drawable.icon_photo};
     private String[] iconName = {"红包", "图片"};
-    private List<Message> mMessages;
+    private List<Message> mMessages = new ArrayList<>();
     private MsgInfo mMsgInfo;
     private UserInfo mUserInfo;
 
@@ -122,6 +134,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
      */
     private void initView() {
         setContentView(R.layout.activity_chatting);
+        mRootView = findViewById(R.id.view_single);
         mIMM = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         //获得虚拟键高度
         navigationBarHeight = BarUtil.getNavigationBarHeight(this);
@@ -244,6 +257,8 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         });
         mEmojiCircle = findViewById(R.id.emoji_circle);
         mEmojiCircle.setOnClickListener(this);
+        initEmojiPopup();
+
         mCircleView = findViewById(R.id.send_circle);
         mCircleView.setOnClickListener(this);
 
@@ -278,6 +293,52 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         });
     }
 
+    /**
+     * 初始化emoji表情框
+     */
+    private void initEmojiPopup() {
+        mEmojiPopup = EmojiPopup.Builder.fromRootView(mRootView)
+                .setOnEmojiBackspaceClickListener(new OnEmojiBackspaceClickListener() {
+                    @Override
+                    public void onEmojiBackspaceClick(View v) {
+                        LogUtil.d(TAG, "Clicked on Backspace");
+                    }
+                })
+                .setOnEmojiClickListener(new OnEmojiClickListener() {
+                    @Override
+                    public void onEmojiClick(@NonNull EmojiImageView emoji, @NonNull Emoji imageView) {
+                        LogUtil.d(TAG, "Clicked on emoji");
+                    }
+                })
+                .setOnEmojiPopupShownListener(new OnEmojiPopupShownListener() {
+                    @Override
+                    public void onEmojiPopupShown() {
+                        LogUtil.d(TAG, "Emoji popup id shown");
+                    }
+                })
+                .setOnSoftKeyboardOpenListener(new OnSoftKeyboardOpenListener() {
+                    @Override
+                    public void onKeyboardOpen(int keyBoardHeight) {
+                        LogUtil.d(TAG, "Opened soft keyboard");
+                    }
+                })
+                .setOnEmojiPopupDismissListener(new OnEmojiPopupDismissListener() {
+                    @Override
+                    public void onEmojiPopupDismiss() {
+                        LogUtil.d(TAG, "Emoji popup id dismiss");
+                    }
+                })
+                .setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
+                    @Override
+                    public void onKeyboardClose() {
+                        LogUtil.d(TAG, "Closed soft keyboard");
+                    }
+                })
+                .setKeyboardAnimationStyle(R.style.emoji_fade_animation_style)
+                .setPageTransformer(new PageTransformer())
+                .build(mSendText);
+    }
+
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
@@ -285,7 +346,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 Toast.makeText(this, "发送语音", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.emoji_circle: //发送表情
-                Toast.makeText(this, "发送表情", Toast.LENGTH_SHORT).show();
+                mEmojiPopup.toggle();
                 break;
             case R.id.send_circle:  //发送文本
                 String content = mSendText.getText().toString();
@@ -335,6 +396,36 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         int newSize = mMessages.size() - 1;
         mRecAdapter.notifyItemInserted(newSize);
         mRecycler.scrollToPosition(newSize);
+        goUpdateMsgInfos(message);
+    }
+
+    /**
+     * 准备刷主界面消息列表
+     *
+     * @param message 消息体
+     */
+    private void goUpdateMsgInfos(Message message) {
+        String data = DataUtil.msFormMMDD(message.getCreateTime());
+        MsgInfo msgInfo = new MsgInfo();
+        msgInfo.setUsername(mUserInfo.getUserName());
+        msgInfo.setDate(data);
+        msgInfo.setIsNotify(true);
+        msgInfo.setSingle(true);
+        switch (message.getContentType()) {
+            case text:
+                TextContent textContent = (TextContent) message.getContent();
+                msgInfo.setMsgLast(textContent.getText());
+                break;
+            case image:
+                msgInfo.setMsgLast("图片");
+                break;
+            case custom:
+                msgInfo.setMsgLast("红包");
+                break;
+        }
+        Intent intent = new Intent(UPDATE_MSG_INFO);
+        intent.putExtra("msg_info", msgInfo);
+        sendBroadcast(intent);
     }
 
     /**
@@ -472,11 +563,11 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
             if (data != null) {
                 String[] yuan = data.getStringExtra("yuan").split("￥");
                 String token = data.getStringExtra("token");
-                String blessings=data.getStringExtra("blessings");
+                String blessings = data.getStringExtra("blessings");
                 Map<String, String> map = new HashMap<>();
                 map.put("yuan", yuan[1]);
                 map.put("token", token);
-                map.put("blessings",blessings);
+                map.put("blessings", blessings);
                 sendCustomMsg(map);
                 LogUtil.d(TAG, "onActivityResult: " + "yuan.length = " + yuan.length
                         + " ;yuan[0] = " + yuan[0] + " ;yuan[1] = " + yuan[1]);

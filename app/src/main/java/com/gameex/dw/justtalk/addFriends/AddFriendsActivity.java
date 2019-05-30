@@ -1,5 +1,6 @@
 package com.gameex.dw.justtalk.addFriends;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -23,6 +24,7 @@ import com.miguelcatalan.materialsearchview.MaterialSearchView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
@@ -70,9 +72,10 @@ public class AddFriendsActivity extends BaseActivity {
     /**
      * 初始化数据
      */
+    @SuppressLint("NewApi")
     private void initData() {
         mToolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
-        getSupportActionBar().setTitle("搜索用户");
+        Objects.requireNonNull(getSupportActionBar()).setTitle("搜索用户");
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -135,11 +138,7 @@ public class AddFriendsActivity extends BaseActivity {
                 UserInfo userInfo = mUserInfos.get(position);
                 Intent intent = new Intent(AddFriendsActivity.this,
                         UserBasicInfoActivity.class);
-                intent.putExtra("user_icon", userInfo.getExtra("icon") == null
-                        ? "-1" : userInfo.getExtra("icon"));
-                intent.putExtra("username", userInfo.getExtra("username") == null
-                        ? "-1" : userInfo.getExtra("username"));
-                intent.putExtra("phone", userInfo.getUserName());
+                intent.putExtra("user_info_json", userInfo.toJson());
                 startActivity(intent);
             }
 

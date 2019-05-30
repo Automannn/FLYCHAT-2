@@ -27,7 +27,7 @@ public class MyGroupsAdapter extends RecyclerView.Adapter<MyGroupsAdapter.MyGrou
     private Context mContext;
     private List<GroupInfo> mGroupInfos;
 
-    public MyGroupsAdapter(Context context, List<GroupInfo> groupInfos) {
+    MyGroupsAdapter(Context context, List<GroupInfo> groupInfos) {
         mContext = context;
         mGroupInfos = groupInfos;
     }
@@ -60,7 +60,7 @@ public class MyGroupsAdapter extends RecyclerView.Adapter<MyGroupsAdapter.MyGrou
         TextView name;
         CircularImageView icon;
 
-        public MyGroupsHolder(@NonNull View itemView) {
+        MyGroupsHolder(@NonNull View itemView) {
             super(itemView);
             groups = itemView.findViewById(R.id.groups_layout);
             groups.setOnClickListener(new View.OnClickListener() {

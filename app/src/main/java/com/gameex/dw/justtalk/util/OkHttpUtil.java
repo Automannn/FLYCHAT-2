@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class OkHttpUtil {
-    private static final String REALM_NAME = "https://wechat.automannn.cn/";
-//    private static final String REALM_NAME = "http://192.168.137.1:8060/";
+//    private static final String REALM_NAME = "https://wechat.automannn.cn/";
+    private static final String REALM_NAME = "http://192.168.1.100:8060/";
 
     public static final String METHOD_GET = "GET";
 

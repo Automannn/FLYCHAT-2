@@ -24,6 +24,7 @@ android {
                 JPUSH_PKGNAME: applicationId,
                 JPUSH_APPKEY : "fa964c46085d5543e75797c0",
                 JPUSH_CHANNEL: "developer-default",
+                TENCENT_APPID: "101574877",//腾讯开放平台注册应用得到的appId
         ]
     }
     buildTypes {
@@ -87,4 +88,12 @@ dependencies {
     implementation 'com.bm.photoview:library:1.4.1'
     implementation(name: 'alipaySdk-15.6.2-20190416165100-noUtdid', ext: 'aar')
     implementation 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+'
+
+//    implementation 'cn.jiguang.sdk:jshare:1.6.1'
+//    implementation 'cn.jiguang.sdk:jshare-qqmodel:1.6.1'
+//    implementation 'cn.jiguang.sdk:jshare-wechatmodel:1.6.1'
+//    implementation 'cn.jiguang.sdk:jshare-jchatpromodel:1.6.0'
+//    implementation 'cn.jiguang.sdk:jcore:2.0.1'
+
+    implementation 'com.vanniktech:emoji-twitter:0.6.0'
 }

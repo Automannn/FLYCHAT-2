@@ -29,10 +29,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 
-import cn.jpush.im.android.api.model.GroupInfo;
-import cn.jpush.im.android.api.model.GroupMemberInfo;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -161,17 +158,22 @@ public class SingleRedActivity extends AppCompatActivity implements View.OnClick
                                     object = new JSONObject(response.body().string());
                                 }
                                 if (object != null) {
-                                    String data = object.getString("data");
                                     boolean success = object.getBoolean("success");
-                                    LogUtil.d(TAG, "handOutRed-onResponse: " +
-                                            "data = " + data + " ;success = " + success);
                                     if (success) {
                                         Intent intent = new Intent();
                                         intent.putExtra("yuan", mYuan.getText().toString());
                                         intent.putExtra("token", token);
-                                        intent.putExtra("blessings",mRedMessage.getText().toString());
+                                        intent.putExtra("blessings", mRedMessage.getText().toString());
                                         setResult(RESULT_OK, intent);
                                         finish();
+                                    } else {
+                                        JSONObject data = object.getJSONObject("data");
+                                        int code = data.getInt("code");
+                                        String message = data.getString("message");
+                                        LogUtil.d(TAG, "handOutRed-onResponse: " +
+                                                "code = " + code + " ;data = " + data);
+                                        Toast.makeText(SingleRedActivity.this
+                                                , message + "", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             } catch (IOException e) {

@@ -1,7 +1,10 @@
 package com.gameex.dw.justtalk.payPackage;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -10,10 +13,26 @@ import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
+import com.gameex.dw.justtalk.util.CallBackUtil;
+import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.OkHttpUtil;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+import java.util.HashMap;
+
+import okhttp3.Call;
+import okhttp3.Response;
 
 
 public class ChangeActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "ChangeActivity";
+    /**
+     * 查询用户余额路径
+     */
+    public static final String ACCOUNT_BALANCE = "account/balance";
     /**
      * 返回
      */
@@ -75,6 +94,58 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
         mCashWithdrawal.setOnClickListener(this);
         mMyBankCard.setOnClickListener(this);
         mMyRedRecord.setOnClickListener(this);
+        initBalance();
+    }
+
+    /**
+     * 初始化我的零钱
+     */
+    private void initBalance() {
+        HashMap<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("userId", getUserId());
+        OkHttpUtil.okHttpPost(ACCOUNT_BALANCE, paramsMap, new CallBackUtil.CallBackDefault() {
+            @Override
+            public void onFailure(Call call, Exception e) {
+                e.printStackTrace();
+                Toast.makeText(ChangeActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+            }
+
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onResponse(Response response) {
+                if (response.isSuccessful() && response.body() != null) {
+                    try {
+                        JSONObject object = new JSONObject(response.body().string());
+                        boolean success = object.getBoolean("success");
+                        if (success) {
+                            String data = object.getString("data");
+                            mMyChange.setText("￥" + data);
+                        } else {
+                            JSONObject data = object.getJSONObject("data");
+                            int code = data.getInt("code");
+                            String message = data.getString("message");
+                            LogUtil.d(TAG, "initBalance-onResponse: " +
+                                    "code" + code + " ;message = " + message);
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * 获取自己服务器上的用户id
+     *
+     * @return string
+     */
+    private String getUserId() {
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        return pref.getString("userId", null);
     }
 
     @Override
@@ -95,7 +166,8 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
                 Toast.makeText(this, "提现", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.my_bank_card_layout:
-                Toast.makeText(this, "我的银行卡", Toast.LENGTH_SHORT).show();
+                intent.setClass(this, BankCardActivity.class);
+                startActivity(intent);
                 break;
             case R.id.my_red_record_layout:
                 Toast.makeText(this, "我的红包记录", Toast.LENGTH_SHORT).show();
