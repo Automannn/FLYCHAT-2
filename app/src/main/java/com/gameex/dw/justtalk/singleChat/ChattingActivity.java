@@ -8,17 +8,11 @@ import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.GridView;
@@ -41,11 +35,8 @@ import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.vanniktech.emoji.EmojiEditText;
-import com.vanniktech.emoji.EmojiImageView;
 import com.vanniktech.emoji.EmojiPopup;
-import com.vanniktech.emoji.emoji.Emoji;
 import com.vanniktech.emoji.listeners.OnEmojiBackspaceClickListener;
-import com.vanniktech.emoji.listeners.OnEmojiClickListener;
 import com.vanniktech.emoji.listeners.OnEmojiPopupDismissListener;
 import com.vanniktech.emoji.listeners.OnEmojiPopupShownListener;
 import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
@@ -60,6 +51,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
@@ -70,7 +65,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 
-import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_MSG_INFO;
+import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
 
 public class ChattingActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "ChattingActivity";
@@ -209,51 +204,48 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 }
             }
         });
-        mSendText.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {  //当键盘弹出/隐藏时调用此方法
-                Rect r = new Rect();
-                //获取当前界面可视部分
-                ChattingActivity.this.getWindow()
-                        .getDecorView()
-                        .getWindowVisibleDisplayFrame(r);
-                //获取屏幕的高度
-                int screenHeight = ChattingActivity.this.getWindow()
-                        .getDecorView()
-                        .getRootView()
-                        .getHeight();
-                //此处就是用来获取键盘(或键盘+虚拟键)的高度的， 在键盘没有弹出的时候 此高度为0 键盘弹出的时候为一个正数
-                heightDifference = screenHeight - r.bottom;
-                if (heightDifference <= navigationBarHeight) {
-                    mHeightDifference = heightDifference;   //没有虚拟键，记录此时的高度
-                }
-                LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)
-                        mSendLayout.getLayoutParams();
-                if (heightDifference > navigationBarHeight) {
-                    if (mGridView.getVisibility() == View.VISIBLE) {
-                        mGridView.setVisibility(View.GONE);
-                    }
-                    if (mHeightDifference == 0 && params.bottomMargin != mInt) {
-                        params.bottomMargin = heightDifference;
-                        mSendLayout.setLayoutParams(params);
-                        mInt = heightDifference;    //记录键盘高度
-                    } else if (mHeightDifference != 0 && params.bottomMargin != mInt) {
-                        mInt = heightDifference - navigationBarHeight;
-                        if (params.bottomMargin != mInt) {
-                            params.bottomMargin = mInt;
-                            mSendLayout.setLayoutParams(params);
-                        }
-                    }
-                } else {
-                    if (params.bottomMargin == mInt) {
-                        params.bottomMargin = 0;
-                        mSendLayout.setLayoutParams(params);
-                    }
-                }
-                LogUtil.d(TAG, "initView-onGlobalLayout: "
-                        + "heightDifference = " + heightDifference
-                        + " ;navigationBarHeight = " + navigationBarHeight);
+        mSendText.getViewTreeObserver().addOnGlobalLayoutListener(() -> {  //当键盘弹出/隐藏时调用此方法
+            Rect r = new Rect();
+            //获取当前界面可视部分
+            ChattingActivity.this.getWindow()
+                    .getDecorView()
+                    .getWindowVisibleDisplayFrame(r);
+            //获取屏幕的高度
+            int screenHeight = ChattingActivity.this.getWindow()
+                    .getDecorView()
+                    .getRootView()
+                    .getHeight();
+            //此处就是用来获取键盘(或键盘+虚拟键)的高度的， 在键盘没有弹出的时候 此高度为0 键盘弹出的时候为一个正数
+            heightDifference = screenHeight - r.bottom;
+            if (heightDifference <= navigationBarHeight) {
+                mHeightDifference = heightDifference;   //没有虚拟键，记录此时的高度
             }
+            LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)
+                    mSendLayout.getLayoutParams();
+            if (heightDifference > navigationBarHeight) {
+                if (mGridView.getVisibility() == View.VISIBLE) {
+                    mGridView.setVisibility(View.GONE);
+                }
+                if (mHeightDifference == 0 && params.bottomMargin != mInt) {
+                    params.bottomMargin = heightDifference;
+                    mSendLayout.setLayoutParams(params);
+                    mInt = heightDifference;    //记录键盘高度
+                } else if (mHeightDifference != 0 && params.bottomMargin != mInt) {
+                    mInt = heightDifference - navigationBarHeight;
+                    if (params.bottomMargin != mInt) {
+                        params.bottomMargin = mInt;
+                        mSendLayout.setLayoutParams(params);
+                    }
+                }
+            } else {
+                if (params.bottomMargin == mInt) {
+                    params.bottomMargin = 0;
+                    mSendLayout.setLayoutParams(params);
+                }
+            }
+            LogUtil.d(TAG, "initView-onGlobalLayout: "
+                    + "heightDifference = " + heightDifference
+                    + " ;navigationBarHeight = " + navigationBarHeight);
         });
         mEmojiCircle = findViewById(R.id.emoji_circle);
         mEmojiCircle.setOnClickListener(this);
@@ -267,28 +259,24 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 , R.layout.function_item, new String[]{"icon", "icon_name"}
                 , new int[]{R.id.function_img, R.id.function_name});
         mGridView.setAdapter(mSimpleAdapter);
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view
-                    , int position, long id) {
-                if (position == 0) {
-                    Intent intent = new Intent(ChattingActivity.this
-                            , SingleRedActivity.class);
-                    startActivityForResult(intent, REQUEST_SINGLE_RED_PACKAGE);
-                } else if (position == 1) {
-                    Matisse.from(ChattingActivity.this)
-                            .choose(MimeType.ofImage())
-                            .countable(true)
-                            .maxSelectable(1)
-                            .addFilter(new GifSizeFilter(320, 320
-                                    , 5 * Filter.K * Filter.K))
-                            .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.dp_120))
-                            .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-                            .thumbnailScale(0.85f)
-                            .imageEngine(new Glide4Engine())
-                            .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
-                            .forResult(REQUEST_CODE_CHOOSE);
-                }
+        mGridView.setOnItemClickListener((adapterView, view, position, id) -> {
+            if (position == 0) {
+                Intent intent = new Intent(ChattingActivity.this
+                        , SingleRedActivity.class);
+                startActivityForResult(intent, REQUEST_SINGLE_RED_PACKAGE);
+            } else if (position == 1) {
+                Matisse.from(ChattingActivity.this)
+                        .choose(MimeType.ofImage())
+                        .countable(true)
+                        .maxSelectable(1)
+                        .addFilter(new GifSizeFilter(320, 320
+                                , 5 * Filter.K * Filter.K))
+                        .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.dp_120))
+                        .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                        .thumbnailScale(0.85f)
+                        .imageEngine(new Glide4Engine())
+                        .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
+                        .forResult(REQUEST_CODE_CHOOSE);
             }
         });
     }
@@ -298,42 +286,12 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
      */
     private void initEmojiPopup() {
         mEmojiPopup = EmojiPopup.Builder.fromRootView(mRootView)
-                .setOnEmojiBackspaceClickListener(new OnEmojiBackspaceClickListener() {
-                    @Override
-                    public void onEmojiBackspaceClick(View v) {
-                        LogUtil.d(TAG, "Clicked on Backspace");
-                    }
-                })
-                .setOnEmojiClickListener(new OnEmojiClickListener() {
-                    @Override
-                    public void onEmojiClick(@NonNull EmojiImageView emoji, @NonNull Emoji imageView) {
-                        LogUtil.d(TAG, "Clicked on emoji");
-                    }
-                })
-                .setOnEmojiPopupShownListener(new OnEmojiPopupShownListener() {
-                    @Override
-                    public void onEmojiPopupShown() {
-                        LogUtil.d(TAG, "Emoji popup id shown");
-                    }
-                })
-                .setOnSoftKeyboardOpenListener(new OnSoftKeyboardOpenListener() {
-                    @Override
-                    public void onKeyboardOpen(int keyBoardHeight) {
-                        LogUtil.d(TAG, "Opened soft keyboard");
-                    }
-                })
-                .setOnEmojiPopupDismissListener(new OnEmojiPopupDismissListener() {
-                    @Override
-                    public void onEmojiPopupDismiss() {
-                        LogUtil.d(TAG, "Emoji popup id dismiss");
-                    }
-                })
-                .setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
-                    @Override
-                    public void onKeyboardClose() {
-                        LogUtil.d(TAG, "Closed soft keyboard");
-                    }
-                })
+                .setOnEmojiBackspaceClickListener(v -> LogUtil.d(TAG, "Clicked on Backspace"))
+                .setOnEmojiClickListener((emoji, imageView) -> LogUtil.d(TAG, "Clicked on emoji"))
+                .setOnEmojiPopupShownListener(() -> LogUtil.d(TAG, "Emoji popup id shown"))
+                .setOnSoftKeyboardOpenListener(keyBoardHeight -> LogUtil.d(TAG, "Opened soft keyboard"))
+                .setOnEmojiPopupDismissListener(() -> LogUtil.d(TAG, "Emoji popup id dismiss"))
+                .setOnSoftKeyboardCloseListener(() -> LogUtil.d(TAG, "Closed soft keyboard"))
                 .setKeyboardAnimationStyle(R.style.emoji_fade_animation_style)
                 .setPageTransformer(new PageTransformer())
                 .build(mSendText);
@@ -353,12 +311,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 if (content.isEmpty()) {
                     if (mIMM != null && heightDifference > navigationBarHeight) {
                         mIMM.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                showFunction();
-                            }
-                        }, 50);
+                        new Handler().postDelayed(() -> showFunction(), 50);
                     } else {
                         showFunction();
                     }

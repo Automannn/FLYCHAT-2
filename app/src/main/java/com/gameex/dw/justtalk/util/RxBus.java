@@ -1,11 +1,10 @@
 package com.gameex.dw.justtalk.util;
 
-import android.support.annotation.NonNull;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
+import androidx.annotation.NonNull;
 import io.reactivex.Observable;
 import io.reactivex.subjects.PublishSubject;
 import io.reactivex.subjects.Subject;
@@ -26,7 +25,7 @@ public class RxBus {
     }
 
     @SuppressWarnings("unchecked")
-    public <T>Observable<T> register(@NonNull Object tag,@NonNull Class<T> clazz){
+    public <T>Observable<T> register(@NonNull Object tag, @NonNull Class<T> clazz){
         List<Subject> subjects=mMap.get(tag);
         if (subjects==null){
             subjects=new ArrayList<>();

@@ -1,24 +1,28 @@
 package com.gameex.dw.justtalk.appStart;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.login.LoginActivity;
+import com.gameex.dw.justtalk.util.LogUtil;
+import com.tbruyelle.rxpermissions2.Permission;
+import com.tbruyelle.rxpermissions2.RxPermissions;
+
+import androidx.appcompat.app.AppCompatActivity;
+import io.reactivex.functions.Consumer;
 
 /**
  * app启动时运行
  */
 public class StartActivity extends AppCompatActivity {
+    private static final String TAG = "StartActivity";
+
     private Handler mHandler = new Handler();
 
     @Override
@@ -33,45 +37,22 @@ public class StartActivity extends AppCompatActivity {
     /**
      * 获取存储权限
      */
+    @SuppressLint("CheckResult")
     private void requestPermission() {
 
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) !=
-                PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new
-                    String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        } else {
-            //2s后前往主页
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    gotoLogin();
-                }
-            }, 2000);
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        switch (requestCode) {
-            case 1:
-                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "You denied the permission", Toast.LENGTH_SHORT).show();
-                    finish();
-                } else {
-                    //2s后前往主页
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            gotoLogin();
-                        }
-                    }, 2000);
-                }
-                break;
-            default:
-        }
+        new RxPermissions(this)
+                .requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.ACCESS_FINE_LOCATION)
+                .subscribe(permission -> {
+                    LogUtil.d(TAG, "requestPermission: " + "permission = " + permission.name);
+                    //1s后前往主页
+                    mHandler.postDelayed(() -> gotoLogin(), 1000);
+                    if (permission.shouldShowRequestPermissionRationale) {
+                        Toast.makeText(StartActivity.this
+                                , "您禁止了此权限，可能会影响那您的正常使用", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     /**

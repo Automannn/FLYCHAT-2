@@ -5,8 +5,8 @@ import java.util.List;
 import java.util.Map;
 
 public class OkHttpUtil {
-//    private static final String REALM_NAME = "https://wechat.automannn.cn/";
-    private static final String REALM_NAME = "http://192.168.1.100:8060/";
+    //    private static final String REALM_NAME = "https://wechat.automannn.cn/";
+    private static final String REALM_NAME = "http://28ejvz.natappfree.cc/";
 
     public static final String METHOD_GET = "GET";
 
@@ -27,11 +27,11 @@ public class OkHttpUtil {
     /**
      * get请求
      *
-     * @param url      url
+     * @param path     路径
      * @param callBack 回调接口，onFailure方法在请求失败时调用，onResponse方法在请求成功后调用，这两个方法都执行在UI线程。
      */
-    public static void okHttpGet(String url, CallBackUtil callBack) {
-        okHttpGet(url, null, null, callBack);
+    public static void okHttpGet(String path, CallBackUtil callBack) {
+        okHttpGet(path, null, null, callBack);
     }
 
     /**
@@ -49,14 +49,14 @@ public class OkHttpUtil {
     /**
      * get请求，可以传递参数
      *
-     * @param url       url
+     * @param path       路径
      * @param paramsMap map集合，封装键值对参数
      * @param headerMap map集合，封装请求头键值对
      * @param callBack  回调接口，onFailure方法在请求失败时调用，onResponse方法在请求成功后调用，这两个方法都执行在UI线程。
      */
-    public static void okHttpGet(String url, Map<String, String> paramsMap
+    public static void okHttpGet(String path, Map<String, String> paramsMap
             , Map<String, String> headerMap, CallBackUtil callBack) {
-        new RequestUtil(METHOD_GET, url, paramsMap, headerMap, callBack).execute();
+        new RequestUtil(METHOD_GET, REALM_NAME + path, paramsMap, headerMap, callBack).execute();
     }
 
     /**

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -19,6 +18,7 @@ import com.automannn.commonUtils.security.Base64;
 import com.automannn.commonUtils.security.MD5;
 import com.automannn.commonUtils.security.RSA;
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
@@ -36,7 +36,7 @@ import okhttp3.Response;
 import static com.gameex.dw.justtalk.redPackage.SetYuanActivity.GET_TOKEN;
 import static com.gameex.dw.justtalk.redPackage.SetYuanActivity.HAND_OUT_RED;
 
-public class SingleRedActivity extends AppCompatActivity implements View.OnClickListener {
+public class SingleRedActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "SingleRedActivity";
     /**
      * 返回箭头

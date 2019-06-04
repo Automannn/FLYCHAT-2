@@ -83,6 +83,8 @@ public class EditMyInfoActivity extends BaseActivity implements View.OnClickList
         mTitle.setText(title);
         switch (title) {
             case "昵称":
+            case "群昵称":
+            case "我在本群的昵称":
                 mNick.setVisibility(View.VISIBLE);
                 mNick.setText(intent.getStringExtra("my_nick"));
                 YoYo.with(Techniques.FadeInLeft)
@@ -111,6 +113,8 @@ public class EditMyInfoActivity extends BaseActivity implements View.OnClickList
             case R.id.done:
                 switch (mTitle.getText().toString()) {
                     case "昵称":
+                    case "群昵称":
+                    case "我在本群的昵称":
                         intent.putExtra("my_nick", mNick.getText().toString());
                         break;
                     case "个性签名":

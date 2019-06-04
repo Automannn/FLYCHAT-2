@@ -57,7 +57,7 @@
             tools:ignore="ContentDescription"/>
     </RelativeLayout>
 
-    <android.support.v4.widget.NestedScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorMineBack"
@@ -83,6 +83,9 @@
                     android:id="@+id/group_icon_info"
                     android:layout_width="?widthF"
                     android:layout_height="?heightG"
+                    android:background="@drawable/light_gray_rip_out"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="@dimen/dp_20"
                     android:layout_marginRight="@dimen/dp_20"
@@ -109,19 +112,90 @@
                 android:layout_gravity="center_horizontal"
                 android:background="@drawable/mine_line_bg"/>
 
-            <TextView
-                android:id="@+id/change_icon_text"
+            <RelativeLayout
+                android:id="@+id/invite_member_layout"
                 android:layout_width="match_parent"
                 android:layout_height="?heightI"
                 android:background="@drawable/light_gray_white_rip"
                 android:clickable="true"
-                android:focusable="true"
-                android:gravity="center_vertical"
-                android:paddingLeft="@dimen/dp_20"
-                android:paddingRight="@dimen/dp_20"
-                android:text="@string/change_icon_str"
-                android:textColor="@color/colorMineThemeText"
-                android:textSize="?smallFont"/>
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/add_group_member"
+                    android:layout_width="?heightF"
+                    android:layout_height="?heightF"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:src="@drawable/add_group_member"
+                    tools:ignore="ContentDescription"/>
+
+                <TextView
+                    android:id="@+id/invite_group_member"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_10"
+                    android:layout_marginLeft="@dimen/dp_10"
+                    android:layout_toEndOf="@id/add_group_member"
+                    android:layout_toRightOf="@id/add_group_member"
+                    android:text="@string/invite_group_member_str"
+                    android:textColor="@color/colorAccent"
+                    android:textSize="?smallSuperFont"/>
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <RelativeLayout
+                android:id="@+id/group_member"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:text="@string/group_member_str"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
+
+                <TextView
+                    android:id="@+id/group_member_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="0"
+                    android:textSize="?smallFont"
+                    android:layout_toLeftOf="@id/right_arrow"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:textColor="@color/colorLightGray"
+                    tools:ignore="RelativeOverlap"
+                    android:layout_toStartOf="@id/right_arrow"/>
+
+                <ImageView
+                    android:id="@+id/right_arrow"
+                    android:layout_width="?widthG"
+                    android:layout_height="?heightJ"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="@dimen/dp_5"
+                    android:layout_marginRight="@dimen/dp_5"
+                    android:src="@drawable/icon_right_arrow"
+                    tools:ignore="ContentDescription"/>
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/mine_group_nick_layout"
@@ -337,86 +411,13 @@
                 android:paddingLeft="@dimen/dp_20"
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/group_chat_file_str"
+                android:layout_marginBottom="@dimen/dp_70"
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"
                 tools:ignore="RelativeOverlap"/>
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/dp_40">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/dp_20"
-                    android:layout_marginLeft="@dimen/dp_20"
-                    android:text="@string/group_member_str"
-                    android:textColor="@color/colorLightGray"
-                    tools:ignore="RelativeOverlap"/>
-
-                <TextView
-                    android:id="@+id/group_member_count"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="@dimen/dp_20"
-                    android:layout_marginRight="@dimen/dp_20"
-                    android:textColor="@color/colorLightGray"
-                    tools:ignore="RelativeOverlap"/>
-            </RelativeLayout>
-
-            <RelativeLayout
-                android:id="@+id/invite_member_layout"
-                android:layout_width="match_parent"
-                android:layout_height="?heightI"
-                android:background="@drawable/light_gray_white_rip"
-                android:clickable="true"
-                android:focusable="true">
-
-                <ImageView
-                    android:id="@+id/add_group_member"
-                    android:layout_width="?heightF"
-                    android:layout_height="?heightF"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/dp_20"
-                    android:layout_marginLeft="@dimen/dp_20"
-                    android:src="@drawable/add_group_member"
-                    tools:ignore="ContentDescription"/>
-
-                <TextView
-                    android:id="@+id/invite_group_member"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginStart="@dimen/dp_10"
-                    android:layout_marginLeft="@dimen/dp_10"
-                    android:layout_toEndOf="@id/add_group_member"
-                    android:layout_toRightOf="@id/add_group_member"
-                    android:text="@string/invite_group_member_str"
-                    android:textColor="@color/colorAccent"
-                    android:textSize="?smallSuperFont"/>
-
-            </RelativeLayout>
-
-            <TextView
-                android:layout_width="@dimen/dp_350"
-                android:layout_height="@dimen/dp_1"
-                android:layout_gravity="center_horizontal"
-                android:background="@drawable/mine_line_bg"/>
-
-            <ListView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="@dimen/dp_70"
-                android:background="@color/colorWhite">
-
-            </ListView>
-
         </LinearLayout>
 
-    </android.support.v4.widget.NestedScrollView>
+    </androidx.core.widget.NestedScrollView>
 
 </LinearLayout>

@@ -6,8 +6,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -42,9 +40,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
@@ -368,6 +366,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
         /**
          * 红包弹出框
          */
+        @SuppressLint("ClickableViewAccessibility")
         private void showRedPup() {
             LayoutInflater inflater = LayoutInflater.from(mContext);
             @SuppressLint("InflateParams") View view = inflater.inflate(R.layout.popup_red_package, null);
@@ -379,23 +378,14 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                     LinearLayout.LayoutParams.WRAP_CONTENT);
             redPup.setFocusable(true);
             redPup.setOutsideTouchable(true);
-            redPup.setTouchInterceptor(new View.OnTouchListener() {
-                @SuppressLint("ClickableViewAccessibility")
-                @Override
-                public boolean onTouch(View view, MotionEvent motionEvent) {
-                    if (motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
-                        redPup.dismiss();
-                        return true;
-                    }
-                    return false;
+            redPup.setTouchInterceptor((view1, motionEvent) -> {
+                if (motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                    redPup.dismiss();
+                    return true;
                 }
+                return false;
             });
-            redPup.setOnDismissListener(new PopupWindow.OnDismissListener() {
-                @Override
-                public void onDismiss() {
-                    WindowUtil.setWindowBackgroundAlpha(sActivity, 1f);
-                }
-            });
+            redPup.setOnDismissListener(() -> WindowUtil.setWindowBackgroundAlpha(sActivity, 1f));
             redPup.setAnimationStyle(R.style.translate_scale_alpha_style);
             redPup.update();
         }

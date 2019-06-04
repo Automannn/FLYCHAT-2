@@ -7,8 +7,6 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.IntDef;
-import android.support.v4.widget.DrawerLayout;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
@@ -21,6 +19,9 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+
+import androidx.annotation.IntDef;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 public class BarUtil {
 

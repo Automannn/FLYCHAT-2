@@ -3,8 +3,6 @@ package com.gameex.dw.justtalk.main;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +21,8 @@ import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.model.UserInfo;
 
 public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactHolder> {
@@ -102,34 +102,31 @@ public class ContactAdapter extends RecyclerView.Adapter<ContactAdapter.ContactH
         ContactHolder(@NonNull View itemView) {
             super(itemView);
             contactInfo = itemView.findViewById(R.id.contact_info_layout);
-            contactInfo.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    if (getAdapterPosition() < 3) {
-                        Intent intent = new Intent();
-                        switch (mContacts.get(getAdapterPosition()).getName()) {
-                            case "新的朋友":
-                                Toast.makeText(mContext, "新的朋友", Toast.LENGTH_SHORT).show();
-                                break;
-                            case "邀请好友":
-                                intent.setClass(mContext, InviteFriendsActivity.class);
-                                mContext.startActivity(intent);
-                                break;
-                            case "我的群组":
-                                intent.setClass(mContext, MyGroupActivity.class);
-                                intent.putExtra("user_infos", UserInfo.collectionToJson(mUserInfos));
-                                mContext.startActivity(intent);
-                                break;
-                            default:
-                                Toast.makeText(mContext, "查看我的详细信息", Toast.LENGTH_SHORT).show();
-                                break;
-                        }
-                    } else {
-                        Intent intent = new Intent(mContext, UserBasicInfoActivity.class);
-                        intent.putExtra("user_info_json"
-                                , mUserInfos.get(getAdapterPosition() - 3).toJson());
-                        mContext.startActivity(intent);
+            contactInfo.setOnClickListener(view -> {
+                if (getAdapterPosition() < 3) {
+                    Intent intent = new Intent();
+                    switch (mContacts.get(getAdapterPosition()).getName()) {
+                        case "新的朋友":
+                            Toast.makeText(mContext, "新的朋友", Toast.LENGTH_SHORT).show();
+                            break;
+                        case "邀请好友":
+                            intent.setClass(mContext, InviteFriendsActivity.class);
+                            mContext.startActivity(intent);
+                            break;
+                        case "我的群组":
+                            intent.setClass(mContext, MyGroupActivity.class);
+                            intent.putExtra("user_infos", UserInfo.collectionToJson(mUserInfos));
+                            mContext.startActivity(intent);
+                            break;
+                        default:
+                            Toast.makeText(mContext, "查看我的详细信息", Toast.LENGTH_SHORT).show();
+                            break;
                     }
+                } else {
+                    Intent intent = new Intent(mContext, UserBasicInfoActivity.class);
+                    intent.putExtra("user_info_json"
+                            , mUserInfos.get(getAdapterPosition() - 3).toJson());
+                    mContext.startActivity(intent);
                 }
             });
             index = itemView.findViewById(R.id.index_text_contact);

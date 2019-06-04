@@ -5,8 +5,6 @@ import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -14,46 +12,54 @@ import android.widget.ImageView;
 import android.widget.RadioGroup;
 import android.widget.Toast;
 
-import com.alipay.sdk.app.EnvUtils;
-import com.alipay.sdk.app.PayTask;
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
-import com.tencent.mm.opensdk.constants.ConstantsAPI;
-import com.tencent.mm.opensdk.modelbase.BaseResp;
-import com.tencent.mm.opensdk.openapi.IWXAPI;
-import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+import com.gameex.dw.justtalk.util.PayUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
 
+import androidx.annotation.Nullable;
 import okhttp3.Call;
 import okhttp3.Response;
 
-import static com.gameex.dw.justtalk.JGApplication.WE_CHAT_APP_ID;
 
-
-public class PayOrderActivity extends AppCompatActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
+public class PayOrderActivity extends BaseActivity implements View.OnClickListener, RadioGroup.OnCheckedChangeListener {
     private static final String TAG = "PayOrderActivity";
     /**
      * 支付路径
      */
     private static final String PRODUCT_BUY = "product/buy";
-    private static final int SDK_PAY_FLAG = 301;
+    /**
+     * 银联支付
+     */
+    private static final String UNION_PAY = "UNIONPAY";
+    /**
+     * 支付宝支付
+     */
+    private static final String ALI_PAY = "ALIPAY";
+    /**
+     * 微信支付
+     */
+    private static final String WE_PAY = "WEPAY";
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
 //            Resul result = new Result((String) msg.obj);
             Toast.makeText(PayOrderActivity.this, "支付成功",
                     Toast.LENGTH_LONG).show();
+            Intent intent = new Intent();
+            intent.putExtra("pay_success", true);
+            setResult(RESULT_OK, intent);
+            finish();
         }
     };
-    private IWXAPI msgApi;
     /**
      * 金额
      */
@@ -66,11 +72,6 @@ public class PayOrderActivity extends AppCompatActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //支付宝沙盒模式
-        EnvUtils.setEnv(EnvUtils.EnvEnum.SANDBOX);
-        msgApi = WXAPIFactory.createWXAPI(this, null);
-        //app注册到微信
-        msgApi.registerApp(WE_CHAT_APP_ID);
 //        PayTask payTask = new PayTask(this);
 //        String version = payTask.getVersion();
         initView();
@@ -117,13 +118,32 @@ public class PayOrderActivity extends AppCompatActivity implements View.OnClickL
     }
 
     /**
-     * 跳转支付
+     * 去支付
+     *
+     * @param data 支付参数
      */
-    private void goPay() {
+    private void goPay(String data) {
+        switch (mPayType) {
+            case UNION_PAY:
+                PayUtil.toUnionPay(this, data);
+                break;
+            case ALI_PAY:
+                PayUtil.toAlipay(PayOrderActivity.this, mHandler, data);
+                break;
+            case WE_PAY:
+                PayUtil.toWXPay(this, data);
+                break;
+        }
+    }
+
+    /**
+     * 准备支付
+     */
+    private void getReadyToPay() {
         HashMap<String, String> paramsMap = new HashMap<>();
         paramsMap.put("userId", getUserId());
         paramsMap.put("payType", mPayType);
-        paramsMap.put("productCode", "fly_coin_" + String.valueOf(mYuan));
+        paramsMap.put("productCode", "fly_coin_" + mYuan);
         paramsMap.put("number", 1 + "");
         paramsMap.put("channel", "APP");
         OkHttpUtil.okHttpPost(PRODUCT_BUY, paramsMap, new CallBackUtil.CallBackDefault() {
@@ -142,23 +162,9 @@ public class PayOrderActivity extends AppCompatActivity implements View.OnClickL
                         if (success) {
                             final String data = object.getString("data");
                             LogUtil.d(TAG, "goPay-onResponse: " + "data = " + data);
-                            //data 订单信息
-                            Runnable payRunnable = new Runnable() {
-
-                                @Override
-                                public void run() {
-                                    PayTask alipay = new PayTask(PayOrderActivity.this);
-                                    Map<String, String> result = alipay.payV2(data, true);
-                                    Message msg = new Message();
-                                    msg.what = SDK_PAY_FLAG;
-                                    msg.obj = result;
-                                    mHandler.sendMessage(msg);
-                                }
-                            };
-                            // 必须异步调用
-                            Thread payThread = new Thread(payRunnable);
-                            payThread.start();
+                            goPay(data);
                         } else {
+                            LogUtil.d(TAG, "goPay-onResponse: " + object.toString());
                             JSONObject data = object.getJSONObject("data");
                             int code = data.getInt("code");
                             String message = data.getString("message");
@@ -182,7 +188,7 @@ public class PayOrderActivity extends AppCompatActivity implements View.OnClickL
                 finish();
                 break;
             case R.id.pay:
-                goPay();
+                getReadyToPay();
                 break;
         }
     }
@@ -191,27 +197,81 @@ public class PayOrderActivity extends AppCompatActivity implements View.OnClickL
     public void onCheckedChanged(RadioGroup radioGroup, int i) {
         switch (radioGroup.getCheckedRadioButtonId()) {
             case R.id.union_pay:
-                mPayType = "UNIONPAY";
+                mPayType = UNION_PAY;
                 break;
             case R.id.alipay:
-                mPayType = "ALIPAY";
+                mPayType = ALI_PAY;
                 break;
             case R.id.wepay:
-                mPayType = "WEPAY";
+                mPayType = WE_PAY;
                 break;
         }
     }
 
-    /**
-     * 接收微信支付返回结果
-     *
-     * @param resp baseResp
-     */
-    public void onResp(BaseResp resp) {
-        if (resp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
-            LogUtil.d(TAG, "onPayFinish,errCode=" + resp.errCode);
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("提示");
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (data == null) {
+            return;
         }
+        String msg = "";
+        /*
+         * 支付控件返回字符串:success、fail、cancel 分别代表支付成功，支付失败，支付取消
+         */
+        String str = data.getExtras().getString("pay_result");
+        if (str.equalsIgnoreCase("success")) {
+            // 支付成功后，extra中如果存在result_data，取出校验
+            // result_data结构见c）result_data参数说明
+            if (data.hasExtra("result_data")) {
+                String result = data.getExtras().getString("result_data");
+                //                try {
+                //                    JSONObject resultJson = new JSONObject(result);
+                //                    String sign = resultJson.getString("sign");
+                //                    String dataOrg = resultJson.getString("data");
+                //                    // 验签证书同后台验签证书
+                //                    // 此处的verify，商户需送去商户后台做验签
+                //                    boolean ret = verify(dataOrg, sign, mMode);
+                //                    if (ret) {
+                //                        // 验证通过后，显示支付结果
+                //                        msg = "支付成功！";
+                //                    } else {
+                //                        // 验证不通过后的处理
+                //                        // 建议通过商户后台查询支付结果
+                //               msg = "支付失败！";
+                //                    }
+                //                } catch (JSONException e) {
+                //                }
+                //            } else {
+                // 未收到签名信息
+                // 建议通过商户后台查询支付结果
+                //               msg = "支付成功！";
+                //            }
+                msg = "支付成功！";
+                Intent intent = new Intent();
+                intent.putExtra("pay_success", true);
+                setResult(RESULT_OK, intent);
+                finish();
+            } else if (str.equalsIgnoreCase("fail")) {
+                msg = "支付失败！";
+            } else if (str.equalsIgnoreCase("cancel")) {
+                msg = "用户取消了支付";
+            }
+
+            Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+//            System.out.println("支付结果通知" + msg);
+
+//            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+//            builder.setTitle("支付结果通知");
+//            builder.setMessage(msg);
+//            builder.setInverseBackgroundForced(true);
+//            // builder.setCustomTitle();
+//            builder.setNegativeButton("确定", new DialogInterface.OnClickListener() {
+//                @Override
+//                public void onClick(DialogInterface dialog, int which) {
+//                    dialog.dismiss();
+//                }
+//            });
+//            builder.create().show();
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

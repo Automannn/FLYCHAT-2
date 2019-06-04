@@ -1,8 +1,9 @@
 package com.gameex.dw.justtalk.emoji;
 
-import android.support.annotation.NonNull;
-import android.support.v4.view.ViewPager;
 import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.viewpager.widget.ViewPager;
 
 public class PageTransformer implements ViewPager.PageTransformer {
     private static final float MIN_SCALE = 0.9f;

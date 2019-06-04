@@ -2,7 +2,6 @@ package com.gameex.dw.justtalk.imgBrowse;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.support.v4.view.ViewPager;
 import android.os.Bundle;
 
 import com.gameex.dw.justtalk.R;
@@ -10,6 +9,8 @@ import com.gameex.dw.justtalk.managePack.BaseActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.viewpager.widget.ViewPager;
 
 public class PhotoBrowseActivity extends BaseActivity {
     @SuppressLint("StaticFieldLeak")

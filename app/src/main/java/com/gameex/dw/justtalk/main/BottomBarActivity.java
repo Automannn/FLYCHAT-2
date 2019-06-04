@@ -5,18 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.constraint.ConstraintLayout;
-import android.support.design.internal.BottomNavigationItemView;
-import android.support.design.internal.BottomNavigationMenuView;
-import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,13 +26,27 @@ import com.gameex.dw.justtalk.titleBar.OnViewClick;
 import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.WindowUtil;
+import com.google.android.material.bottomnavigation.BottomNavigationItemView;
+import com.google.android.material.bottomnavigation.BottomNavigationMenuView;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.yzq.zxinglibrary.android.CaptureActivity;
 import com.yzq.zxinglibrary.bean.ZxingConfig;
 import com.yzq.zxinglibrary.common.Constant;
 
 import java.util.Objects;
 
-import static com.gameex.dw.justtalk.main.BottomBarFat.REQUEST_CODE_SCAN;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import static com.gameex.dw.justtalk.main.MyInfoFragment.REQUEST_CODE_SCAN;
 
 /**
  * 主界面activity
@@ -54,12 +56,34 @@ public class BottomBarActivity extends BaseActivity
     private static final String TAG = "BottomBarActivity";
     @SuppressLint("StaticFieldLeak")
     public static BottomBarActivity sBottomBarActivity;
-
+    /**
+     * 标题栏
+     */
     private TitleBarView mTitleBarView;
+    /**
+     * 标题栏又半部分
+     */
     private LinearLayout mTitleRightLL;
     private ViewPager viewPager;
+    /**
+     * 底部导航栏
+     */
     private BottomNavigationView navigation;
-
+    /**
+     * 聊天记录页
+     */
+    private MsgInfoFragment mMsgInfoFragment;
+    /**
+     * 联系人页
+     */
+    private ContactFragment mContactFragment;
+    /**
+     * 我的页
+     */
+    private MyInfoFragment mMyInfoFragment;
+    /**
+     * 标题栏弹出框
+     */
     private PopupWindow mTitlePup;
 
     private long exitTime;
@@ -79,11 +103,6 @@ public class BottomBarActivity extends BaseActivity
         sBottomBarActivity = this;
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
-
     /**
      * 使用menu文件加载布局，类似底部导航栏
      *
@@ -98,6 +117,11 @@ public class BottomBarActivity extends BaseActivity
         mSearchView.setMenuItem(item);
         return true;*/
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     /**
@@ -151,7 +175,7 @@ public class BottomBarActivity extends BaseActivity
         viewPager.addOnPageChangeListener(mPageChangeListener);
         navigation.setSelectedItemId(R.id.navigation_home);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
-        viewPager.setOffscreenPageLimit(1);
+        viewPager.setOffscreenPageLimit(2);
     }
 
     /**
@@ -186,6 +210,7 @@ public class BottomBarActivity extends BaseActivity
     /**
      * 标题栏弹出框
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void getTitlePW() {
         @SuppressLint("InflateParams") View view = this.getLayoutInflater().inflate(
                 R.layout.title_pup_layout, null);
@@ -202,16 +227,12 @@ public class BottomBarActivity extends BaseActivity
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
         mTitlePup.setFocusable(true);
         mTitlePup.setOutsideTouchable(true);
-        mTitlePup.setTouchInterceptor(new View.OnTouchListener() {
-            @SuppressLint("ClickableViewAccessibility")
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if (motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
-                    mTitlePup.dismiss();
-                    return true;
-                }
-                return false;
+        mTitlePup.setTouchInterceptor((view1, motionEvent) -> {
+            if (motionEvent.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                mTitlePup.dismiss();
+                return true;
             }
+            return false;
         });
         mTitlePup.setAnimationStyle(R.style.pop_anim);
         mTitlePup.update();
@@ -319,13 +340,12 @@ public class BottomBarActivity extends BaseActivity
      */
     private Fragment[] getFragment() {
         Fragment[] fats = new Fragment[3];
-        for (int i = 0; i < 3; i++) {
-            BottomBarFat fragment = new BottomBarFat();
-            Bundle bundle = new Bundle();
-            bundle.putString("flag", String.valueOf(i));
-            fragment.setArguments(bundle);
-            fats[i] = fragment;
-        }
+        mMsgInfoFragment = new MsgInfoFragment();
+        fats[0] = mMsgInfoFragment;
+        mContactFragment = new ContactFragment();
+        fats[1] = mContactFragment;
+        mMyInfoFragment = new MyInfoFragment();
+        fats[2] = mMyInfoFragment;
         return fats;
     }
 
@@ -396,21 +416,17 @@ public class BottomBarActivity extends BaseActivity
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (mTitleBarView.isSearchViewOpening()) {
-                mTitleBarView.setSearchViewShow(false);
+    public void onBackPressed() {
+        if (mTitleBarView.isSearchViewOpening()) {
+            mTitleBarView.setSearchViewShow(false);
+        } else {
+            if (System.currentTimeMillis() - exitTime > 2000) {
+                Toast.makeText(sBottomBarActivity, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                exitTime = System.currentTimeMillis();
             } else {
-                if (System.currentTimeMillis() - exitTime > 2000) {
-                    Toast.makeText(sBottomBarActivity, "再按一次退出程序", Toast.LENGTH_SHORT).show();
-                    exitTime = System.currentTimeMillis();
-                } else {
-                    BottomBarActivity.this.finish();
-                }
+                finish();
             }
-            return true;
         }
-        return super.onKeyDown(keyCode, event);
     }
 
     /**
@@ -435,7 +451,7 @@ public class BottomBarActivity extends BaseActivity
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
-                Toast.makeText(sBottomBarActivity, content + "", Toast.LENGTH_SHORT).show();
+                WindowUtil.openBrowser(this, content);
             }
         }
         super.onActivityResult(requestCode, resultCode, data);

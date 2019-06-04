@@ -10,9 +10,6 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
-import android.support.annotation.StyleRes;
-import android.support.v7.app.AppCompatActivity;
 
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.login.LoginActivity;
@@ -20,6 +17,10 @@ import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
 
 import java.util.Objects;
+
+import androidx.annotation.Nullable;
+import androidx.annotation.StyleRes;
+import androidx.appcompat.app.AppCompatActivity;
 
 /**
  * 与ActivityCollector管理其他activity
@@ -101,9 +102,9 @@ public abstract class BaseActivity extends AppCompatActivity {
 
     @Override
     protected void onDestroy() {
-        super.onDestroy();
         ActivityCollector.removeActivity(this);
         unregisterReceiver(mBaseReceiver);
+        super.onDestroy();
     }
 
     /**

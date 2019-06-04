@@ -2,10 +2,14 @@ package com.gameex.dw.justtalk.util;
 
 import android.animation.ValueAnimator;
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.DisplayMetrics;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Toast;
 
 public class WindowUtil {
 
@@ -27,12 +31,9 @@ public class WindowUtil {
             return;
         }
         final ValueAnimator animator = ValueAnimator.ofFloat(1.0f, mAlpha);
-        animator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-            @Override
-            public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                float alpha = (float) animator.getAnimatedValue();
-                setWindowBackgroundAlpha(activity, alpha);
-            }
+        animator.addUpdateListener(valueAnimator -> {
+            float alpha = (float) animator.getAnimatedValue();
+            setWindowBackgroundAlpha(activity, alpha);
         });
         animator.setDuration(500);
         animator.start();
@@ -49,5 +50,26 @@ public class WindowUtil {
         ints[0] = metrics.widthPixels;
         ints[1] = metrics.heightPixels;
         return ints;
+    }
+
+    /**
+     * 调用第三方浏览器打开
+     *
+     * @param context 上下文
+     * @param url     要浏览的资源地址
+     */
+    public static void openBrowser(Context context, String url) {
+        final Intent intent = new Intent();
+        intent.setAction(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        // 注意此处的判断intent.resolveActivity()可以返回显示该Intent的Activity对应的组件名
+        // 官方解释 : Name of the component implementing an activity that can display the intent
+        if (intent.resolveActivity(context.getPackageManager()) != null) {
+            final ComponentName componentName = intent.resolveActivity(context.getPackageManager());
+            // 打印Log   ComponentName到底是什么 L.d("componentName = " + componentName.getClassName());
+            context.startActivity(Intent.createChooser(intent, "请选择浏览器"));
+        } else {
+            Toast.makeText(context.getApplicationContext(), "请下载浏览器", Toast.LENGTH_SHORT).show();
+        }
     }
 }

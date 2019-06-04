@@ -47,7 +47,7 @@
                 android:textSize="@dimen/sp_15"
                 tools:ignore="RelativeOverlap"/>
 
-            <ImageView
+            <com.github.siyamed.shapeimageview.CircularImageView
                 android:id="@+id/group_info"
                 android:layout_width="@dimen/dp_40"
                 android:layout_height="@dimen/dp_40"
@@ -56,12 +56,13 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="@dimen/dp_10"
                 android:layout_marginRight="@dimen/dp_10"
+                app:siBorderAlpha="0"
                 android:background="@drawable/light_gray_rip_out"
                 android:src="@drawable/icon_group"
                 tools:ignore="ContentDescription"/>
         </RelativeLayout>
 
-        <android.support.v7.widget.RecyclerView
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/group_member_title_rec"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -72,7 +73,7 @@
 
     </LinearLayout>
 
-    <android.support.v7.widget.RecyclerView
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/group_chat_recycler"
         android:layout_width="match_parent"
         android:layout_height="0dp"

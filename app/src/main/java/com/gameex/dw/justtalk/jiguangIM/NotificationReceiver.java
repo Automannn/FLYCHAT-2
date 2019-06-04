@@ -5,7 +5,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.support.v7.app.AlertDialog;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
@@ -17,12 +16,13 @@ import com.gameex.dw.justtalk.userInfo.UserBasicInfoActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 
+import androidx.appcompat.app.AlertDialog;
 import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.api.BasicCallback;
 
-import static com.gameex.dw.justtalk.main.BottomBarFat.ADD_CONTACT;
-import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_MSG_INFO;
 import static com.gameex.dw.justtalk.JGApplication.APP_KEY;
+import static com.gameex.dw.justtalk.main.ContactFragment.ADD_CONTACT;
+import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
 
 public class NotificationReceiver extends BroadcastReceiver {
     public static final String TAG = "NOTIFICATION_RECEIVER";
@@ -85,14 +85,11 @@ public class NotificationReceiver extends BroadcastReceiver {
                 dialogBuilder.setTitle("账号异常");
                 dialogBuilder.setMessage("账号在其他设备登录！！！");
                 dialogBuilder.setCancelable(false);
-                dialogBuilder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        ActivityCollector.finishAll();  //销毁所有活动
-                        Intent intentLoginOut = new Intent(context, LoginActivity.class);
-                        intentLoginOut.putExtra("flag", "LoginOut");
-                        context.startActivity(intentLoginOut);
-                    }
+                dialogBuilder.setPositiveButton("确定", (dialogInterface, i) -> {
+                    ActivityCollector.finishAll();  //销毁所有活动
+                    Intent intentLoginOut = new Intent(context, LoginActivity.class);
+                    intentLoginOut.putExtra("flag", "LoginOut");
+                    context.startActivity(intentLoginOut);
                 });
                 dialogBuilder.show();
                 break;

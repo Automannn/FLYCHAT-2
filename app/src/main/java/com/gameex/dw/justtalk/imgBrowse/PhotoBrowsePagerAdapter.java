@@ -1,8 +1,6 @@
 package com.gameex.dw.justtalk.imgBrowse;
 
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v4.view.PagerAdapter;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -11,6 +9,9 @@ import com.bm.library.PhotoView;
 import com.bumptech.glide.Glide;
 
 import java.util.List;
+
+import androidx.annotation.NonNull;
+import androidx.viewpager.widget.PagerAdapter;
 
 public class PhotoBrowsePagerAdapter extends PagerAdapter {
     private List<String> photoBrowseList;
@@ -42,12 +43,9 @@ public class PhotoBrowsePagerAdapter extends PagerAdapter {
         Glide.with(mContext)
                 .load(url)
                 .into(photoView);
-        photoView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                photoView.disenable();
-                PhotoBrowseActivity.sPhotoBrowseActivity.finish();
-            }
+        photoView.setOnClickListener(v -> {
+            photoView.disenable();
+            PhotoBrowseActivity.sPhotoBrowseActivity.finish();
         });
         container.addView(photoView);
         return photoView;

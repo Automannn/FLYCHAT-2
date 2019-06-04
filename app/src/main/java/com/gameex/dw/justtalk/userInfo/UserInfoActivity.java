@@ -7,11 +7,6 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -37,11 +32,16 @@ import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.io.File;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 
-import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_USER_INFO;
+import static com.gameex.dw.justtalk.main.MyInfoFragment.UPDATE_USER_INFO;
 import static com.gameex.dw.justtalk.util.DataUtil.CHOOSE_PHOTO;
 import static com.gameex.dw.justtalk.util.DataUtil.CROP_PHOTO;
 import static com.gameex.dw.justtalk.util.DataUtil.TAKE_PHOTO;
@@ -338,32 +338,19 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         edit.setHint(hint);
         edit.setText(text);
         cancel = view.findViewById(R.id.cancel_btn);
-        cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        cancel.setOnClickListener(view1 -> mEditPup.dismiss());
+        sure = view.findViewById(R.id.sure_btn);
+        sure.setOnClickListener(view12 -> {
+            if (mEditPup != null && mEditPup.isShowing()) {
                 mEditPup.dismiss();
             }
-        });
-        sure = view.findViewById(R.id.sure_btn);
-        sure.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (mEditPup != null && mEditPup.isShowing()) {
-                    mEditPup.dismiss();
-                }
-                textView.setText(edit.getText().toString());
-            }
+            textView.setText(edit.getText().toString());
         });
         mEditPup = new PopupWindow(view, RelativeLayout.LayoutParams.WRAP_CONTENT,
                 RelativeLayout.LayoutParams.WRAP_CONTENT);
         mEditPup.setFocusable(true);
         mEditPup.setOutsideTouchable(false);
-        mEditPup.setOnDismissListener(new PopupWindow.OnDismissListener() {
-            @Override
-            public void onDismiss() {
-                WindowUtil.setWindowBackgroundAlpha(sUserInfoActivity, 1f);
-            }
-        });
+        mEditPup.setOnDismissListener(() -> WindowUtil.setWindowBackgroundAlpha(sUserInfoActivity, 1f));
         mEditPup.setAnimationStyle(R.style.pop_anim);
         mEditPup.update();
     }

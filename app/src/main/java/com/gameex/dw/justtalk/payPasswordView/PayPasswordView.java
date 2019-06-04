@@ -98,26 +98,22 @@ public class PayPasswordView extends RelativeLayout implements View.OnClickListe
         gridView.setAdapter(adapter);
 
         //为键盘按键添加点击事件
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                // 点击0~9按钮
-                if (position < 11 && position != 9) {
-                    // 判断输入位置————要小心数组越界
-                    if (currentIndex >= -1 && currentIndex < 5) {
-                        tvList[++currentIndex].setText(valueList.get(position).get("name"));
+        gridView.setOnItemClickListener((parent, view, position, id) -> {
+            // 点击0~9按钮
+            if (position < 11 && position != 9) {
+                // 判断输入位置————要小心数组越界
+                if (currentIndex >= -1 && currentIndex < 5) {
+                    tvList[++currentIndex].setText(valueList.get(position).get("name"));
+                }
+            } else {
+                // 点击退格键
+                if (position == 11) {
+                    // 判断是否删除完毕————要小心数组越界
+                    if (currentIndex - 1 >= -1) {
+                        tvList[currentIndex--].setText("");
                     }
                 } else {
-                    // 点击退格键
-                    if (position == 11) {
-                        // 判断是否删除完毕————要小心数组越界
-                        if (currentIndex - 1 >= -1) {
-                            tvList[currentIndex--].setText("");
-                        }
-                    } else {
-                        Toast.makeText(context, "某种逻辑", Toast.LENGTH_SHORT).show();
-                    }
+                    Toast.makeText(context, "某种逻辑", Toast.LENGTH_SHORT).show();
                 }
             }
         });

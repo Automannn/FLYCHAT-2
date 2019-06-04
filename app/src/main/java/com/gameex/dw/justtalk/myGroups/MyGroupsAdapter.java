@@ -2,8 +2,7 @@ package com.gameex.dw.justtalk.myGroups;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,14 +14,20 @@ import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.GroupInfoUtil;
+import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
 
 public class MyGroupsAdapter extends RecyclerView.Adapter<MyGroupsAdapter.MyGroupsHolder> {
+    private static final String TAG = "MyGroupsAdapter";
 
     private Context mContext;
     private List<GroupInfo> mGroupInfos;
@@ -43,10 +48,7 @@ public class MyGroupsAdapter extends RecyclerView.Adapter<MyGroupsAdapter.MyGrou
     @Override
     public void onBindViewHolder(@NonNull MyGroupsHolder holder, int position) {
         GroupInfo groupInfo = mGroupInfos.get(position);
-        Glide.with(mContext)
-                .load(DataUtil.resourceIdToUri(
-                        mContext.getPackageName(), R.drawable.icon_group))
-                .into(holder.icon);
+        GroupInfoUtil.initGroupIcon(groupInfo,mContext,holder.icon);
         holder.name.setText(groupInfo.getGroupName());
     }
 
@@ -63,21 +65,18 @@ public class MyGroupsAdapter extends RecyclerView.Adapter<MyGroupsAdapter.MyGrou
         MyGroupsHolder(@NonNull View itemView) {
             super(itemView);
             groups = itemView.findViewById(R.id.groups_layout);
-            groups.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(mContext, GroupChatActivity.class);
-                    MsgInfo msgInfo = new MsgInfo();
-                    GroupInfo groupInfo = mGroupInfos.get(getAdapterPosition());
-                    msgInfo.setGroupInfoJson(groupInfo.toJson());
-                    JMessageClient.enterGroupConversation(groupInfo.getGroupID());
-                    intent.putExtra("msg_info", msgInfo);
-                    intent.putExtra("group_id", groupInfo.getGroupID());
-                    intent.putExtra("group_icon", DataUtil.resourceIdToUri(
-                            mContext.getPackageName(), R.drawable.icon_group));
-                    intent.putExtra("group_name", groupInfo.getGroupName());
-                    mContext.startActivity(intent);
-                }
+            groups.setOnClickListener(view -> {
+                Intent intent = new Intent(mContext, GroupChatActivity.class);
+                MsgInfo msgInfo = new MsgInfo();
+                GroupInfo groupInfo = mGroupInfos.get(getAdapterPosition());
+                msgInfo.setGroupInfoJson(groupInfo.toJson());
+                JMessageClient.enterGroupConversation(groupInfo.getGroupID());
+                intent.putExtra("msg_info", msgInfo);
+                intent.putExtra("group_id", groupInfo.getGroupID());
+                intent.putExtra("group_icon", DataUtil.resourceIdToUri(
+                        mContext.getPackageName(), R.drawable.icon_group));
+                intent.putExtra("group_name", groupInfo.getGroupName());
+                mContext.startActivity(intent);
             });
             name = itemView.findViewById(R.id.name_group);
             icon = itemView.findViewById(R.id.icon_group);

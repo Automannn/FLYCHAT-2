@@ -2,13 +2,6 @@ package com.gameex.dw.justtalk.createGroup;
 
 import android.content.Context;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.SearchView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +16,13 @@ import com.gjiazhe.wavesidebar.WaveSideBar;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.model.UserInfo;
 
 import static com.gameex.dw.justtalk.createGroup.CreateGroupActivity.sActivity;
@@ -86,7 +86,7 @@ public class ChooseContactFragment extends Fragment {
 //        mSearchView.onActionViewExpanded();
         mSearchView.setQueryHint("搜索好友");
         mSearchView.setIconifiedByDefault(false);
-        View searchLine = view.findViewById(android.support.v7.appcompat.R.id.search_plate);
+        View searchLine = view.findViewById(R.id.search_plate);
         searchLine.setBackground(getResources().getDrawable(R.drawable.white_accent_underline_bg));
         mRecyclerView = view.findViewById(R.id.contact_recycler_create_group);
         mSlideBar = view.findViewById(R.id.glide_side_bar_create_group);
@@ -101,20 +101,12 @@ public class ChooseContactFragment extends Fragment {
     }
 
     private void initData() {
-        mSearchView.setOnCloseListener(new SearchView.OnCloseListener() {
-            @Override
-            public boolean onClose() {
-                return false;
-            }
-        });
-        mSearchView.setOnQueryTextFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    mSlideBar.setVisibility(View.GONE);
-                } else {
-                    mSlideBar.setVisibility(View.VISIBLE);
-                }
+        mSearchView.setOnCloseListener(() -> false);
+        mSearchView.setOnQueryTextFocusChangeListener((view, b) -> {
+            if (b) {
+                mSlideBar.setVisibility(View.GONE);
+            } else {
+                mSlideBar.setVisibility(View.VISIBLE);
             }
         });
         mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -130,12 +122,7 @@ public class ChooseContactFragment extends Fragment {
                 return false;
             }
         });
-        mSearchView.setOnSearchClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                LogUtil.d(TAG, "initData: " + "Search been clicked");
-            }
-        });
+        mSearchView.setOnSearchClickListener(view -> LogUtil.d(TAG, "initData: " + "Search been clicked"));
         mSearchView.setOnSuggestionListener(new SearchView.OnSuggestionListener() {
             @Override
             public boolean onSuggestionSelect(int i) {
@@ -186,14 +173,11 @@ public class ChooseContactFragment extends Fragment {
         mRecyclerView.setAdapter(adapter);
 
         mSlideBar.setIndexItems(indexStr);
-        mSlideBar.setOnSelectIndexItemListener(new WaveSideBar.OnSelectIndexItemListener() {
-            @Override
-            public void onSelectIndexItem(String index) {
-                for (int i = 0; i < mUserInfos.size(); i++) {
-                    if (mUserInfos.get(i).getExtra("index").equals(index)) {
-                        RecScrollHelper.scrollToPosition(mRecyclerView, i);
-                        return;
-                    }
+        mSlideBar.setOnSelectIndexItemListener(index -> {
+            for (int i = 0; i < mUserInfos.size(); i++) {
+                if (mUserInfos.get(i).getExtra("index").equals(index)) {
+                    RecScrollHelper.scrollToPosition(mRecyclerView, i);
+                    return;
                 }
             }
         });

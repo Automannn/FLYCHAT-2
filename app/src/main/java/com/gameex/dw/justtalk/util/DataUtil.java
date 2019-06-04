@@ -2,26 +2,17 @@ package com.gameex.dw.justtalk.util;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Notification;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
-import android.provider.MediaStore;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.FileProvider;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.TypedValue;
-import android.widget.RemoteViews;
 
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 
 import net.sourceforge.pinyin4j.PinyinHelper;
 
@@ -35,12 +26,11 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.regex.Pattern;
 
-import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetUserInfoCallback;
-import cn.jpush.im.android.api.model.UserInfo;
-
-import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_ONE;
+import androidx.core.content.FileProvider;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * 数据处理工具类
@@ -328,7 +318,8 @@ public class DataUtil {
 
     /**
      * 将bitmap转化为file
-     * @param bitmap    位图
+     *
+     * @param bitmap 位图
      * @return file
      */
     public File bitmapToFile(Bitmap bitmap) {
@@ -349,6 +340,17 @@ public class DataUtil {
             e.printStackTrace();
         }
         return file;
+    }
+
+    /**
+     * 是否为浮点数？integer、double或float类型。
+     *
+     * @param str 传入的字符串。
+     * @return 是浮点数返回true, 否则返回false。
+     */
+    public static boolean isLegleYuan(String str) {
+        Pattern pattern = Pattern.compile("^[-\\+]?[.\\d]*$");
+        return pattern.matcher(str).matches();
     }
 
 

@@ -55,3 +55,15 @@
 -ignorewarnings
 -dontwarn com.unionpay.** -keep class com.unionpay.** {*;}
 -keep class org.simalliance.openmobileapi.** {*;}
+
+-keep class com.tencent.mm.opensdk.** {
+    *;
+}
+
+-keep class com.tencent.wxop.** {
+    *;
+}
+
+-keep class com.tencent.mm.sdk.** {
+    *;
+}

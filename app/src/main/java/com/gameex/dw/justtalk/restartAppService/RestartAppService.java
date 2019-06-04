@@ -19,13 +19,10 @@ public class RestartAppService extends Service {
         //关闭应用后多久重新启动
         long stopDelayed = intent.getLongExtra("delayed", 50);
         mPackageName = intent.getStringExtra("package_name");
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                Intent launchIntent = getPackageManager().getLaunchIntentForPackage(mPackageName);
-                startActivity(launchIntent);
-                RestartAppService.this.stopSelf();
-            }
+        mHandler.postDelayed(() -> {
+            Intent launchIntent = getPackageManager().getLaunchIntentForPackage(mPackageName);
+            startActivity(launchIntent);
+            RestartAppService.this.stopSelf();
         }, stopDelayed);
         return super.onStartCommand(intent, flags, startId);
     }

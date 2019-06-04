@@ -6,16 +6,11 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.CardView;
-import android.support.v7.widget.RecyclerView;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.R;
@@ -25,13 +20,16 @@ import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
+import es.dmoral.toasty.Toasty;
 
 /**
  * 飞聊item的RecyclerView的adapter
@@ -63,7 +61,7 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
                 .into(holder.userIcon);
         holder.userName.setText(msgInfo.getUsername());
         String lastMsg = msgInfo.getMsgLast();
-        if (lastMsg.length() > 16) {
+        if (lastMsg != null && lastMsg.length() > 16) {
             lastMsg = lastMsg.substring(0, 15) + "......";
         }
         holder.msgLast.setText(lastMsg);
@@ -129,7 +127,7 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         public boolean onLongClick(View view) {
             switch (view.getId()) {
                 case R.id.message_card:
-                    Toast.makeText(mContext, "删除此条", Toast.LENGTH_SHORT).show();
+                    Toasty.warning(mContext,"已删除",Toasty.LENGTH_SHORT,false);
                     mMsgInfos.remove(mMsgInfos.get(getAdapterPosition()));
                     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
                     SharedPreferences.Editor editor = pref.edit();

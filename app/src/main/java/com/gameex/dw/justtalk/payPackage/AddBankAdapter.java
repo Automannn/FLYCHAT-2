@@ -2,8 +2,6 @@ package com.gameex.dw.justtalk.payPackage;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,6 +14,9 @@ import com.github.siyamed.shapeimageview.CircularImageView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 public class AddBankAdapter extends RecyclerView.Adapter<AddBankAdapter.AddBankHolder> {
 

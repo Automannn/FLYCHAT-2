@@ -3,9 +3,6 @@ package com.gameex.dw.justtalk.myGroups;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -25,12 +22,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetGroupIDListCallback;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
 
-
+/**
+ * 我的群组列表
+ */
 public class MyGroupActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "MyGroupActivity";
 

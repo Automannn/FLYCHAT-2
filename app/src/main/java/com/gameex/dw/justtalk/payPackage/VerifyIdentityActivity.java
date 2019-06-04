@@ -1,16 +1,15 @@
 package com.gameex.dw.justtalk.payPackage;
 
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.payPasswordView.OnPayPwdInputFinish;
+import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.payPasswordView.PayPasswordView;
 
-public class VerifyIdentityActivity extends AppCompatActivity implements View.OnClickListener {
+public class VerifyIdentityActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "VerifyIdentityActivity";
     /**
      * 返回
@@ -42,13 +41,8 @@ public class VerifyIdentityActivity extends AppCompatActivity implements View.On
      */
     private void initListener() {
         mBack.setOnClickListener(this);
-        mPayPwdView.setOnFinishInput(new OnPayPwdInputFinish() {
-            @Override
-            public void inputFinish() {
-                Toast.makeText(VerifyIdentityActivity.this
-                        , mPayPwdView.getStrPassword() + "", Toast.LENGTH_SHORT).show();
-            }
-        });
+        mPayPwdView.setOnFinishInput(() -> Toast.makeText(VerifyIdentityActivity.this
+                , mPayPwdView.getStrPassword() + "", Toast.LENGTH_SHORT).show());
     }
 
     @Override

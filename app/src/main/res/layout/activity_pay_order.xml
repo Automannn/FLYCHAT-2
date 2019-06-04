@@ -52,7 +52,8 @@
 
             <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:visibility="gone">
 
                 <ImageView
                     android:layout_width="@dimen/dp_56"
@@ -93,7 +94,8 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="@dimen/dp_1"
-                android:background="@color/colorLightGray"/>
+                android:background="@color/colorLightGray"
+                android:visibility="gone"/>
 
             <ImageView
                 android:layout_width="@dimen/dp_200"
@@ -113,13 +115,14 @@
                 android:paddingBottom="@dimen/dp_10"
                 android:scaleType="fitStart"
                 android:src="@drawable/wepay_bg"
+                android:visibility="gone"
                 tools:ignore="ContentDescription"/>
 
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="@dimen/dp_176"
+            android:layout_height="@dimen/dp_56"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:orientation="vertical"
@@ -137,7 +140,8 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:checked="true"/>
+                    android:checked="true"
+                    android:visibility="gone"/>
 
                 <RadioButton
                     android:id="@+id/alipay"
@@ -149,7 +153,8 @@
                     android:id="@+id/wepay"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
+                    android:layout_weight="1"
+                    android:visibility="gone"/>
             </RadioGroup>
 
         </LinearLayout>

@@ -8,8 +8,6 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -30,6 +28,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.model.UserInfo;
 
 public class ChooseContactAdapter extends RecyclerView.Adapter<ChooseContactAdapter.ChooseContactHolder> {
@@ -117,27 +117,24 @@ public class ChooseContactAdapter extends RecyclerView.Adapter<ChooseContactAdap
             super(itemView);
             index = itemView.findViewById(R.id.index_text_contact);
             layout = itemView.findViewById(R.id.contact_info_layout);
-            layout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    @SuppressLint("UseSparseArrays") Map<Integer, Boolean> map = new HashMap<>();
-                    map.put(getAdapterPosition(), true);
-                    if (mUserChoosed.contains(map)) {
-                        mUserChoosed.remove(map);
-                        startVectorCheck(userCheck, false);
-                    } else {
-                        mUserChoosed.add(map);
-                        startVectorCheck(userCheck, true);
-                    }
-                    if (mItemClick != null) {
-                        mItemClick.onClick(getAdapterPosition());
-                    }
-                    mEditor = mPref.edit();
-                    Gson gson = new Gson();
-                    String userChoosedStr = gson.toJson(mUserChoosed);
-                    mEditor.putString("user_choosed", userChoosedStr);
-                    mEditor.apply();
+            layout.setOnClickListener(view -> {
+                @SuppressLint("UseSparseArrays") Map<Integer, Boolean> map = new HashMap<>();
+                map.put(getAdapterPosition(), true);
+                if (mUserChoosed.contains(map)) {
+                    mUserChoosed.remove(map);
+                    startVectorCheck(userCheck, false);
+                } else {
+                    mUserChoosed.add(map);
+                    startVectorCheck(userCheck, true);
                 }
+                if (mItemClick != null) {
+                    mItemClick.onClick(getAdapterPosition());
+                }
+                mEditor = mPref.edit();
+                Gson gson = new Gson();
+                String userChoosedStr = gson.toJson(mUserChoosed);
+                mEditor.putString("user_choosed", userChoosedStr);
+                mEditor.apply();
             });
             icon = itemView.findViewById(R.id.icon_contact);
             name = itemView.findViewById(R.id.name_contact);

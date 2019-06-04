@@ -35,7 +35,6 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 
-import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_MSG_INFO;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.CONTACT_NOTIFY_ACCEPT;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.CONTACT_NOTIFY_CLICKED;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.CONTACT_NOTIFY_DELETE;
@@ -46,6 +45,7 @@ import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_Click
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_DEFAULT;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_EXTRA;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_ONE;
+import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
 
 /**
  * 在demo中对于通知栏点击事件和在线消息接收事件，我们都直接在全局监听

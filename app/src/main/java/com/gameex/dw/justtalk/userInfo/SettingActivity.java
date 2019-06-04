@@ -131,46 +131,37 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
         final AlertDialog.Builder alertDog = new AlertDialog.Builder(sSettingActivity);
         //弹窗显示的内容
         alertDog.setMessage("字体大小要重启后才可生效，确定重启吗？");
-        alertDog.setPositiveButton("确定", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //重启app
-                BaseActivity.setState(mSeekBar.getProgress());
-                ActivityCollector.finishAll();
-                new Handler().postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        Intent launchIntent = getPackageManager().getLaunchIntentForPackage(getApplication().getPackageName());
-                        assert launchIntent != null;
-                        launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                        startActivity(launchIntent);
-                    }
-                }, 50);
-            }
+        alertDog.setPositiveButton("确定", (dialogInterface, i) -> {
+            //重启app
+            BaseActivity.setState(mSeekBar.getProgress());
+            ActivityCollector.finishAll();
+            new Handler().postDelayed(() -> {
+                Intent launchIntent = getPackageManager().getLaunchIntentForPackage(getApplication().getPackageName());
+                assert launchIntent != null;
+                launchIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                startActivity(launchIntent);
+            }, 50);
         });
-        alertDog.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //将字体大小设置回启动时的大小
-                switch (mCurrentFontState) {
-                    case 0:
-                        mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
-                        break;
-                    case 25:
-                        mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-                        break;
-                    case 50:
-                        mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-                        break;
-                    case 75:
-                        mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
-                        break;
-                    case 100:
-                        mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
-                        break;
-                    default:
-                        break;
-                }
+        alertDog.setNegativeButton("取消", (dialogInterface, i) -> {
+            //将字体大小设置回启动时的大小
+            switch (mCurrentFontState) {
+                case 0:
+                    mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12);
+                    break;
+                case 25:
+                    mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+                    break;
+                case 50:
+                    mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+                    break;
+                case 75:
+                    mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 24);
+                    break;
+                case 100:
+                    mTest.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
+                    break;
+                default:
+                    break;
             }
         });
         alertDog.show();

@@ -39,18 +39,22 @@
     <uses-permission android:name="android.permission.NFC"/>
 
     <uses-feature android:name="android.hardware.nfc.hce"/>
+
     <uses-permission android:name="org.simalliance.openmobileapi.SMARTCARD"/>
 
     <application
         android:name=".JGApplication"
         android:allowBackup="true"
+        android:appComponentFactory=""
         android:icon="@drawable/logo"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
-        tools:ignore="GoogleAppIndexingWarning">
-
+        tools:ignore="GoogleAppIndexingWarning"
+        tools:replace="android:appComponentFactory,android:icon">
+        <activity android:name=".payPackage.PayResultActivity">
+        </activity>
         <activity android:name=".userInfo.EditMyInfoActivity">
         </activity>
         <activity android:name=".payPackage.BankCardActivity">
@@ -61,18 +65,34 @@
         <uses-library
             android:name="org.simalliance.openmobileapi"
             android:required="false"/>
-        <!--<activity-->
-            <!--android:name="com.unionpay.uppay.PayActivity"-->
-            <!--android:label="@string/app_name"-->
-            <!--android:screenOrientation="portrait"-->
-            <!--android:configChanges="orientation|keyboardHidden"-->
-            <!--android:excludeFromRecents="true"-->
-            <!--android:windowSoftInputMode="adjustResize"/>-->
-        <!--<activity-->
-            <!--android:name="com.unionpay.UPPayWapActivity"-->
-            <!--android:configChanges="orientation|keyboardHidden"-->
-            <!--android:screenOrientation="portrait"-->
-            <!--android:windowSoftInputMode="adjustResize"/>-->
+
+        <activity
+            android:name="com.unionpay.uppay.PayActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:excludeFromRecents="true"
+            android:label="@string/app_name"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name="com.unionpay.UPPayWapActivity"
+            android:configChanges="orientation|keyboardHidden"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize"/>
+        <activity
+            android:name=".wxapi.WXEntryActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.gameex.dw.justtalk"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar">
+        </activity>
+        <activity
+            android:name=".wxapi.WXPayEntryActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:launchMode="singleTask"
+            android:taskAffinity="com.gameex.dw.justtalk">
+        </activity>
         <activity android:name=".payPackage.PayOrderActivity">
         </activity>
         <activity android:name=".imgBrowse.PhotoBrowseActivity">
@@ -275,7 +295,7 @@
         </activity>
 
         <provider
-            android:name="android.support.v4.content.FileProvider"
+            android:name="androidx.core.content.FileProvider"
             android:authorities="@string/author_name"
             android:exported="false"
             android:grantUriPermissions="true">

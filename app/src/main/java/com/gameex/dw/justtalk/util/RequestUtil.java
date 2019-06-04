@@ -347,12 +347,7 @@ public class RequestUtil {
                     //增加当前写入的字节数
                     bytesWritten += byteCount;
                     final float progress = bytesWritten * 1.0f / contentLength;
-                    CallBackUtil.mMainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            callBack.onProgress(progress, contentLength);
-                        }
-                    });
+                    CallBackUtil.mMainHandler.post(() -> callBack.onProgress(progress, contentLength));
                 }
             };
         }

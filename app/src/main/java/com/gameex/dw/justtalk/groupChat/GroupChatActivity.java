@@ -7,28 +7,21 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.emoji.PageTransformer;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
@@ -38,18 +31,11 @@ import com.gameex.dw.justtalk.imagePicker.Glide4Engine;
 import com.gameex.dw.justtalk.redPackage.SetYuanActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.GroupInfoUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.vanniktech.emoji.EmojiEditText;
-import com.vanniktech.emoji.EmojiImageView;
 import com.vanniktech.emoji.EmojiPopup;
-import com.vanniktech.emoji.emoji.Emoji;
-import com.vanniktech.emoji.listeners.OnEmojiBackspaceClickListener;
-import com.vanniktech.emoji.listeners.OnEmojiClickListener;
-import com.vanniktech.emoji.listeners.OnEmojiPopupDismissListener;
-import com.vanniktech.emoji.listeners.OnEmojiPopupShownListener;
-import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
-import com.vanniktech.emoji.listeners.OnSoftKeyboardOpenListener;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.filter.Filter;
@@ -60,10 +46,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
-import cn.jpush.im.android.api.enums.ConversationType;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
@@ -73,7 +64,7 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
 
-import static com.gameex.dw.justtalk.main.BottomBarFat.UPDATE_MSG_INFO;
+import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
 
 public class GroupChatActivity extends AppCompatActivity implements View.OnClickListener {
     @SuppressLint("StaticFieldLeak")
@@ -99,7 +90,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     /**
      * 群信息入口
      */
-    private ImageView mGroup;
+    private CircularImageView mGroup;
     /**
      * 群成员头像展示RecyclerView
      */
@@ -227,6 +218,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         mBack.setOnClickListener(this);
 
         mGroup.setOnClickListener(this);
+        GroupInfoUtil.initGroupIcon(mGroupInfo,this,mGroup);
 
         DefaultItemAnimator animator = new DefaultItemAnimator();
         animator.setAddDuration(300);
@@ -252,12 +244,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         }
         mChatAdapter = new GroupChatAdapter(this, mMessages);
         mMsgRecycler.setAdapter(mChatAdapter);
-        new Handler(this.getMainLooper()).post(new Runnable() {
-            @Override
-            public void run() {
-                getUris();
-            }
-        });
+        new Handler(this.getMainLooper()).post(() -> getUris());
 
         voiceImg.setOnClickListener(this);
         mEdit.addTextChangedListener(new TextWatcher() {
@@ -283,26 +270,23 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                 }
             }
         });
-        mEdit.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {  //当键盘弹出/隐藏时调用此方法
-                Rect r = new Rect();
-                //获取当前界面可视部分
-                GroupChatActivity.this.getWindow()
-                        .getDecorView()
-                        .getWindowVisibleDisplayFrame(r);
-                //获取屏幕的高度
-                int screenHeight = GroupChatActivity.this.getWindow()
-                        .getDecorView()
-                        .getRootView()
-                        .getHeight();
-                //此处就是用来获取键盘的高度的， 在键盘没有弹出的时候 此高度为0 键盘弹出的时候为一个正数
-                heightDifference = screenHeight - r.bottom;
-                if (heightDifference > navigationBarHeight) {
-                    mGridView.setVisibility(View.GONE);
-                }
-                LogUtil.d(TAG, "initView-onGlobalLayout: " + "Size = " + heightDifference);
+        mEdit.getViewTreeObserver().addOnGlobalLayoutListener(() -> {  //当键盘弹出/隐藏时调用此方法
+            Rect r = new Rect();
+            //获取当前界面可视部分
+            GroupChatActivity.this.getWindow()
+                    .getDecorView()
+                    .getWindowVisibleDisplayFrame(r);
+            //获取屏幕的高度
+            int screenHeight = GroupChatActivity.this.getWindow()
+                    .getDecorView()
+                    .getRootView()
+                    .getHeight();
+            //此处就是用来获取键盘的高度的， 在键盘没有弹出的时候 此高度为0 键盘弹出的时候为一个正数
+            heightDifference = screenHeight - r.bottom;
+            if (heightDifference > navigationBarHeight) {
+                mGridView.setVisibility(View.GONE);
             }
+            LogUtil.d(TAG, "initView-onGlobalLayout: " + "Size = " + heightDifference);
         });
         mEmoji.setOnClickListener(this);
         initEmojiPopup();
@@ -315,30 +299,27 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                 , R.layout.function_item, new String[]{"icon", "icon_name"}
                 , new int[]{R.id.function_img, R.id.function_name});
         mGridView.setAdapter(simpleAdapter);
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-                if (position == 0) {
-                    Intent intent = new Intent(GroupChatActivity.this
-                            , SetYuanActivity.class);
-                    intent.putExtra("group_info", mGroupInfo.toJson());
-                    startActivityForResult(intent, REQUEST_GROUP_RED_PACKAGE);
-                } else if (position == 1) {
-                    Matisse.from(GroupChatActivity.this)
-                            .choose(MimeType.ofAll())
-                            .countable(true)
-                            .maxSelectable(9)
-                            .addFilter(new GifSizeFilter(320, 320
-                                    , 5 * Filter.K * Filter.K))
-                            .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.dp_120))
-                            .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
-                            .thumbnailScale(0.85f)
-                            .imageEngine(new Glide4Engine())
-                            .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
-                            .forResult(REQUEST_CODE_CHOOSE);
-                }
-                LogUtil.d(TAG, "initData-onItemClick: " + "position = " + position);
+        mGridView.setOnItemClickListener((adapterView, view, position, id) -> {
+            if (position == 0) {
+                Intent intent = new Intent(GroupChatActivity.this
+                        , SetYuanActivity.class);
+                intent.putExtra("group_info", mGroupInfo.toJson());
+                startActivityForResult(intent, REQUEST_GROUP_RED_PACKAGE);
+            } else if (position == 1) {
+                Matisse.from(GroupChatActivity.this)
+                        .choose(MimeType.ofAll())
+                        .countable(true)
+                        .maxSelectable(9)
+                        .addFilter(new GifSizeFilter(320, 320
+                                , 5 * Filter.K * Filter.K))
+                        .gridExpectedSize(getResources().getDimensionPixelSize(R.dimen.dp_120))
+                        .restrictOrientation(ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED)
+                        .thumbnailScale(0.85f)
+                        .imageEngine(new Glide4Engine())
+                        .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
+                        .forResult(REQUEST_CODE_CHOOSE);
             }
+            LogUtil.d(TAG, "initData-onItemClick: " + "position = " + position);
         });
     }
 
@@ -347,42 +328,12 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      */
     private void initEmojiPopup() {
         mEmojiPopup = EmojiPopup.Builder.fromRootView(mRootView)
-                .setOnEmojiBackspaceClickListener(new OnEmojiBackspaceClickListener() {
-                    @Override
-                    public void onEmojiBackspaceClick(View v) {
-                        LogUtil.d(TAG, "Clicked on Backspace");
-                    }
-                })
-                .setOnEmojiClickListener(new OnEmojiClickListener() {
-                    @Override
-                    public void onEmojiClick(@NonNull EmojiImageView emoji, @NonNull Emoji imageView) {
-                        LogUtil.d(TAG, "Clicked on emoji");
-                    }
-                })
-                .setOnEmojiPopupShownListener(new OnEmojiPopupShownListener() {
-                    @Override
-                    public void onEmojiPopupShown() {
-                        LogUtil.d(TAG, "Emoji popup id shown");
-                    }
-                })
-                .setOnSoftKeyboardOpenListener(new OnSoftKeyboardOpenListener() {
-                    @Override
-                    public void onKeyboardOpen(int keyBoardHeight) {
-                        LogUtil.d(TAG, "Opened soft keyboard");
-                    }
-                })
-                .setOnEmojiPopupDismissListener(new OnEmojiPopupDismissListener() {
-                    @Override
-                    public void onEmojiPopupDismiss() {
-                        LogUtil.d(TAG, "Emoji popup id dismiss");
-                    }
-                })
-                .setOnSoftKeyboardCloseListener(new OnSoftKeyboardCloseListener() {
-                    @Override
-                    public void onKeyboardClose() {
-                        LogUtil.d(TAG, "Closed soft keyboard");
-                    }
-                })
+                .setOnEmojiBackspaceClickListener(v -> LogUtil.d(TAG, "Clicked on Backspace"))
+                .setOnEmojiClickListener((emoji, imageView) -> LogUtil.d(TAG, "Clicked on emoji"))
+                .setOnEmojiPopupShownListener(() -> LogUtil.d(TAG, "Emoji popup id shown"))
+                .setOnSoftKeyboardOpenListener(keyBoardHeight -> LogUtil.d(TAG, "Opened soft keyboard"))
+                .setOnEmojiPopupDismissListener(() -> LogUtil.d(TAG, "Emoji popup id dismiss"))
+                .setOnSoftKeyboardCloseListener(() -> LogUtil.d(TAG, "Closed soft keyboard"))
                 .setKeyboardAnimationStyle(R.style.emoji_fade_animation_style)
                 .setPageTransformer(new PageTransformer())
                 .build(mEdit);
@@ -411,7 +362,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      * @param message 消息体
      */
     private void goUpdateMsgInfos(Message message) {
-        String data=DataUtil.msFormMMDD(message.getCreateTime());
+        String data = DataUtil.msFormMMDD(message.getCreateTime());
         MsgInfo msgInfo = new MsgInfo();
         msgInfo.setUsername(mGroupInfo.getGroupName());
         msgInfo.setDate(data);
@@ -420,7 +371,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         msgInfo.setGroupInfoJson(mGroupInfo.toJson());
         switch (message.getContentType()) {
             case text:
-                TextContent textContent= (TextContent) message.getContent();
+                TextContent textContent = (TextContent) message.getContent();
                 msgInfo.setMsgLast(textContent.getText());
                 break;
             case image:
@@ -430,8 +381,8 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                 msgInfo.setMsgLast("红包");
                 break;
         }
-        Intent intent=new Intent(UPDATE_MSG_INFO);
-        intent.putExtra("msg_info",msgInfo);
+        Intent intent = new Intent(UPDATE_MSG_INFO);
+        intent.putExtra("msg_info", msgInfo);
         sendBroadcast(intent);
     }
 
@@ -474,12 +425,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                 if (content.isEmpty()) {
                     if (mIMM != null && heightDifference > navigationBarHeight) {
                         mIMM.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                showFunction();
-                            }
-                        }, 50);
+                        new Handler().postDelayed(() -> showFunction(), 50);
                     } else {
                         showFunction();
                     }

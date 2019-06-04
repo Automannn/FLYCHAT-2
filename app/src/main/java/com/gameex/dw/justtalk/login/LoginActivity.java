@@ -5,8 +5,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.annotation.Nullable;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
@@ -27,6 +28,7 @@ import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
+import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import org.json.JSONException;
@@ -35,7 +37,10 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
 
+import androidx.annotation.Nullable;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetUserInfoCallback;
+import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import okhttp3.Call;
 import okhttp3.Response;
@@ -76,6 +81,33 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private void initView() {
         mCircularImg = findViewById(R.id.circle_img_login);
         mUsername = findViewById(R.id.username_text);
+        mUsername.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                JMessageClient.getUserInfo(editable.toString(), new GetUserInfoCallback() {
+                    @Override
+                    public void gotResult(int i, String s, UserInfo userInfo) {
+                        if (i == 0) {
+                            LogUtil.d(TAG, "initView-afterTextChanged: "
+                                    + "userInfo = " + userInfo.toJson());
+                            UserInfoUtils.initUserIcon(userInfo, LoginActivity.this
+                                    , mCircularImg);
+                        } else {
+                            LogUtil.d(TAG, "initView-afterTextChanged: "
+                                    + "responseCode = " + i + " ;desc = " + s);
+                        }
+                    }
+                });
+            }
+        });
         mPassword = findViewById(R.id.pwd_text);
         Button loginBtn = findViewById(R.id.login_btn);
         loginBtn.setOnClickListener(this);
@@ -85,11 +117,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         quickSign.setOnClickListener(this);
         TextView forgotPwd = findViewById(R.id.forgot_pwd);
         forgotPwd.setOnClickListener(this);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
     }
 
     @Override
@@ -155,7 +182,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
      */
     private void checkToLogin(int flag) {
         if (flag == -1) {
-            JMessageClient.login("18180027763", "123456dw", new BasicCallback() {
+            JMessageClient.login("18180586504", "123456dw", new BasicCallback() {
                 @Override
                 public void gotResult(int responseCode, String registerDesc) {
                     LogUtil.i("LOGIN_ACTIVITY_LMESSAGE_LOGIN",
@@ -165,8 +192,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 }
             });
             Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
-            finish();
             startActivity(intentLogin);
+            this.finish();
         }
         if (!TextUtils.isEmpty(mUsername.getText())) {
             if (!TextUtils.isEmpty(mPassword.getText())) {
@@ -286,8 +313,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login_btn:
-                checkToLogin(1);
-//                checkToLogin(-1);
+//                checkToLogin(1);
+                checkToLogin(-1);
                 break;
             case R.id.quick_sign_up:
                 Intent intentQuickSign = new Intent(this, SignUpActivity.class);
@@ -329,7 +356,18 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        if (prosDialog != null && prosDialog.isShowing()) {
+            prosDialog.dismiss();
+        }
 //        stopService(mIntentGetUser);
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (prosDialog != null && prosDialog.isShowing()) {
+            prosDialog.dismiss();
+        }
+        super.onBackPressed();
     }
 
     @Override

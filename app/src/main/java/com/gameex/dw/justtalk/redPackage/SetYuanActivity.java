@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
@@ -21,6 +22,7 @@ import com.automannn.commonUtils.security.RSA;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
+import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
 
@@ -215,6 +217,9 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
      */
     private void handOutRed() {
         String secretString = getSecretString(mPubKey);
+        if (secretString==null){
+            return;
+        }
         final String token = MD5.generate(secretString, false);
         HashMap<String, String> paramsMap = new HashMap<>();
         paramsMap.put("userId", userId);
@@ -328,10 +333,20 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
      */
     private String getSecretString(String pubKey) {
         JSONObject secretJson = new JSONObject();
+        String yuan=mYuanNum.getText().toString();
+        String count=mPackageNum.getText().toString();
+        if (!DataUtil.isLegleYuan(yuan)){
+            Toast.makeText(this, "红包金额不正确", Toast.LENGTH_SHORT).show();
+            return null;
+        }
+        if (!TextUtils.isDigitsOnly(count)){
+            Toast.makeText(this, "红包个数不正确", Toast.LENGTH_SHORT).show();
+            return null;
+        }
         try {
-            secretJson.put("amount", Double.valueOf(mYuanNum.getText().toString()));
-            secretJson.put("count", Integer.parseInt(mPackageNum.getText().toString()));
-            secretJson.put("personCount", Integer.parseInt(mPackageNum.getText().toString()));
+            secretJson.put("amount", Double.valueOf(yuan));
+            secretJson.put("count", Integer.parseInt(count));
+            secretJson.put("personCount", Integer.parseInt(count));
             secretJson.put("expireTime", 120);
         } catch (JSONException e) {
             e.printStackTrace();

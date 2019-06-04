@@ -2,6 +2,7 @@ package com.gameex.dw.justtalk.createGroup;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -9,15 +10,6 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -37,6 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.model.UserInfo;
 
 import static android.app.Activity.RESULT_OK;
@@ -139,14 +139,11 @@ public class DoneCreateFragment extends Fragment implements View.OnClickListener
     private void initData() {
         mIcon.setOnClickListener(this);
         mName.setText("添加群名称");
-        mName.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean b) {
-                if (b) {
-                    mName.setText("");
-                } else {
-                    mCallBack.sendGroupName(mName.getText().toString());
-                }
+        mName.setOnFocusChangeListener((view, b) -> {
+            if (b) {
+                mName.setText("");
+            } else {
+                mCallBack.sendGroupName(mName.getText().toString());
             }
         });
         mName.addTextChangedListener(new TextWatcher() {

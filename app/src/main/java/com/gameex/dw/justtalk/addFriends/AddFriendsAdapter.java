@@ -2,8 +2,6 @@ package com.gameex.dw.justtalk.addFriends;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,6 +13,8 @@ import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.model.UserInfo;
 
 public class AddFriendsAdapter extends RecyclerView.Adapter<AddFriendsAdapter.AddFriendsHolder> {
@@ -41,18 +41,10 @@ public class AddFriendsAdapter extends RecyclerView.Adapter<AddFriendsAdapter.Ad
     public void onBindViewHolder(@NonNull AddFriendsHolder holder
             , @SuppressLint("RecyclerView") final int position) {
         if (mItemClick != null) {
-            holder.itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    mItemClick.onClick(position);
-                }
-            });
-            holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-                @Override
-                public boolean onLongClick(View view) {
-                    mItemClick.onLongClick(position);
-                    return false;
-                }
+            holder.itemView.setOnClickListener(view -> mItemClick.onClick(position));
+            holder.itemView.setOnLongClickListener(view -> {
+                mItemClick.onLongClick(position);
+                return false;
             });
         }
 

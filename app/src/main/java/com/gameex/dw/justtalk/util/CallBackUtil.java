@@ -21,22 +21,12 @@ public abstract class CallBackUtil<T> {
     }
 
     public void onError(final Call call, final Exception e) {
-        mMainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                onFailure(call, e);
-            }
-        });
+        mMainHandler.post(() -> onFailure(call, e));
     }
 
     public void onSeccess(Call call, Response response) {
         final T obj = onParseResponse(call, response);
-        mMainHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                onResponse(obj);
-            }
-        });
+        mMainHandler.post(() -> onResponse(obj));
     }
 
     /**
@@ -171,12 +161,7 @@ public abstract class CallBackUtil<T> {
                     sum += len;
                     fos.write(buf, 0, len);
                     final long finalSum = sum;
-                    mMainHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            onProgress(finalSum * 100.0f / total, total);
-                        }
-                    });
+                    mMainHandler.post(() -> onProgress(finalSum * 100.0f / total, total));
                 }
                 fos.flush();
                 return file;

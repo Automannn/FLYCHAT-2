@@ -4,15 +4,9 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.DividerItemDecoration;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
@@ -26,6 +20,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -76,21 +75,11 @@ public class AddFriendsActivity extends BaseActivity {
     private void initData() {
         mToolbar.setTitleTextColor(getResources().getColor(R.color.colorWhite));
         Objects.requireNonNull(getSupportActionBar()).setTitle("搜索用户");
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                mSearchView.showSearch();
-            }
-        }, 100);
+        new Handler().postDelayed(() -> mSearchView.showSearch(), 100);
         mSearchView.setVoiceSearch(false);
         mSearchView.setSuggestions(getResources().getStringArray(R.array.query_suggestions));
-        mSearchView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                LogUtil.d(TAG, "you click the item " +
-                        "int=" + i + " long=" + l);
-            }
-        });
+        mSearchView.setOnItemClickListener((adapterView, view, i, l) -> LogUtil.d(TAG, "you click the item " +
+                "int=" + i + " long=" + l));
         mSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
