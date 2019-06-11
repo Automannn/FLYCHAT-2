@@ -225,9 +225,9 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
                 finish();
                 break;
             case R.id.next_step:
-//                intent.setClass(this, VerifyIdentityActivity.class);
-//                startActivity(intent);
-                goBindCard();
+                intent.setClass(this, VerifyIdentityActivity.class);
+                startActivity(intent);
+//                goBindCard();
                 break;
         }
     }

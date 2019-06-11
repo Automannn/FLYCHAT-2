@@ -87,6 +87,41 @@
 
                             </LinearLayout>
 
+                            <LinearLayout
+                                android:id="@+id/voice_msg_left"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/light_gray_white_rip"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:paddingStart="@dimen/dp_1"
+                                android:paddingLeft="@dimen/dp_1"
+                                android:paddingTop="@dimen/dp_8"
+                                android:paddingEnd="@dimen/dp_5"
+                                android:paddingRight="@dimen/dp_5"
+                                android:paddingBottom="@dimen/dp_8"
+                                android:visibility="gone"
+                                tools:ignore="RtlSymmetry">
+
+                                <jaygoo.widget.wlv.WaveLineView
+                                    android:id="@+id/voice_line_left"
+                                    android:layout_width="@dimen/dp_60"
+                                    android:layout_height="@dimen/dp_20"
+                                    android:layout_marginEnd="@dimen/dp_5"
+                                    android:layout_marginRight="@dimen/dp_5"
+                                    app:wlvBackgroundColor="@android:color/transparent"
+                                    app:wlvFineLineWidth="@dimen/dp_2"
+                                    app:wlvLineColor="@color/colorMineThemeText"
+                                    app:wlvThickLineWidth="@dimen/dp_1"/>
+
+                                <TextView
+                                    android:id="@+id/voice_duration_left"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:textColor="@color/colorMineThemeText"/>
+
+                            </LinearLayout>
+
                             <com.github.siyamed.shapeimageview.RoundedImageView
                                 android:id="@+id/img_left"
                                 android:layout_width="wrap_content"
@@ -104,6 +139,7 @@
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:background="@drawable/light_gray_white_rip"
+                                android:lineSpacingMultiplier="1.2"
                                 android:maxWidth="@dimen/dp_200"
                                 android:paddingLeft="@dimen/dp_10"
                                 android:paddingTop="@dimen/dp_5"
@@ -181,6 +217,41 @@
 
                             </LinearLayout>
 
+                            <LinearLayout
+                                android:id="@+id/voice_msg_right"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:background="@drawable/light_gray_accent_rip"
+                                android:clickable="true"
+                                android:focusable="true"
+                                android:paddingStart="@dimen/dp_5"
+                                android:paddingLeft="@dimen/dp_5"
+                                android:paddingTop="@dimen/dp_8"
+                                android:paddingEnd="@dimen/dp_1"
+                                android:paddingRight="@dimen/dp_1"
+                                android:paddingBottom="@dimen/dp_8"
+                                android:visibility="gone"
+                                tools:ignore="RtlSymmetry">
+
+                                <TextView
+                                    android:id="@+id/voice_duration_right"
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginEnd="@dimen/dp_5"
+                                    android:layout_marginRight="@dimen/dp_5"
+                                    android:textColor="@color/colorMineThemeText"/>
+
+                                <jaygoo.widget.wlv.WaveLineView
+                                    android:id="@+id/voice_line_right"
+                                    android:layout_width="@dimen/dp_60"
+                                    android:layout_height="@dimen/dp_20"
+                                    app:wlvBackgroundColor="@android:color/transparent"
+                                    app:wlvFineLineWidth="@dimen/dp_2"
+                                    app:wlvLineColor="@color/colorMineThemeText"
+                                    app:wlvThickLineWidth="@dimen/dp_1"/>
+
+                            </LinearLayout>
+
                             <com.github.siyamed.shapeimageview.RoundedImageView
                                 android:id="@+id/img_right"
                                 android:layout_width="wrap_content"
@@ -199,6 +270,7 @@
                                 android:layout_height="wrap_content"
                                 android:layout_gravity="end"
                                 android:background="@drawable/light_gray_accent_rip"
+                                android:lineSpacingMultiplier="1.2"
                                 android:maxWidth="@dimen/dp_200"
                                 android:paddingLeft="@dimen/dp_10"
                                 android:paddingTop="@dimen/dp_5"

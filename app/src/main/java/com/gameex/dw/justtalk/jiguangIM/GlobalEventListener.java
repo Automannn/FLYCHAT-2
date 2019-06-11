@@ -205,6 +205,10 @@ public class GlobalEventListener {
                 msgInfo.setMsgLast("红包");
                 updateMsgInfo(message, msgInfo);
                 break;
+            case voice:
+                msgInfo.setMsgLast("语音");
+                updateMsgInfo(message,msgInfo);
+                break;
             case eventNotification:
                 GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
                 EventNotificationContent notificationContent = (EventNotificationContent) message.getContent();

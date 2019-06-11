@@ -193,7 +193,7 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
 
         mIconLayout.setOnClickListener(this);
         mIcon.setOnClickListener(this);
-        GroupInfoUtil.initGroupIcon(mGroupInfo,this,mIcon);
+        GroupInfoUtil.initGroupIcon(mGroupInfo, this, mIcon);
         mMember.setOnClickListener(this);
         mName.setText(mGroupInfo.getGroupName());
         mNickLayout.setOnClickListener(this);
@@ -263,7 +263,8 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                 break;
             case R.id.more:
                 Toasty.custom(this, "更多", R.drawable.vector_hook_check
-                        , R.color.colorBlack, Toasty.LENGTH_SHORT, true, false);
+                        , R.color.colorBlack, Toasty.LENGTH_SHORT, true
+                        , false).show();
                 break;
             case R.id.group_icon_info_layout:   //修改群昵称
                 intent.setClass(this, EditMyInfoActivity.class);

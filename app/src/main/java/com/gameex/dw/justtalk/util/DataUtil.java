@@ -26,6 +26,8 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import androidx.core.content.FileProvider;
@@ -157,6 +159,17 @@ public class DataUtil {
      */
     public static String msFormHHmmTime(long milliSecond) {
         @SuppressLint("SimpleDateFormat") DateFormat format = new SimpleDateFormat("HH:mm");
+        return format.format(milliSecond);
+    }
+
+    /**
+     * 将毫秒数转化位时:分格式的字符串
+     *
+     * @param milliSecond 毫秒数
+     * @return 字符串time
+     */
+    public static String msFormmmssTime(long milliSecond) {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format=new SimpleDateFormat("mm:ss");
         return format.format(milliSecond);
     }
 

@@ -1,7 +1,10 @@
 package com.gameex.dw.justtalk.groupChat;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -12,17 +15,22 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.bumptech.glide.Glide;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
+import com.gameex.dw.justtalk.soundController.RecordingService;
 import com.gameex.dw.justtalk.emoji.PageTransformer;
+import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.groupInfo.GroupInfoActivity;
@@ -40,14 +48,15 @@ import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.filter.Filter;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -63,10 +72,12 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
+import es.dmoral.toasty.Toasty;
 
 import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
+import static com.gameex.dw.justtalk.singleChat.ChattingActivity.RECORD_COMPLETE;
 
-public class GroupChatActivity extends AppCompatActivity implements View.OnClickListener {
+public class GroupChatActivity extends BaseActivity implements View.OnClickListener {
     @SuppressLint("StaticFieldLeak")
     public static GroupChatActivity sActivity;
     private static final String TAG = "GroupChatActivity";
@@ -112,6 +123,10 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      */
     private CircularImageView voiceImg;
     /**
+     * 按住说话
+     */
+    private Button mRecord;
+    /**
      * 编辑框
      */
     private EmojiEditText mEdit;
@@ -134,7 +149,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     /**
      * 群成员头像Uri
      */
-    private List<Uri> mUris = new ArrayList<>();
+    private List<Bitmap> mBitmaps = new ArrayList<>();
     private List<Message> mMessages = new ArrayList<>();
 
     /**
@@ -165,6 +180,9 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      * 软件盘高度，有虚拟键，则为软键盘高度+虚拟键高度
      */
     private int heightDifference;
+    private float posY, curY;
+    private boolean isSendVoice = false;
+    private GroupReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -173,6 +191,10 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         sActivity = this;
         initView();
         initData();
+        mReceiver = new GroupReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(RECORD_COMPLETE);
+        registerReceiver(mReceiver, filter);
     }
 
     @Override
@@ -180,6 +202,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         super.onDestroy();
         JMessageClient.exitConversation();
         JMessageClient.unRegisterEventReceiver(this);
+        unregisterReceiver(mReceiver);
     }
 
     /**
@@ -194,6 +217,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         mRecyclerView = findViewById(R.id.group_member_title_rec);
         mMsgRecycler = findViewById(R.id.group_chat_recycler);
         voiceImg = findViewById(R.id.voice_msg);
+        mRecord = findViewById(R.id.record_voice);
         mEdit = findViewById(R.id.send_edit);
         mEmoji = findViewById(R.id.emoji_circle);
         mSend = findViewById(R.id.send_circle);
@@ -202,7 +226,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     /**
      * 初始化数据
      */
-    @SuppressLint("SetTextI18n")
+    @SuppressLint({"SetTextI18n", "ClickableViewAccessibility"})
     private void initData() {
         mIMM = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         //获得虚拟键高度
@@ -218,7 +242,7 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         mBack.setOnClickListener(this);
 
         mGroup.setOnClickListener(this);
-        GroupInfoUtil.initGroupIcon(mGroupInfo,this,mGroup);
+        GroupInfoUtil.initGroupIcon(mGroupInfo, this, mGroup);
 
         DefaultItemAnimator animator = new DefaultItemAnimator();
         animator.setAddDuration(300);
@@ -229,8 +253,9 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         mRecyclerView.setLayoutManager(layoutManager);
-        mMemberAdapter = new GroupMemberAdapter(this, mUris);
+        mMemberAdapter = new GroupMemberAdapter(this, mBitmaps);
         mRecyclerView.setAdapter(mMemberAdapter);
+        getBitmaps();
 
         DefaultItemAnimator animatorMsg = new DefaultItemAnimator();
         animatorMsg.setAddDuration(300);
@@ -244,9 +269,31 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
         }
         mChatAdapter = new GroupChatAdapter(this, mMessages);
         mMsgRecycler.setAdapter(mChatAdapter);
-        new Handler(this.getMainLooper()).post(() -> getUris());
+//        new Handler(this.getMainLooper()).post(this::getBitmaps);
 
         voiceImg.setOnClickListener(this);
+        mRecord.setOnTouchListener((view, motionEvent) -> {
+            Intent intent = new Intent(GroupChatActivity.this
+                    , RecordingService.class);
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    startService(intent);
+                    posY = motionEvent.getY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    curY = motionEvent.getY();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    stopService(intent);
+                    if (posY > curY) {
+                        isSendVoice = true;
+                    } else {
+                        Toasty.normal(GroupChatActivity.this, "取消发送", Toasty.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
+            return true;
+        });
         mEdit.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
@@ -284,7 +331,9 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
             //此处就是用来获取键盘的高度的， 在键盘没有弹出的时候 此高度为0 键盘弹出的时候为一个正数
             heightDifference = screenHeight - r.bottom;
             if (heightDifference > navigationBarHeight) {
-                mGridView.setVisibility(View.GONE);
+                if (mGridView.getVisibility() == View.VISIBLE) {
+                    showFunction();
+                }
             }
             LogUtil.d(TAG, "initView-onGlobalLayout: " + "Size = " + heightDifference);
         });
@@ -377,6 +426,9 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
             case image:
                 msgInfo.setMsgLast("图片");
                 break;
+            case voice:
+                msgInfo.setMsgLast("语音");
+                break;
             case custom:
                 msgInfo.setMsgLast("红包");
                 break;
@@ -414,18 +466,39 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                 intent.putExtra("group_id", mGroupId);
                 startActivity(intent);
                 break;
-            case R.id.voice_msg:
-                Toast.makeText(this, "发送语音", Toast.LENGTH_SHORT).show();
+            case R.id.voice_msg:    //发送语音
+                if (mRecord.getVisibility() == View.VISIBLE) {
+                    YoYo.with(Techniques.SlideOutDown)
+                            .duration(200)
+                            .onEnd(animator -> mRecord.setVisibility(View.GONE))
+                            .playOn(mRecord);
+                    mEdit.setVisibility(View.VISIBLE);
+                    YoYo.with(Techniques.SlideInDown)
+                            .duration(200)
+                            .playOn(mEdit);
+                } else {
+                    if (mIMM != null && heightDifference > navigationBarHeight) {
+                        mIMM.hideSoftInputFromWindow(view.getWindowToken(), 0);
+                    }
+                    mRecord.setVisibility(View.VISIBLE);
+                    YoYo.with(Techniques.SlideInUp)
+                            .duration(200)
+                            .playOn(mRecord);
+                    YoYo.with(Techniques.SlideOutUp)
+                            .duration(200)
+                            .onEnd(animator -> mEdit.setVisibility(View.GONE))
+                            .playOn(mEdit);
+                }
                 break;
             case R.id.emoji_circle:
                 mEmojiPopup.toggle();
                 break;
             case R.id.send_circle:
-                String content = mEdit.getText().toString();
+                String content = Objects.requireNonNull(mEdit.getText()).toString();
                 if (content.isEmpty()) {
                     if (mIMM != null && heightDifference > navigationBarHeight) {
                         mIMM.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                        new Handler().postDelayed(() -> showFunction(), 50);
+                        new Handler().postDelayed(this::showFunction, 50);
                     } else {
                         showFunction();
                     }
@@ -442,8 +515,15 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     private void showFunction() {
         if (mGridView.getVisibility() == View.GONE) {
             mGridView.setVisibility(View.VISIBLE);
+            mGridView.setVisibility(View.VISIBLE);
+            YoYo.with(Techniques.SlideInUp)
+                    .duration(200)
+                    .playOn(mGridView);
         } else {
-            mGridView.setVisibility(View.GONE);
+            YoYo.with(Techniques.SlideOutDown)
+                    .duration(200)
+                    .onEnd(animator -> mGridView.setVisibility(View.GONE))
+                    .playOn(mGridView);
         }
     }
 
@@ -485,6 +565,25 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
                         }
                     }
                 });
+    }
+
+    /**
+     * 发送语音消息
+     *
+     * @param voiceFile 语音文件
+     * @param duration  语音时长
+     * @param name      保存的名字
+     */
+    private void sendVoiceMsg(File voiceFile, int duration, String name) {
+        if (mConversation == null) {
+            mConversation = Conversation.createGroupConversation(mGroupId);
+        }
+        try {
+            Message message = mConversation.createSendVoiceMessage(voiceFile, duration, name);
+            sendListener(message, false);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -532,18 +631,27 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
      * 初始化标题栏头像图片
      */
     @SuppressLint("SetTextI18n")
-    private void getUris() {
+    private void getBitmaps() {
 //        List<Uri> uris = new ArrayList<>();
         List<GroupMemberInfo> groupMemberInfos = mGroupInfo.getGroupMemberInfos();
         for (GroupMemberInfo groupMemberInfo : groupMemberInfos) {
             UserInfo userInfo = groupMemberInfo.getUserInfo();
-            Uri uri = userInfo.getExtra("icon_uri") == null ? DataUtil.resourceIdToUri(getPackageName()
-                    , R.drawable.icon_user) : Uri.parse(userInfo.getExtra("icon_uri"));
-            mUris.add(uri);
+            userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                @Override
+                public void gotResult(int i, String s, Bitmap bitmap) {
+                    LogUtil.d(TAG, "getUris: " + "responseCode = " + i
+                            + " ;desc = " + s);
+                    if (i == 0) {
+                        mBitmaps.add(bitmap);
+                    } else {
+                        mBitmaps.add(BitmapFactory.decodeResource(getResources(), R.drawable.icon_user));
+                    }
+                    mMemberAdapter.notifyItemInserted(mBitmaps.size() - 1);
+                }
+            });
         }
         mNameNum.setText(getIntent().getStringExtra("group_name")
-                + "（" + mUris.size() + "）");
-        mMemberAdapter.notifyDataSetChanged();
+                + "（" + groupMemberInfos.size() + "）");
     }
 
     /**
@@ -594,9 +702,31 @@ public class GroupChatActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void onBackPressed() {
         if (mGridView.getVisibility() == View.VISIBLE) {
-            mGridView.setVisibility(View.GONE);
+            showFunction();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    class GroupReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            assert action != null;
+            switch (action) {
+                case RECORD_COMPLETE:
+                    if (isSendVoice) {
+                        String audioPath = intent.getStringExtra("audio_path");
+                        long audioDuration = intent.getLongExtra("elpased", 0);
+                        LogUtil.d(TAG, "SingleReceiver: " + "audioPath = " + audioPath
+                                + " ;audioDuration = " + DataUtil.msFormmmssTime(audioDuration));
+                        sendVoiceMsg(new File(audioPath), (int) audioDuration
+                                , System.currentTimeMillis() + "_" + "FCJMG");
+                        isSendVoice = false;
+                    }
+                    break;
+            }
         }
     }
 }

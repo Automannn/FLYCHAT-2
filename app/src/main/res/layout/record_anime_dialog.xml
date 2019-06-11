@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingBottom="?heightD">
+
+    <jaygoo.widget.wlv.WaveLineView
+        android:id="@+id/wave_line"
+        android:layout_width="@dimen/dp_360"
+        android:layout_height="match_parent"
+        app:wlvBackgroundColor="#00000000"
+        app:wlvMoveSpeed="-290"
+        app:wlvLineColor="@color/colorAccent"
+        app:wlvThickLineWidth="@dimen/dp_5"
+        app:wlvFineLineWidth="@dimen/dp_3"
+        app:wlvSensibility="8"/>
+
+    <TextView
+        android:id="@+id/counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginTop="@dimen/dp_20"
+        android:text="00:00"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:textColor="@color/colorAccent"
+        android:textSize="@dimen/sp_20"/>
+
+</RelativeLayout>

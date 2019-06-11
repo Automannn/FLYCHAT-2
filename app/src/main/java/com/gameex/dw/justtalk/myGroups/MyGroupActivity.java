@@ -160,6 +160,8 @@ public class MyGroupActivity extends BaseActivity implements View.OnClickListene
         animator.setRemoveDuration(300);
         mGroups.setItemAnimator(animator);
         mGroups.setLayoutManager(new LinearLayoutManager(this));
+        mAdapter = new MyGroupsAdapter(this, mGroupInfos);
+        mGroups.setAdapter(mAdapter);
         getGroups();
     }
 
@@ -179,9 +181,7 @@ public class MyGroupActivity extends BaseActivity implements View.OnClickListene
                                 if (i == 0) {
                                     LogUtil.d(TAG, "getGroups-getGroupIdList: " + groupInfo.toJson());
                                     mGroupInfos.add(groupInfo);
-                                    mAdapter = new MyGroupsAdapter(
-                                            MyGroupActivity.this, mGroupInfos);
-                                    mGroups.setAdapter(mAdapter);
+                                    mAdapter.notifyItemInserted(mGroupInfos.size()-1);
                                 } else {
                                     LogUtil.d(TAG, "getGroups-getGroupIdList: " + "responseCode = "
                                             + i + " ;desc = " + s);

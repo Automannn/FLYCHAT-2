@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -23,6 +24,7 @@ import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.animation.AwardRotateAnimation;
 import com.gameex.dw.justtalk.imgBrowse.PhotoBrowseActivity;
 import com.gameex.dw.justtalk.redPackage.RedDetailActivity;
+import com.gameex.dw.justtalk.soundController.VoiceSpeaker;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
@@ -48,8 +50,11 @@ import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
+import cn.jpush.im.android.api.content.VoiceContent;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import es.dmoral.toasty.Toasty;
+import jaygoo.widget.wlv.WaveLineView;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -147,21 +152,32 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                 holder.leftMsg.setText(textContent.getText());
                 holder.leftImg.setVisibility(View.GONE);
                 holder.redMsgLeft.setVisibility(View.GONE);
+                holder.voiceMsgLeft.setVisibility(View.GONE);
                 break;
             case image:
                 ImageContent imageContent = (ImageContent) message.getContent();
                 holder.leftMsg.setVisibility(View.GONE);
                 holder.redMsgLeft.setVisibility(View.GONE);
+                holder.voiceMsgLeft.setVisibility(View.GONE);
                 holder.leftImg.setVisibility(View.VISIBLE);
                 Glide.with(mContext)
                         .load(imageContent.getLocalThumbnailPath())
                         .into(holder.leftImg);
+                break;
+            case voice:
+                VoiceContent voiceContent = (VoiceContent) message.getContent();
+                holder.leftMsg.setVisibility(View.GONE);
+                holder.leftImg.setVisibility(View.GONE);
+                holder.redMsgLeft.setVisibility(View.GONE);
+                holder.voiceMsgLeft.setVisibility(View.VISIBLE);
+                holder.voiceDurationLeft.setText(voiceContent.getDuration() / 1000 + "");
                 break;
             case custom:
                 CustomContent customContent = (CustomContent) message.getContent();
                 String blessings = customContent.getStringValue("blessings");
                 holder.leftMsg.setVisibility(View.GONE);
                 holder.leftImg.setVisibility(View.GONE);
+                holder.voiceMsgLeft.setVisibility(View.GONE);
                 holder.redMsgLeft.setVisibility(View.VISIBLE);
                 holder.redMessageLeft.setText(blessings);
                 break;
@@ -198,6 +214,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                 holder.rightMsg.setVisibility(View.VISIBLE);
                 holder.rightMsg.setText(textContent.getText());
                 holder.rightImg.setVisibility(View.GONE);
+                holder.voiceMsgRight.setVisibility(View.GONE);
                 holder.redMsgRight.setVisibility(View.GONE);
                 break;
             case image:
@@ -205,15 +222,25 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                 holder.rightMsg.setVisibility(View.GONE);
                 holder.rightImg.setVisibility(View.VISIBLE);
                 holder.redMsgRight.setVisibility(View.GONE);
+                holder.voiceMsgRight.setVisibility(View.GONE);
                 Glide.with(mContext)
                         .load(imageContent.getLocalThumbnailPath())
                         .into(holder.rightImg);
+                break;
+            case voice:
+                VoiceContent voiceContent = (VoiceContent) message.getContent();
+                holder.rightMsg.setVisibility(View.GONE);
+                holder.rightImg.setVisibility(View.GONE);
+                holder.redMsgRight.setVisibility(View.GONE);
+                holder.voiceMsgRight.setVisibility(View.VISIBLE);
+                holder.voiceDurationRight.setText(voiceContent.getDuration() / 1000 + "");
                 break;
             case custom:
                 CustomContent customContent = (CustomContent) message.getContent();
                 String blessings = customContent.getStringValue("blessings");
                 holder.rightMsg.setVisibility(View.GONE);
                 holder.rightImg.setVisibility(View.GONE);
+                holder.voiceMsgRight.setVisibility(View.GONE);
                 holder.redMsgRight.setVisibility(View.VISIBLE);
                 holder.redMessageRight.setText(blessings);
                 break;
@@ -226,48 +253,75 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
     }
 
     class GroupChatHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        LinearLayout leftLayout, rightLayout, leftMsgLayout, rightMsgLayout, redMsgLeft, redMsgRight;
+        LinearLayout leftLayout, rightLayout, leftMsgLayout, rightMsgLayout, redMsgLeft, redMsgRight, voiceMsgLeft, voiceMsgRight;
         CircularImageView leftCircle, rightCircle;
-        TextView receiveTime, sendTime, redMessageLeft, redMessageRight;
+        TextView receiveTime, sendTime, redMessageLeft, redMessageRight, voiceDurationLeft, voiceDurationRight;
         ImageView open;
         EmojiTextView leftMsg, rightMsg;
         RoundedImageView leftImg, rightImg;
+        WaveLineView voiceLineLeft, voiceLineRight;
 
         private PopupWindow redPup;
+
+        private boolean flag = true;
+        private int counter;
 
         GroupChatHolder(@NonNull View itemView) {
             super(itemView);
             showRedPup();
             int[] ints = WindowUtil.getWH(GroupChatActivity.sActivity);
+            //发送方消息ui
             leftLayout = itemView.findViewById(R.id.left_msg_linear);
             leftMsgLayout = itemView.findViewById(R.id.msg_receive_layout);
-            rightLayout = itemView.findViewById(R.id.right_msg_linear);
-            rightMsgLayout = itemView.findViewById(R.id.msg_send_layout);
+            //发送方头像
             leftCircle = itemView.findViewById(R.id.user_icon_left);
             leftCircle.setOnClickListener(this);
+            //发送方发送的语音信息
+            voiceMsgLeft = itemView.findViewById(R.id.voice_msg_left);
+            voiceMsgLeft.setOnClickListener(this);
+            voiceLineLeft = itemView.findViewById(R.id.voice_line_left);
+            voiceDurationLeft = itemView.findViewById(R.id.voice_duration_left);
+            //发送方图片消息
             leftImg = itemView.findViewById(R.id.img_left);
             leftImg.setMaxWidth(ints[0] / 2);
             leftImg.setMaxHeight(ints[1] / 3);
             leftImg.setScaleType(ImageView.ScaleType.CENTER);
             leftImg.setOnClickListener(this);
+            //发送方文本消息
             leftMsg = itemView.findViewById(R.id.user_msg_left);
             leftMsg.setOnClickListener(this);
+            //发送方红包消息
             redMsgLeft = itemView.findViewById(R.id.red_msg_left);
             redMsgLeft.setOnClickListener(this);
             redMessageLeft = itemView.findViewById(R.id.red_message_left);
+            //发送方发送消息的时间
             receiveTime = itemView.findViewById(R.id.msg_time_receive);
+
+            //用户消息ui
+            rightLayout = itemView.findViewById(R.id.right_msg_linear);
+            rightMsgLayout = itemView.findViewById(R.id.msg_send_layout);
+            //用户头像
             rightCircle = itemView.findViewById(R.id.user_icon_right);
             rightCircle.setOnClickListener(this);
+            //用户收到的语音信息
+            voiceMsgRight = itemView.findViewById(R.id.voice_msg_right);
+            voiceMsgRight.setOnClickListener(this);
+            voiceLineRight = itemView.findViewById(R.id.voice_line_right);
+            voiceDurationRight = itemView.findViewById(R.id.voice_duration_right);
+            ////用户发送的图片消息
             rightImg = itemView.findViewById(R.id.img_right);
             rightImg.setMaxWidth(ints[0] / 2);
             rightImg.setMaxHeight(ints[1] / 3);
             rightImg.setScaleType(ImageView.ScaleType.CENTER);
             rightImg.setOnClickListener(this);
+            //用户发送的文本消息
             rightMsg = itemView.findViewById(R.id.user_msg_right);
             rightMsg.setOnClickListener(this);
+            //用户发送的红包消息
             redMsgRight = itemView.findViewById(R.id.red_msg_right);
             redMsgRight.setOnClickListener(this);
             redMessageRight = itemView.findViewById(R.id.red_message_right);
+            //用户发送消息的时间
             sendTime = itemView.findViewById(R.id.msg_time_send);
         }
 
@@ -277,6 +331,23 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
             switch (view.getId()) {
                 case R.id.user_icon_left:
                     Toast.makeText(mContext, "查看用户信息", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.voice_msg_left:   //发送方语音信息
+                    VoiceContent voiceReceive = (VoiceContent) message.getContent();
+                    voiceReceive.downloadVoiceFile(message, new DownloadCompletionCallback() {
+                        @Override
+                        public void onComplete(int i, String s, File file) {
+                            if (i == 0) {
+                                flag = true;
+                                VoiceSpeaker.getInstance().speakSingle(file.getAbsolutePath());
+                                startCountDown(voiceLineLeft, voiceDurationLeft, voiceReceive.getDuration());
+                            } else {
+                                Toasty.error(mContext, "文件拉取失败", Toasty.LENGTH_SHORT).show();
+                                LogUtil.e(TAG, "onClick-voice_msg_left: "
+                                        + "responseCode = " + i + " ;desc = " + s);
+                            }
+                        }
+                    });
                     break;
                 case R.id.red_msg_left:
                     CustomContent customContentLeft = (CustomContent) message.getContent();
@@ -304,6 +375,24 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                     break;
                 case R.id.user_icon_right:
                     Toast.makeText(mContext, "查看自己的信息", Toast.LENGTH_SHORT).show();
+                    break;
+                case R.id.voice_msg_right:  //接收到的语音信息
+                    VoiceContent voiceSend = (VoiceContent) message.getContent();
+                    voiceSend.downloadVoiceFile(message, new DownloadCompletionCallback() {
+                        @Override
+                        public void onComplete(int i, String s, File file) {
+                            if (i == 0) {
+                                flag = true;
+                                VoiceSpeaker.getInstance().speakSingle(file.getAbsolutePath());
+                                startCountDown(voiceLineRight, voiceDurationRight, voiceSend.getDuration());
+                            } else {
+                                Toasty.error(mContext, "文件拉取失败", Toasty.LENGTH_SHORT).show();
+                                LogUtil.e(TAG, "onClick-voice_msg_right: "
+                                        + "responseCode = " + i + " ;desc = " + s);
+                            }
+                        }
+                    });
+                    break;
                 case R.id.close:
                     if (redPup != null && redPup.isShowing()) {
                         redPup.dismiss();
@@ -445,6 +534,34 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                     }
                 }
             });
+        }
+
+        /**
+         * 倒计时
+         */
+        private void startCountDown(WaveLineView waveLine, TextView text
+                , int duration) {
+            waveLine.startAnim();
+            counter = duration / 1000;
+            Handler handler = new Handler();
+            Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                    handler.postDelayed(this, 1000);
+                    if (flag) {
+                        counter--;
+                        if (counter < 0) {
+                            flag = false;
+                            waveLine.stopAnim();
+                            text.setText(duration / 1000 + "");
+                            handler.removeCallbacks(this);
+                            return;
+                        }
+                        text.setText(counter + "");
+                    }
+                }
+            };
+            handler.post(runnable);
         }
     }
 }

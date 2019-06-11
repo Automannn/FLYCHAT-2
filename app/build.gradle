@@ -111,4 +111,8 @@ dependencies {
     implementation(name: 'MobilePayment-v1.0.0', ext: 'aar')
 
     implementation 'com.github.GrenderG:Toasty:1.4.2'
+    implementation 'com.github.cazaea:sweet-alert-dialog:1.0.0'
+    implementation 'com.allenliu.versionchecklib:library:2.2.0'
+    implementation 'com.daimajia.numberprogressbar:library:1.4@aar'
+    implementation 'com.github.Jay-Goo:WaveLineView:v1.0.3'
 }

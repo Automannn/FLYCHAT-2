@@ -234,6 +234,11 @@
         <item name="android:windowEnterAnimation">@anim/scale_alpha_in</item>
         <item name="android:windowExitAnimation">@anim/scale_alpha_out</item>
     </style>
+    <!-- 录音dialog弹窗动画 -->
+    <style name="RecordDialog" parent="android:Animation">
+        <item name="android:windowEnterAnimation">@anim/translate_scale_alpha_up</item>
+        <item name="android:windowExitAnimation">@anim/translate_scale_alpha_down</item>
+    </style>
 
     <!-- Checkbox style -->
     <style name="rem_checkbox" parent="@android:style/Widget.Material.CompoundButton.CheckBox" tools:targetApi="lollipop">
@@ -291,5 +296,31 @@
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar"/>
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light"/>
+
+
+    <style name="CusVersionDialog" parent="android:Theme.Light">
+        <item name="android:windowFrame">@null</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:windowIsFloating">true</item>
+        <item name="android:windowContentOverlay">@null</item>
+
+    </style>
+
+    <style name="CusNumberProgressBar_Relax_Blue">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_width">match_parent</item>
+
+        <item name="progress_max">100</item>
+        <item name="progress_current">0</item>
+
+        <item name="progress_unreached_color">#CCCCCC</item>
+        <item name="progress_reached_color">#6DBCDB</item>
+        <item name="progress_text_size">@dimen/sp_13</item>
+        <item name="progress_text_color">@color/colorAccent</item>
+
+        <item name="progress_reached_bar_height">1.5dp</item>
+        <item name="progress_unreached_bar_height">0.75dp</item>
+    </style>
 
 </resources>

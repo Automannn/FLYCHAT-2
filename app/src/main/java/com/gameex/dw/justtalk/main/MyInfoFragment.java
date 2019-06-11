@@ -26,6 +26,7 @@ import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.payPackage.ChangeActivity;
 import com.gameex.dw.justtalk.userInfo.SettingActivity;
 import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
+import com.gameex.dw.justtalk.util.UpdateApkUtil;
 import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
@@ -65,6 +66,7 @@ public class MyInfoFragment extends Fragment implements View.OnClickListener {
     private UserInfo mUserInfo;
     private Dialog mQRCodeDialog;
     private UpdateMyInfoReceiver mReceiver;
+    private UpdateApkUtil mApkUtil;
 
     @Override
     public void onAttach(Context context) {
@@ -78,6 +80,7 @@ public class MyInfoFragment extends Fragment implements View.OnClickListener {
         IntentFilter filter = new IntentFilter();
         filter.addAction(UPDATE_USER_INFO);
         Objects.requireNonNull(getActivity()).registerReceiver(mReceiver, filter);
+        mApkUtil = new UpdateApkUtil(getActivity());
     }
 
     @Nullable
@@ -97,6 +100,7 @@ public class MyInfoFragment extends Fragment implements View.OnClickListener {
     public void onDestroy() {
         super.onDestroy();
         Objects.requireNonNull(getActivity()).unregisterReceiver(mReceiver);
+        mApkUtil.cancelUpdate();
     }
 
     /**
@@ -209,23 +213,24 @@ public class MyInfoFragment extends Fragment implements View.OnClickListener {
                 startActivity(intent);
                 break;
             case R.id.fly_chat_store_layout:
-                Toasty.info(Objects.requireNonNull(getActivity()),"进入商城"
-                        ,Toasty.LENGTH_SHORT,true).show();
+                mApkUtil.sendRequest();
+                Toasty.info(Objects.requireNonNull(getActivity()), "进入商城"
+                        , Toasty.LENGTH_SHORT, true).show();
                 break;
             case R.id.scan_layout:
                 requestPermission();
                 break;
             case R.id.my_favorite_layout:
-                Toasty.custom(Objects.requireNonNull(getActivity()),"查看收藏条目",R.drawable.favorite
-                        , R.color.colorAccent,700,true,true).show();
+                Toasty.custom(Objects.requireNonNull(getActivity()), "查看收藏条目", R.drawable.favorite
+                        , R.color.colorAccent, 700, true, true).show();
                 break;
             case R.id.setting_layout:
                 intent.setClass(BottomBarActivity.sBottomBarActivity, SettingActivity.class);
                 startActivity(intent);
                 break;
             case R.id.online_service_layout:
-                Toasty.normal(Objects.requireNonNull(getActivity()),"请求客服"
-                        ,R.drawable.vector_hook_check).show();
+                Toasty.normal(Objects.requireNonNull(getActivity()), "请求客服"
+                        , R.drawable.vector_hook_check).show();
                 break;
             default:
                 break;

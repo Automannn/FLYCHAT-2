@@ -10,6 +10,8 @@
         android:name="${applicationId}.permission.JPUSH_MESSAGE"
         android:protectionLevel="signature"/>
 
+    <uses-permission android:name="android.permission.RECORD_AUDIO"/>
+
     <uses-permission android:name="${applicationId}.permission.JPUSH_MESSAGE"/>
     <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -53,6 +55,12 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:appComponentFactory,android:icon">
+        <service
+            android:name=".soundController.RecordingService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
         <activity android:name=".payPackage.PayResultActivity">
         </activity>
         <activity android:name=".userInfo.EditMyInfoActivity">

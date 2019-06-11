@@ -18,7 +18,7 @@
 
         <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="@dimen/dp_54">
+            android:layout_height="@dimen/dp_74">
 
             <ImageView
                 android:id="@+id/back"
@@ -101,22 +101,40 @@
             app:siBorderColor="@color/colorGray"
             app:siBorderWidth="@dimen/dp_1"/>
 
-        <com.vanniktech.emoji.EmojiEditText
-            android:id="@+id/send_edit"
+        <RelativeLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:background="@drawable/chat_edit_bg"
-            android:hint="@string/chat_edit_hint_str"
-            android:imeOptions="actionSend"
-            android:inputType="textCapSentences|textMultiLine"
-            android:paddingLeft="5dp"
-            android:paddingRight="5dp"
-            android:paddingBottom="@dimen/dp_5"
-            android:textColor="@color/colorMineThemeText"
-            android:textCursorDrawable="@drawable/cursor_dra"
-            android:textSize="?smallFont"
-            tools:ignore="Autofill"/>
+            android:layout_weight="1">
+
+            <com.vanniktech.emoji.EmojiEditText
+                android:id="@+id/send_edit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/chat_edit_bg"
+                android:hint="@string/chat_edit_hint_str"
+                android:imeOptions="actionSend"
+                android:inputType="textMultiLine|textCapSentences"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingBottom="@dimen/dp_5"
+                android:textColor="@color/colorMineThemeText"
+                android:textCursorDrawable="@drawable/cursor_dra"
+                android:textSize="?smallFont"
+                tools:ignore="Autofill"/>
+
+            <Button
+                android:id="@+id/record_voice"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorWhite"
+                android:text="@string/record_voice_str"
+                android:background="@drawable/dark_gray_light_blue_rip"
+                android:gravity="center"
+                android:visibility="gone"
+                android:padding="@dimen/dp_8"
+                android:textSize="?smallFont"/>
+
+        </RelativeLayout>
 
         <com.github.siyamed.shapeimageview.CircularImageView
             android:id="@+id/emoji_circle"

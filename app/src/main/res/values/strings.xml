@@ -53,6 +53,7 @@
     <string name="chat_edit_hint_str">请输入…</string>
     <string name="send_btn_text_str">发&#160;&#160;&#160;&#160;送</string>
     <string name="set_font_size_str">字体大小</string>
+    <string name="record_voice_str">按住说话</string>
 
     <string name="invite_by_message_str">短信邀请</string>
     <string name="invite_by_wechat_str">邀请微信好友</string>
@@ -112,6 +113,7 @@
     <string name="cash_withdrawal_str">提现</string>
     <string name="my_bank_card_str">我的银行卡</string>
     <string name="my_red_packet_record_str">我的红包记录</string>
+    <string name="bind_alipay_str">绑定支付宝</string>
     <string name="recharge_change_str">零钱充值</string>
     <string name="recharge_yuan_str">充值金额</string>
     <string name="recharge_next_notice_str">充值到账会略有延迟 , 请稍后查询</string>

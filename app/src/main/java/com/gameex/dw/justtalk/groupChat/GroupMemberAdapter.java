@@ -1,7 +1,7 @@
 package com.gameex.dw.justtalk.groupChat;
 
 import android.content.Context;
-import android.net.Uri;
+import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,11 +19,11 @@ import androidx.recyclerview.widget.RecyclerView;
 public class GroupMemberAdapter extends RecyclerView.Adapter<GroupMemberAdapter.GroupMemberHolder> {
 
     private Context mContext;
-    private List<Uri> mUris;
+    private List<Bitmap> mBitmaps;
 
-    GroupMemberAdapter(Context context, List<Uri> uris) {
+    GroupMemberAdapter(Context context, List<Bitmap> bitmaps) {
         mContext = context;
-        mUris = uris;
+        mBitmaps = bitmaps;
     }
 
     @NonNull
@@ -39,15 +39,15 @@ public class GroupMemberAdapter extends RecyclerView.Adapter<GroupMemberAdapter.
         if (position == 0) {
             holder.groupMaster.setVisibility(View.VISIBLE);
         }
-        Uri uri = mUris.get(position);
+        Bitmap bitmap = mBitmaps.get(position);
         Glide.with(mContext)
-                .load(uri)
+                .load(bitmap)
                 .into(holder.icon);
     }
 
     @Override
     public int getItemCount() {
-        return mUris == null ? 0 : mUris.size();
+        return mBitmaps == null ? 0 : mBitmaps.size();
     }
 
     class GroupMemberHolder extends RecyclerView.ViewHolder {

@@ -1,6 +1,11 @@
 package com.gameex.dw.justtalk.singleChat;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -11,15 +16,19 @@ import android.os.Handler;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.Toast;
 
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
+import com.gameex.dw.justtalk.soundController.RecordingService;
 import com.gameex.dw.justtalk.emoji.PageTransformer;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
@@ -34,22 +43,20 @@ import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
-import com.vanniktech.emoji.listeners.OnEmojiBackspaceClickListener;
-import com.vanniktech.emoji.listeners.OnEmojiPopupDismissListener;
-import com.vanniktech.emoji.listeners.OnEmojiPopupShownListener;
-import com.vanniktech.emoji.listeners.OnSoftKeyboardCloseListener;
-import com.vanniktech.emoji.listeners.OnSoftKeyboardOpenListener;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.filter.Filter;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DefaultItemAnimator;
@@ -64,6 +71,7 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
 import cn.jpush.im.api.BasicCallback;
+import es.dmoral.toasty.Toasty;
 
 import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
 
@@ -77,6 +85,15 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
      * 单聊红包请求码
      */
     private static final int REQUEST_SINGLE_RED_PACKAGE = 102;
+    /**
+     * 调用系统的录音功能
+     */
+    private static final int REQUEST_RECORDER = 100;
+    /**
+     * 录音完成
+     */
+    public static final String RECORD_COMPLETE =
+            "com.gameex.dw.justtalk.singleChat.ChattingActivity.RECORD_COMPLETE";
 
     private ViewGroup mRootView;
     private TitleBarView mTitleBar;
@@ -85,6 +102,10 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     private LinearLayout mSendLayout;
     private EmojiEditText mSendText;
     private CircularImageView mVoiceCircle, mEmojiCircle, mCircleView;
+    /**
+     * 按住说话
+     */
+    private Button mRecord;
     private EmojiPopup mEmojiPopup;
     private GridView mGridView;
     private SimpleAdapter mSimpleAdapter;
@@ -117,16 +138,59 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
      * 记录键盘高度
      */
     private int mInt = -1;
+    private float posY, curY;
+    private boolean isSendVoice = false;
+    private SingleReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initView();
+        mReceiver = new SingleReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(RECORD_COMPLETE);
+        registerReceiver(mReceiver, filter);
+    }
+
+    @SuppressLint("CheckResult")
+    private void requestPermission() {
+        new RxPermissions(this)
+                .request(Manifest.permission.RECORD_AUDIO)
+                .subscribe(granted -> {
+                    if (granted) {
+                        if (mRecord.getVisibility() == View.VISIBLE) {
+                            YoYo.with(Techniques.SlideOutDown)
+                                    .duration(200)
+                                    .onEnd(animator -> mRecord.setVisibility(View.GONE))
+                                    .playOn(mRecord);
+                            mSendText.setVisibility(View.VISIBLE);
+                            YoYo.with(Techniques.SlideInDown)
+                                    .duration(200)
+                                    .playOn(mSendText);
+                        } else {
+                            if (mIMM != null && heightDifference > navigationBarHeight) {
+                                mIMM.hideSoftInputFromWindow(mVoiceCircle.getWindowToken(), 0);
+                            }
+                            mRecord.setVisibility(View.VISIBLE);
+                            YoYo.with(Techniques.SlideInUp)
+                                    .duration(200)
+                                    .playOn(mRecord);
+                            YoYo.with(Techniques.SlideOutUp)
+                                    .duration(200)
+                                    .onEnd(animator -> mSendText.setVisibility(View.GONE))
+                                    .playOn(mSendText);
+                        }
+                    } else {
+                        Toast.makeText(this
+                                , "无法开启录音功能", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     /**
      * 绑定id，设置监听
      */
+    @SuppressLint("ClickableViewAccessibility")
     private void initView() {
         setContentView(R.layout.activity_chatting);
         mRootView = findViewById(R.id.view_single);
@@ -184,6 +248,28 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         mSendLayout = findViewById(R.id.send_linear);
         mVoiceCircle = findViewById(R.id.voice_msg);
         mVoiceCircle.setOnClickListener(this);
+        mRecord = findViewById(R.id.record_voice);
+        mRecord.setOnTouchListener((view, motionEvent) -> {
+            Intent intent = new Intent(this, RecordingService.class);
+            switch (motionEvent.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    startService(intent);
+                    posY = motionEvent.getY();
+                    break;
+                case MotionEvent.ACTION_MOVE:
+                    curY = motionEvent.getY();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    stopService(intent);
+                    if (posY > curY) {
+                        isSendVoice = true;
+                    } else {
+                        Toasty.normal(ChattingActivity.this, "取消发送", Toasty.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
+            return true;
+        });
         mSendText = findViewById(R.id.send_edit);
         mSendText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -224,7 +310,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                     mSendLayout.getLayoutParams();
             if (heightDifference > navigationBarHeight) {
                 if (mGridView.getVisibility() == View.VISIBLE) {
-                    mGridView.setVisibility(View.GONE);
+                    showFunction();
                 }
                 if (mHeightDifference == 0 && params.bottomMargin != mInt) {
                     params.bottomMargin = heightDifference;
@@ -301,17 +387,17 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.voice_msg:    //发送语音
-                Toast.makeText(this, "发送语音", Toast.LENGTH_SHORT).show();
+                requestPermission();
                 break;
             case R.id.emoji_circle: //发送表情
                 mEmojiPopup.toggle();
                 break;
             case R.id.send_circle:  //发送文本
-                String content = mSendText.getText().toString();
+                String content = Objects.requireNonNull(mSendText.getText()).toString();
                 if (content.isEmpty()) {
                     if (mIMM != null && heightDifference > navigationBarHeight) {
                         mIMM.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                        new Handler().postDelayed(() -> showFunction(), 50);
+                        new Handler().postDelayed(this::showFunction, 50);
                     } else {
                         showFunction();
                     }
@@ -330,8 +416,14 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     private void showFunction() {
         if (mGridView.getVisibility() == View.GONE) {
             mGridView.setVisibility(View.VISIBLE);
+            YoYo.with(Techniques.SlideInUp)
+                    .duration(200)
+                    .playOn(mGridView);
         } else {
-            mGridView.setVisibility(View.GONE);
+            YoYo.with(Techniques.SlideOutDown)
+                    .duration(200)
+                    .onEnd(animator -> mGridView.setVisibility(View.GONE))
+                    .playOn(mGridView);
         }
     }
 
@@ -371,6 +463,9 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 break;
             case image:
                 msgInfo.setMsgLast("图片");
+                break;
+            case voice:
+                msgInfo.setMsgLast("语音");
                 break;
             case custom:
                 msgInfo.setMsgLast("红包");
@@ -436,6 +531,25 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     }
 
     /**
+     * 发送语音消息
+     *
+     * @param voiceFile 语音文件
+     * @param duration  语音时长
+     * @param name      保存的名字
+     */
+    private void sendVoiceMsg(File voiceFile, int duration, String name) {
+        if (mConversation == null) {
+            mConversation = Conversation.createSingleConversation(mUserInfo.getUserName());
+        }
+        try {
+            Message message = mConversation.createSendVoiceMessage(voiceFile, duration, name);
+            sendListener(message, false);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
      * 创建自定义消息
      *
      * @param map 自定义消息键值对
@@ -496,6 +610,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         super.onDestroy();
         JMessageClient.exitConversation();
         JMessageClient.unRegisterEventReceiver(this);
+        unregisterReceiver(mReceiver);
     }
 
     @Override
@@ -531,9 +646,31 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     @Override
     public void onBackPressed() {
         if (mGridView.getVisibility() == View.VISIBLE) {
-            mGridView.setVisibility(View.GONE);
+            showFunction();
         } else {
             super.onBackPressed();
+        }
+    }
+
+    class SingleReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            assert action != null;
+            switch (action) {
+                case RECORD_COMPLETE:
+                    if (isSendVoice) {
+                        String audioPath = intent.getStringExtra("audio_path");
+                        long audioDuration = intent.getLongExtra("elpased", 0);
+                        LogUtil.d(TAG, "SingleReceiver: " + "audioPath = " + audioPath
+                                + " ;audioDuration = " + DataUtil.msFormmmssTime(audioDuration));
+                        sendVoiceMsg(new File(audioPath), (int) audioDuration
+                                , System.currentTimeMillis() + "_" + "FCJMS");
+                        isSendVoice = false;
+                    }
+                    break;
+            }
         }
     }
 }

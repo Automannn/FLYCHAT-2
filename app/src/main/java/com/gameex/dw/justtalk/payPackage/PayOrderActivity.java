@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import androidx.annotation.Nullable;
+import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -52,8 +53,7 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
         @Override
         public void handleMessage(Message msg) {
 //            Resul result = new Result((String) msg.obj);
-            Toast.makeText(PayOrderActivity.this, "支付成功",
-                    Toast.LENGTH_LONG).show();
+            Toasty.success(PayOrderActivity.this,"支付成功").show();
             Intent intent = new Intent();
             intent.putExtra("pay_success", true);
             setResult(RESULT_OK, intent);
@@ -103,7 +103,7 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
     private void initData() {
         Intent intent = getIntent();
         mYuan = intent.getIntExtra("money_amount", -1);
-        mPayType = "UNIONPAY";
+        mPayType = ALI_PAY;
     }
 
     /**

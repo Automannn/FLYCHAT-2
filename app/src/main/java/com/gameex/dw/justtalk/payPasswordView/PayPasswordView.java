@@ -21,6 +21,8 @@ import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
 
+import es.dmoral.toasty.Toasty;
+
 public class PayPasswordView extends RelativeLayout implements View.OnClickListener {
 
     Context context;
@@ -113,7 +115,7 @@ public class PayPasswordView extends RelativeLayout implements View.OnClickListe
                         tvList[currentIndex--].setText("");
                     }
                 } else {
-                    Toast.makeText(context, "某种逻辑", Toast.LENGTH_SHORT).show();
+                    Toasty.warning(context, "某种逻辑", 2000).show();
                 }
             }
         });

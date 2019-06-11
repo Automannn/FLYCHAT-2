@@ -30,7 +30,7 @@ public class RechargeActivity extends BaseActivity implements View.OnClickListen
     /**
      * 金额面板数据
      */
-    private int[] mYuanArray = {10, 30, 50, 100, 200, 500, 1000};
+    private int[] mYuanArray = {10, 50, 100, 500, 1000, 5000, 10000};
     /**
      * gridView适配器
      */

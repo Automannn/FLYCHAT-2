@@ -3,7 +3,10 @@ package com.gameex.dw.justtalk.payPackage;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.View;
@@ -31,7 +34,9 @@ import java.io.IOException;
 import java.util.HashMap;
 
 import androidx.annotation.Nullable;
+import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
+import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
 import static com.gameex.dw.justtalk.payPackage.BankCardActivity.ACCOUNT_CARD_BIND_QUERY;
@@ -80,6 +85,10 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
      */
     private RelativeLayout mMyRedRecord;
     /**
+     * 绑定支付宝
+     */
+    private RelativeLayout mBindAli;
+    /**
      * 父布局
      */
     private LinearLayout mLayout;
@@ -87,6 +96,16 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
      * 没绑定银行卡时的popupWindow
      */
     private PopupWindow mNoBankCardPup;
+
+    private Handler handler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Bundle data = msg.getData();
+            String val = data.getString("value");
+            LogUtil.i("mylog","请求结果-->" + val);
+        }
+    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,7 +120,7 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
     private void initView() {
         setContentView(R.layout.activity_change);
 
-        mLayout=findViewById(R.id.container);
+        mLayout = findViewById(R.id.container);
         mBack = findViewById(R.id.back);
         mMore = findViewById(R.id.more);
         mMyChange = findViewById(R.id.my_change);
@@ -109,6 +128,7 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
         mCashWithdrawal = findViewById(R.id.cash_withdrawal);
         mMyBankCard = findViewById(R.id.my_bank_card_layout);
         mMyRedRecord = findViewById(R.id.my_red_record_layout);
+        mBindAli=findViewById(R.id.bind_alipay_layout);
     }
 
     /**
@@ -121,6 +141,7 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
         mCashWithdrawal.setOnClickListener(this);
         mMyBankCard.setOnClickListener(this);
         mMyRedRecord.setOnClickListener(this);
+        mBindAli.setOnClickListener(this);
 //        initBalance();
         initNoBankCardPup();
     }
@@ -182,24 +203,22 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
     private void bindAli() {
         //支付宝沙盒模式
         EnvUtils.setEnv(EnvUtils.EnvEnum.SANDBOX);
-        OkHttpUtil.okHttpGet(ALIPAY_GETAUTH, new CallBackUtil.CallBackDefault() {
+        OkHttpUtil.okHttpGet(ALIPAY_GETAUTH, new CallBackUtil.CallBackString() {
             @Override
             public void onFailure(Call call, Exception e) {
                 e.printStackTrace();
-                Toast.makeText(ChangeActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+                Toasty.error(ChangeActivity.this,"网络错误",Toasty.LENGTH_SHORT).show();
             }
 
             @Override
-            public void onResponse(Response response) {
-                if (response.isSuccessful() && response.body() != null) {
-                    try {
-                        String path = response.body().string();
-                        LogUtil.d(TAG, "bindAli-onResponse: " + path);
-                        WindowUtil.openBrowser(ChangeActivity.this, path);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+            public void onResponse(String response) {
+                LogUtil.d(TAG, "bindAli-onResponse: " + response);
+                WindowUtil.openBrowser(ChangeActivity.this, response);
+//                Message msg = new Message();
+//                Bundle data = new Bundle();
+//                data.putString("value","请求结果");
+//                msg.setData(data);
+//                handler.sendMessage(msg);
             }
         });
     }
@@ -300,7 +319,7 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
                 finish();
                 break;
             case R.id.more:
-                Toast.makeText(this, "更多功能", Toast.LENGTH_SHORT).show();
+                Toasty.normal(this, "更多功能").show();
                 break;
             case R.id.recharge:
                 intent.setClass(this, RechargeActivity.class);
@@ -311,15 +330,16 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
                     mNoBankCardPup.showAtLocation(mLayout, Gravity.CENTER, 0, 0);
                     WindowUtil.showBackgroundAnimator(this, 0.5f);
                 }
-                Toast.makeText(this, "提现", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.my_bank_card_layout:
                 intent.setClass(this, BankCardActivity.class);
                 startActivity(intent);
                 break;
             case R.id.my_red_record_layout:
-                bindAli();
-                Toast.makeText(this, "我的红包记录", Toast.LENGTH_SHORT).show();
+                Toasty.normal(this,"我的红包记录").show();
+                break;
+            case R.id.bind_alipay_layout:
+                new Thread(this::bindAli).start();
                 break;
             case R.id.cancel:
                 if (mNoBankCardPup.isShowing()) {

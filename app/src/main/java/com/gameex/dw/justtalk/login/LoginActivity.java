@@ -1,6 +1,6 @@
 package com.gameex.dw.justtalk.login;
 
-import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,15 +8,15 @@ import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.allenliu.versionchecklib.v2.builder.DownloadBuilder;
+import com.cazaea.sweetalert.SweetAlertDialog;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.gameex.dw.justtalk.main.BottomBarActivity;
@@ -28,6 +28,7 @@ import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
+import com.gameex.dw.justtalk.util.UpdateApkUtil;
 import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
@@ -36,12 +37,15 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 import androidx.annotation.Nullable;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
+import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -60,7 +64,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private EditText mUsername, mPassword;
     private CheckBox mAutoLogin;
 
-    private ProgressDialog prosDialog;
+    private final Timer mTimer = new Timer();
+    private TimerTask mTask;
+    private int i = -1;
+    private SweetAlertDialog prosDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,6 +80,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             //这样半透明+白=灰, 状态栏的文字能看得清
 //            BarUtil.setStatusBarColor(this,0x55000000);
         }
+
     }
 
     /**
@@ -117,6 +125,49 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         quickSign.setOnClickListener(this);
         TextView forgotPwd = findViewById(R.id.forgot_pwd);
         forgotPwd.setOnClickListener(this);
+    }
+
+    /**
+     * 初始化进度弹窗
+     */
+    private void initProsDialog() {
+        prosDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
+        prosDialog.setTitleText("正在登录......");
+        prosDialog.setCancelable(false);
+        prosDialog.show();
+        mTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (i > 6) {
+                    i = 0;
+                }
+                i++;
+                switch (i) {
+                    case 0:
+                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorPrimary));
+                        break;
+                    case 1:
+                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorAccent));
+                        break;
+                    case 2:
+                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorBlueDeep));
+                        break;
+                    case 3:
+                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorGray));
+                        break;
+                    case 4:
+                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorCoffee));
+                        break;
+                    case 5:
+                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorRedDeep));
+                        break;
+                    case 6:
+                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorBlue));
+                        break;
+                }
+            }
+        };
+        mTimer.schedule(mTask, 800, 800);
     }
 
     @Override
@@ -197,12 +248,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         }
         if (!TextUtils.isEmpty(mUsername.getText())) {
             if (!TextUtils.isEmpty(mPassword.getText())) {
-                prosDialog = new ProgressDialog(this);
-                prosDialog.setTitle("提示");
-                prosDialog.setMessage("正在登录...");
-                prosDialog.setCancelable(false);
-                prosDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                prosDialog.show();
+                initProsDialog();
                 final String account = mUsername.getText().toString();
                 final String password = mPassword.getText().toString();
                 HashMap<String, String> paramsMap = new HashMap<>();
@@ -218,17 +264,18 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                         prosDialog.dismiss();
                         e.printStackTrace();
                         LogUtil.d(TAG, "checkToLogin-CallBackUtil-onFailure: ");
-                        Toast.makeText(LoginActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+                        Toasty.error(LoginActivity.this, "网络异常").show();
                     }
 
                     @Override
                     public void onResponse(Response response) {
                         if (response != null) {
-                            LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
-                                    + "response" + response);
                             try {
                                 assert response.body() != null;
-                                JSONObject jsonObject = new JSONObject(response.body().string());
+                                String resBody = response.body().string();
+                                LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
+                                        + "response" + resBody);
+                                JSONObject jsonObject = new JSONObject(resBody);
                                 JSONObject object = jsonObject.getJSONObject("data");
                                 boolean isSuccess = jsonObject.getBoolean("success");
                                 if (isSuccess) {
@@ -256,10 +303,10 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                                         LoginActivity.this, BottomBarActivity.class);
                                                 finish();
                                                 startActivity(intentLogin);
+                                                mTimer.cancel();
                                             } else {
                                                 prosDialog.dismiss();
-                                                Toast.makeText(LoginActivity.this,
-                                                        "登陆失败……", Toast.LENGTH_SHORT).show();
+                                                Toasty.error(LoginActivity.this, "登陆失败").show();
                                             }
                                         }
                                     });
@@ -271,21 +318,23 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                         YoYo.with(Techniques.Shake)
                                                 .duration(700)
                                                 .playOn(findViewById(R.id.username_layout));
-                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+                                        Toasty.warning(LoginActivity.this, message).show();
                                     } else if (code == 404) {
                                         YoYo.with(Techniques.Shake)
                                                 .duration(700)
                                                 .playOn(findViewById(R.id.password_layout));
-                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+                                        Toasty.warning(LoginActivity.this, message).show();
                                     } else {
                                         LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
                                                 + "code = " + code + " ;message = " + message);
-                                        Toast.makeText(LoginActivity.this, message + "", Toast.LENGTH_SHORT).show();
+                                        Toasty.error(LoginActivity.this, message).show();
                                     }
                                 }
                             } catch (JSONException e) {
+                                prosDialog.dismiss();
                                 e.printStackTrace();
                             } catch (IOException e) {
+                                prosDialog.dismiss();
                                 e.printStackTrace();
                             }
                         }
@@ -296,7 +345,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                     YoYo.with(Techniques.Shake)
                             .duration(700)
                             .playOn(findViewById(R.id.password_layout));
-                    Toast.makeText(LoginActivity.this, "请输入密码", Toast.LENGTH_SHORT).show();
+                    Toasty.warning(this, "请输入密码").show();
                 }
             }
         } else {
@@ -304,7 +353,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 YoYo.with(Techniques.Shake)
                         .duration(700)
                         .playOn(findViewById(R.id.username_layout));
-                Toast.makeText(this, "用户名不能为空", Toast.LENGTH_SHORT).show();
+                Toasty.warning(this, "用户名不能为空").show();
             }
         }
     }
@@ -313,8 +362,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login_btn:
-//                checkToLogin(1);
-                checkToLogin(-1);
+                checkToLogin(1);
+//                checkToLogin(-1);
                 break;
             case R.id.quick_sign_up:
                 Intent intentQuickSign = new Intent(this, SignUpActivity.class);
@@ -325,7 +374,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 startActivityForResult(intentQuickSign, SIGN_UP_REQUEST_CODE);
                 break;
             case R.id.forgot_pwd:
-                Toast.makeText(this, "找回密码", Toast.LENGTH_SHORT).show();
+                Toasty.info(this, "找回密码").show();
                 break;
             default:
                 break;
@@ -351,36 +400,5 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
             }
         }
         super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (prosDialog != null && prosDialog.isShowing()) {
-            prosDialog.dismiss();
-        }
-//        stopService(mIntentGetUser);
-    }
-
-    @Override
-    public void onBackPressed() {
-        if (prosDialog != null && prosDialog.isShowing()) {
-            prosDialog.dismiss();
-        }
-        super.onBackPressed();
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (prosDialog != null && prosDialog.isShowing()) {
-                prosDialog.dismiss();
-                LogUtil.d("KEYCODE_BACK", "dismiss dialog");
-            } else {
-                LoginActivity.this.finish();
-            }
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 }

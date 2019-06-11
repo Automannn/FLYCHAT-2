@@ -45,6 +45,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import es.dmoral.toasty.Toasty;
 
 import static com.gameex.dw.justtalk.main.MyInfoFragment.REQUEST_CODE_SCAN;
 
@@ -421,7 +422,7 @@ public class BottomBarActivity extends BaseActivity
             mTitleBarView.setSearchViewShow(false);
         } else {
             if (System.currentTimeMillis() - exitTime > 2000) {
-                Toast.makeText(sBottomBarActivity, "再按一次退出程序", Toast.LENGTH_SHORT).show();
+                Toasty.normal(this, "再按一次退出程序", Toasty.LENGTH_SHORT).show();
                 exitTime = System.currentTimeMillis();
             } else {
                 finish();
