@@ -13,11 +13,12 @@ import java.util.List;
 import java.util.Map;
 
 import androidx.multidex.MultiDexApplication;
+import cn.jiguang.share.android.api.JShareInterface;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.Message;
 
-public class JGApplication extends MultiDexApplication {
+public class FlayChatApplication extends MultiDexApplication {
     private static final String TAG = "JGAPPLICATION";
     /**
      * 极光AppKey
@@ -49,9 +50,11 @@ public class JGApplication extends MultiDexApplication {
     public void onCreate() {
         super.onCreate();
         LogUtil.i("IMDebugApplication", "init");
-        JMessageClient.setDebugMode(true);
-        JMessageClient.init(getApplicationContext(), true);
-        JPushInterface.init(getApplicationContext());
+//        JMessageClient.setDebugMode(true);  //极光im调式模式
+        JMessageClient.init(getApplicationContext(), true); //极光im sdk初始化，并启动消息漫游
+        JPushInterface.init(getApplicationContext());   //极光推送sdk初始化
+        JShareInterface.init(getApplicationContext());  //极光社会化分享sdk初始化
+//        JShareInterface.setDebugMode(true); //极光社会化分享调试模式
         JMessageClient.registerEventReceiver(
                 new GlobalEventListener(getApplicationContext()));
 

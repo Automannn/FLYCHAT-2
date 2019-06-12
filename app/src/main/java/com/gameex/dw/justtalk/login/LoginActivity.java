@@ -1,6 +1,5 @@
 package com.gameex.dw.justtalk.login;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -15,7 +14,6 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.allenliu.versionchecklib.v2.builder.DownloadBuilder;
 import com.cazaea.sweetalert.SweetAlertDialog;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
@@ -28,7 +26,6 @@ import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
-import com.gameex.dw.justtalk.util.UpdateApkUtil;
 import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
@@ -237,14 +234,16 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 @Override
                 public void gotResult(int responseCode, String registerDesc) {
                     LogUtil.i("LOGIN_ACTIVITY_LMESSAGE_LOGIN",
-                            "JMessageClient.register " +
+                            "JMessageClient.login " +
                                     ", responseCode = " + responseCode +
                                     " ; registerDesc = " + registerDesc);
+                    if (responseCode==0){
+                        Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
+                        startActivity(intentLogin);
+                        LoginActivity.this.finish();
+                    }
                 }
             });
-            Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
-            startActivity(intentLogin);
-            this.finish();
         }
         if (!TextUtils.isEmpty(mUsername.getText())) {
             if (!TextUtils.isEmpty(mPassword.getText())) {
@@ -332,9 +331,11 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                 }
                             } catch (JSONException e) {
                                 prosDialog.dismiss();
+                                Toasty.error(LoginActivity.this, "服务器挂了").show();
                                 e.printStackTrace();
                             } catch (IOException e) {
                                 prosDialog.dismiss();
+                                Toasty.error(LoginActivity.this, "服务器挂了").show();
                                 e.printStackTrace();
                             }
                         }
@@ -362,8 +363,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login_btn:
-                checkToLogin(1);
-//                checkToLogin(-1);
+//                checkToLogin(1);
+                checkToLogin(-1);
                 break;
             case R.id.quick_sign_up:
                 Intent intentQuickSign = new Intent(this, SignUpActivity.class);

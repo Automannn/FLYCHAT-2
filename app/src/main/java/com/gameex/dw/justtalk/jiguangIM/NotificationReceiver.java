@@ -3,7 +3,6 @@ package com.gameex.dw.justtalk.jiguangIM;
 import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.widget.Toast;
 
@@ -20,7 +19,7 @@ import androidx.appcompat.app.AlertDialog;
 import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.api.BasicCallback;
 
-import static com.gameex.dw.justtalk.JGApplication.APP_KEY;
+import static com.gameex.dw.justtalk.FlayChatApplication.APP_KEY;
 import static com.gameex.dw.justtalk.main.ContactFragment.ADD_CONTACT;
 import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
 

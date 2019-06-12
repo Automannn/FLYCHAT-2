@@ -69,7 +69,7 @@
 }
 
 -keepattributes Annotation
-   -keepclassmembers class * {    @org.greenrobot.eventbus.Subscribe ;}
-   -keep enum org.greenrobot.eventbus.ThreadMode { *; }
-   -keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {    (java.lang.Throwable);}
-   -keep class com.allenliu.versionchecklib.**{*;}
+#-keepclassmembers class * {@org.greenrobot.eventbus.Subscribe ;}
+-keep enum org.greenrobot.eventbus.ThreadMode {*;}
+#-keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {(java.lang.Throwable);}
+-keep class com.allenliu.versionchecklib.**{*;}

@@ -114,7 +114,7 @@ public abstract class BaseActivity extends AppCompatActivity {
      */
     private void setUISize(int state) {
         if (state == -1) {
-            state = mPref.getInt("ui_state", 25);
+            state = mPref.getInt("ui_state", 0);
             setUiSizePref(state);
         } else {
             setUiSizePref(state);

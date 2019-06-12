@@ -66,8 +66,6 @@ public class EditMyInfoActivity extends BaseActivity implements View.OnClickList
 
             @Override
             public void afterTextChanged(Editable editable) {
-                Toast.makeText(EditMyInfoActivity.this, editable.length() + ""
-                        , Toast.LENGTH_SHORT).show();
             }
         });
         mDone = findViewById(R.id.done);

@@ -408,7 +408,8 @@ public class BottomBarActivity extends BaseActivity
                 requestPermission();
                 break;
             case R.id.help_back_up_layout:
-                Toast.makeText(sBottomBarActivity, "帮助和反馈", Toast.LENGTH_SHORT).show();
+                WindowUtil.openBrowser(BottomBarActivity.this
+                        , "https://support.qq.com/product/63523");
                 break;
             default:
                 break;

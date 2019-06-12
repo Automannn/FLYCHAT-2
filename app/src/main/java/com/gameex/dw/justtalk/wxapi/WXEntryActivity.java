@@ -1,6 +1,5 @@
 package com.gameex.dw.justtalk.wxapi;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,7 +29,9 @@ import org.json.JSONObject;
 
 import java.lang.ref.WeakReference;
 
-public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
+import cn.jiguang.share.wechat.WeChatHandleActivity;
+
+public class WXEntryActivity extends WeChatHandleActivity implements IWXAPIEventHandler {
     private static String TAG = "MicroMsg.WXEntryActivity";
 
     private IWXAPI api;

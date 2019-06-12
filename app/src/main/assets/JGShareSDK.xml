@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<DevInfor>
+
+    <!-- 如果不需要支持某平台，可缺省该平台的配置-->
+
+    <!--<SinaWeibo-->
+        <!--AppKey="新浪微博的AppKey"-->
+        <!--AppSecret="新浪微博ppSecret"-->
+        <!--RedirectUrl="微博开放平台填写的授权回调页"/>-->
+
+    <QQ
+        AppId="101574877"
+        AppKey="8f8b04e7ea12d3c55e37f14dfe6f14b4"/>
+
+    <Wechat
+        AppId="wx440625ae89c4244d"
+        AppSecret="a7db03030c5dc8eb77bb9952fcb4fbee"/>
+
+    <!--<Facebook-->
+        <!--AppId="facebook 的 appId"-->
+        <!--AppName="facebook 后台填写的名称"-->
+    <!--/>-->
+
+    <!--<Twitter-->
+        <!--ConsumerKey="twitter 的 ConsumerKey"-->
+        <!--ConsumerSecret="twitter 的 ConsumerSecret"-->
+    <!--/>-->
+
+    <!-- 趣聊平台appkey的申请， 请查看入门指南的第三方平台申请文档 -->
+    <!--<JChatPro-->
+        <!--auth="申请后的 appkey"-->
+    <!--/>-->
+
+</DevInfor>

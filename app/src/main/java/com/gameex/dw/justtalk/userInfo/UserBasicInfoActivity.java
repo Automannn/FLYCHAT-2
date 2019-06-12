@@ -27,7 +27,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 
-import static com.gameex.dw.justtalk.JGApplication.APP_KEY;
+import static com.gameex.dw.justtalk.FlayChatApplication.APP_KEY;
 import static com.gameex.dw.justtalk.main.ContactFragment.ADD_CONTACT;
 import static com.gameex.dw.justtalk.main.ContactFragment.REMOVE_CONTACT;
 import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;

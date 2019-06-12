@@ -37,4 +37,6 @@
     <color name="colorBlackAlpha77">#77000000</color>
     <color name="gray">#999999</color>
 
+    <color name="yellow">#FFD700</color>
+
 </resources>

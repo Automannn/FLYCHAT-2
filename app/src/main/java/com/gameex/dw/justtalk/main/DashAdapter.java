@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,6 +31,8 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import es.dmoral.toasty.Toasty;
+import q.rorbin.badgeview.Badge;
+import q.rorbin.badgeview.QBadgeView;
 
 /**
  * 飞聊item的RecyclerView的adapter
@@ -71,6 +74,8 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         } else {
             holder.notifyOff.setVisibility(View.VISIBLE);
         }
+
+        holder.badge.setBadgeText("");
     }
 
     @Override
@@ -83,6 +88,7 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         CircularImageView userIcon;
         ImageView notifyOff;
         TextView userName, msgLast, msgTime;
+        Badge badge;
 
         DashHolder(@NonNull final View itemView) {
             super(itemView);
@@ -94,6 +100,19 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
             userName = itemView.findViewById(R.id.user_name);
             msgLast = itemView.findViewById(R.id.msg_last);
             msgTime = itemView.findViewById(R.id.msg_time);
+            badge = new QBadgeView(mContext).bindTarget(msgCard);
+            badge.setBadgeTextSize(14,true);
+//            badge.setBadgeTextColor(R.color.colorRed);
+            badge.setBadgePadding(8,true);
+            badge.setGravityOffset(22,2,true);
+            badge.setBadgeGravity(Gravity.BOTTOM | Gravity.END);
+            badge.setShowShadow(true);
+//            badge.stroke(0xffffffff,2,true);
+            badge.setBadgeBackgroundColor(0xffFF0000);
+            badge.setOnDragStateChangedListener((dragState, badge, targetView) -> {
+                if (dragState == Badge.OnDragStateChangedListener.STATE_SUCCEED)
+                    Toasty.info(mContext, "标为已读", Toasty.LENGTH_SHORT).show();
+            });
         }
 
         @Override
@@ -127,7 +146,7 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         public boolean onLongClick(View view) {
             switch (view.getId()) {
                 case R.id.message_card:
-                    Toasty.warning(mContext,"已删除",Toasty.LENGTH_SHORT,false);
+                    Toasty.warning(mContext, "已删除", Toasty.LENGTH_SHORT, false);
                     mMsgInfos.remove(mMsgInfos.get(getAdapterPosition()));
                     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
                     SharedPreferences.Editor editor = pref.edit();
