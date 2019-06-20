@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorMineBack"
+    android:orientation="vertical"
+    tools:context=".myNewFriends.NewFriendsActivity">
+
+    <LinearLayout
+        android:id="@+id/title_linear"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimary"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dp_74"
+            tools:ignore="UselessParent">
+
+            <ImageView
+                android:id="@+id/back"
+                android:layout_width="@dimen/dp_40"
+                android:layout_height="@dimen/dp_40"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/dp_5"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:background="@drawable/light_gray_rip_out"
+                android:padding="@dimen/dp_8"
+                android:src="@drawable/left_arrow"
+                tools:ignore="ContentDescription"/>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/dp_40"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="@dimen/dp_5"
+                android:layout_marginLeft="@dimen/dp_5"
+                android:layout_toEndOf="@id/back"
+                android:layout_toRightOf="@id/back"
+                android:gravity="center"
+                android:text="@string/new_friends"
+                android:textColor="@color/colorMineBack"
+                android:textSize="@dimen/sp_15"
+                tools:ignore="RelativeOverlap"/>
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_10">
+
+        <EditText
+            android:id="@+id/search_edit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/white_bg"
+            android:hint="@string/phone_str"
+            android:inputType="text"
+            android:maxLines="1"
+            android:padding="@dimen/dp_8"
+            android:textColor="@color/login_edit_text_selector_color"
+            android:textColorHint="@color/colorLightGray"
+            android:textCursorDrawable="@drawable/cursor_dra"
+            android:textSize="@dimen/sp_15"
+            android:visibility="gone"
+            tools:ignore="Autofill"/>
+
+        <TextView
+            android:id="@+id/search_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/white_bg"
+            android:gravity="center"
+            android:padding="@dimen/dp_8"
+            android:text="@string/search"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="@dimen/sp_15"/>
+    </RelativeLayout>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layoutAnimation="@anim/layout_animation_fall_down"/>
+
+</LinearLayout>

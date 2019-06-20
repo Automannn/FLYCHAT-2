@@ -2,20 +2,17 @@ package com.gameex.dw.justtalk.myGroups;
 
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.GroupInfoUtil;
-import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
@@ -23,7 +20,6 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
 
 public class MyGroupsAdapter extends RecyclerView.Adapter<MyGroupsAdapter.MyGroupsHolder> {
@@ -41,7 +37,7 @@ public class MyGroupsAdapter extends RecyclerView.Adapter<MyGroupsAdapter.MyGrou
     @Override
     public MyGroupsHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.my_group_item, viewGroup, false);
+        View view = inflater.inflate(R.layout.recycler_item_my_group, viewGroup, false);
         return new MyGroupsHolder(view);
     }
 

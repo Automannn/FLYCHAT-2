@@ -12,9 +12,9 @@ import android.os.Environment;
 import android.text.TextUtils;
 import android.util.TypedValue;
 
+import com.amulyakhare.textdrawable.util.ColorGenerator;
 import com.gameex.dw.justtalk.R;
-
-import net.sourceforge.pinyin4j.PinyinHelper;
+import com.github.promeg.pinyinhelper.Pinyin;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -26,8 +26,6 @@ import java.io.InputStream;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.TimeZone;
 import java.util.regex.Pattern;
 
 import androidx.core.content.FileProvider;
@@ -59,7 +57,11 @@ public class DataUtil {
     /**
      * [a-zA-Z]字母
      */
-    private static final String WORD_REGEX = "[a-zA-z]";
+    private static final String WORD_REGEX = "[a-zA-z]+";
+    /**
+     * 汉字正则表达式
+     */
+    private static final String CHINESE_REGEX = "[\\u4E00-\\u9FA5]+";
     /**
      * requestCode:拍照
      */
@@ -169,7 +171,7 @@ public class DataUtil {
      * @return 字符串time
      */
     public static String msFormmmssTime(long milliSecond) {
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat format=new SimpleDateFormat("mm:ss");
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("mm:ss");
         return format.format(milliSecond);
     }
 
@@ -199,19 +201,14 @@ public class DataUtil {
      * @return 返回此str的第一个首字母
      */
     public static String getPinYinFirstLetter(String str) {
-        sBuffer.setLength(0);
         char c = str.charAt(0);
-        String[] pinyinArray = PinyinHelper.toHanyuPinyinStringArray(c);
-        if (pinyinArray != null) {
-            sBuffer.append(pinyinArray[0].charAt(0));
+        //如果c为汉字，则返回大写拼音；如果c不是汉字，则返回String.valueOf(c)
+        String pinYin = Pinyin.toPinyin(c);
+        if (pinYin.matches(WORD_REGEX)) { //判断是否为字母
+            return pinYin.substring(0, 1).toUpperCase();  //是则转换大写后返回
         } else {
-            if (String.valueOf(c).matches(WORD_REGEX)) { //判断是否为字母
-                sBuffer.append(c);  //是则直接引入
-            } else {
-                sBuffer.append("#");    //否则引入“#”
-            }
+            return "#";    //否则返回“#”
         }
-        return sBuffer.toString().toUpperCase();
     }
 
     /**
@@ -366,6 +363,27 @@ public class DataUtil {
         return pattern.matcher(str).matches();
     }
 
+    /**
+     * 获取十六进制的颜色代码.例如  "#5A6677"
+     * 分别取R、G、B的随机值，然后加起来即可
+     *
+     * @return int
+     */
+    public static int getRandColor(String key) {
+//        String R, G, B;
+//        Random random = new Random();
+//        R = Integer.toHexString(random.nextInt(256)).toUpperCase();
+//        G = Integer.toHexString(random.nextInt(256)).toUpperCase();
+//        B = Integer.toHexString(random.nextInt(256)).toUpperCase();
+//
+//        R = R.length() == 1 ? "0" + R : R;
+//        G = G.length() == 1 ? "0" + G : G;
+//        B = B.length() == 1 ? "0" + B : B;
+
+        ColorGenerator generator = ColorGenerator.MATERIAL;
+        return generator.getColor(key);
+    }
+
 
 
 
@@ -474,7 +492,7 @@ public class DataUtil {
      */
 //    private RemoteViews getNormalRemoteView(UserInfo userInfo) {
 //        RemoteViews remoteViews = new RemoteViews(appContext.getPackageName(),
-//                R.layout.layout_invite_notify_normal);
+//                R.layout.notification_invite_normal);
 //        remoteViews.setOnClickPendingIntent(R.id.notify_layout_normal,
 //                getActivityPendingIntent(1, userInfo));
 //        remoteViews.setTextViewText(R.id.username_notify_normal, userInfo.getExtra("username") == null
@@ -494,7 +512,7 @@ public class DataUtil {
      */
 //    private RemoteViews getBigRemoteView(UserInfo userInfo, String content) {
 //        RemoteViews remoteViews = new RemoteViews(appContext.getPackageName(),
-//                R.layout.layout_invite_notify_big);
+//                R.layout.notification_invite_big);
 //        remoteViews.setOnClickPendingIntent(R.id.notify_big,
 //                getActivityPendingIntent(2, null));
 //        remoteViews.setOnClickPendingIntent(R.id.notify_layout_big,

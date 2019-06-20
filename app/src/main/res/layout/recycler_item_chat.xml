@@ -165,6 +165,18 @@
                     </LinearLayout>
                 </LinearLayout>
 
+                <com.rey.material.widget.ProgressView
+                    android:id="@+id/progress"
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/right_msg_linear"
+                    android:layout_toLeftOf="@id/right_msg_linear"
+                    android:visibility="gone"
+                    app:pv_autostart="true"
+                    app:pv_circular="true"
+                    app:pv_progressStyle="@style/CusMaterialCircularProgress"/>
+
                 <LinearLayout
                     android:id="@+id/right_msg_linear"
                     android:layout_width="wrap_content"

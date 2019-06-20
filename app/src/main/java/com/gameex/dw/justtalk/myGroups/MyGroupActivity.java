@@ -1,7 +1,10 @@
 package com.gameex.dw.justtalk.myGroups;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.LinearLayout;
@@ -22,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -35,6 +39,10 @@ import cn.jpush.im.android.api.model.GroupInfo;
  */
 public class MyGroupActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "MyGroupActivity";
+    /**
+     * 更新群组列表
+     */
+    private static final int REQUEST_CODE_UPDATE_GROUP_LIST = 201;
 
     /**
      * 标题栏
@@ -64,6 +72,11 @@ public class MyGroupActivity extends BaseActivity implements View.OnClickListene
 
         initView();
         initData();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     /**
@@ -181,7 +194,7 @@ public class MyGroupActivity extends BaseActivity implements View.OnClickListene
                                 if (i == 0) {
                                     LogUtil.d(TAG, "getGroups-getGroupIdList: " + groupInfo.toJson());
                                     mGroupInfos.add(groupInfo);
-                                    mAdapter.notifyItemInserted(mGroupInfos.size()-1);
+                                    mAdapter.notifyItemInserted(mGroupInfos.size() - 1);
                                 } else {
                                     LogUtil.d(TAG, "getGroups-getGroupIdList: " + "responseCode = "
                                             + i + " ;desc = " + s);
@@ -213,8 +226,20 @@ public class MyGroupActivity extends BaseActivity implements View.OnClickListene
             case R.id.create_group_layout:
                 intent.setClass(BottomBarActivity.sBottomBarActivity, CreateGroupActivity.class);
                 intent.putExtra("user_infos", mUserInfosStr);
-                startActivity(intent);
+                startActivityForResult(intent,REQUEST_CODE_UPDATE_GROUP_LIST);
                 break;
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode == REQUEST_CODE_UPDATE_GROUP_LIST && resultCode == RESULT_OK) {
+            if (data == null) {
+                return;
+            }
+            mGroupInfos.add(GroupInfo.fromJson(data.getStringExtra("group_info")));
+            mAdapter.notifyItemInserted(mGroupInfos.size() - 1);
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

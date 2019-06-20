@@ -2,6 +2,7 @@ package com.gameex.dw.justtalk.addFriends;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,6 +10,7 @@ import android.widget.TextView;
 
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.publicInterface.RecyclerItemClick;
+import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
@@ -33,7 +35,7 @@ public class AddFriendsAdapter extends RecyclerView.Adapter<AddFriendsAdapter.Ad
     @Override
     public AddFriendsHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.item_add_friends, viewGroup, false);
+        View view = inflater.inflate(R.layout.recycler_item_add_friends, viewGroup, false);
         return new AddFriendsHolder(view);
     }
 
@@ -49,11 +51,8 @@ public class AddFriendsAdapter extends RecyclerView.Adapter<AddFriendsAdapter.Ad
         }
 
         UserInfo user = mUsers.get(position);
-        if (user.getExtra("username") != null) {
-            holder.name.setText(user.getExtra("username"));
-        } else {
-            holder.name.setText(user.getUserName());
-        }
+        UserInfoUtils.initUserIcon(user, mContext, holder.mCircleView);
+        holder.name.setText(TextUtils.isEmpty(user.getNickname()) ? user.getUserName() : user.getNickname());
     }
 
     @Override

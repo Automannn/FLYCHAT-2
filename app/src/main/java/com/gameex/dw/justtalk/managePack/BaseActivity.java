@@ -13,6 +13,7 @@ import android.preference.PreferenceManager;
 
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.login.LoginActivity;
+import com.gameex.dw.justtalk.userInfo.SettingActivity;
 import com.gameex.dw.justtalk.userInfo.UserInfoActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
 
@@ -27,7 +28,11 @@ import androidx.appcompat.app.AppCompatActivity;
  */
 public abstract class BaseActivity extends AppCompatActivity {
     public static BaseActivity sBaseActivity;
-    public static final String LOGIN_OUT = "com.gameex.dw.justtalk.LOGIN_OUT";
+    /**
+     * 注销登录
+     */
+    public static final String LOGIN_OUT =
+            "com.gameex.dw.justtalk.LOGIN_OUT";
 
     private SharedPreferences mPref;
     private static int mState = -1;

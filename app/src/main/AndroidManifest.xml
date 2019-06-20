@@ -13,7 +13,6 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/>
     <uses-permission android:name="android.permission.READ_SMS"/>
     <uses-permission android:name="android.permission.SEND_SMS"/>
-
     <uses-permission android:name="${applicationId}.permission.JPUSH_MESSAGE"/>
     <uses-permission android:name="android.permission.RECEIVE_USER_PRESENT"/>
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -57,6 +56,9 @@
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:appComponentFactory,android:icon">
+        <activity android:name=".myNewFriends.NewFriendsActivity">
+        </activity>
+
         <service
             android:name=".soundController.RecordingService"
             android:enabled="true"
@@ -123,7 +125,8 @@
         </activity>
         <activity android:name=".groupInfo.GroupInfoActivity">
         </activity>
-        <activity android:name=".groupChat.GroupChatActivity">
+        <activity
+            android:name=".groupChat.GroupChatActivity">
         </activity>
         <activity android:name=".createGroup.CreateGroupActivity">
         </activity>
@@ -153,25 +156,26 @@
         <!-- 可配置android:process参数将PushService放在其他进程中 -->
         <service
             android:name="cn.jpush.android.service.PushService"
-            android:process=":multiprocess"
-            tools:node="replace"
             android:enabled="true"
-            android:exported="false">
+            android:exported="false"
+            android:process=":multiprocess"
+            tools:node="replace">
             <intent-filter>
                 <action android:name="cn.jpush.android.intent.REGISTER"/>
                 <action android:name="cn.jpush.android.intent.REPORT"/>
                 <action android:name="cn.jpush.android.intent.PushService"/>
                 <action android:name="cn.jpush.android.intent.PUSH_TIME"/>
             </intent-filter>
-        </service><!-- Since JCore2.0.0 Required SDK核心功能-->
+        </service> <!-- Since JCore2.0.0 Required SDK核心功能 -->
         <!-- 可配置android:process参数将Service放在其他进程中；android:enabled属性不能是false -->
         <!-- 这个是自定义Service，要继承极光JCommonService，可以在更多手机平台上使得推送通道保持的更稳定 -->
-        <service android:name=".jiguangIM.FlyCommonService"
-                 android:enabled="true"
-                 android:exported="false"
-                 android:process=":pushcore">
+        <service
+            android:name=".jiguangIM.FlyCommonService"
+            android:enabled="true"
+            android:exported="false"
+            android:process=":pushcore">
             <intent-filter>
-                <action android:name="cn.jiguang.user.service.action" />
+                <action android:name="cn.jiguang.user.service.action"/>
             </intent-filter>
         </service> <!-- Required SDK核心功能 -->
         <receiver

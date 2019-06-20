@@ -81,7 +81,7 @@ public class ChooseContactFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater
             , @Nullable ViewGroup container
             , @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.search_to_create_group, container, false);
+        View view = inflater.inflate(R.layout.fragment_search_to_create_group, container, false);
         mSearchView = view.findViewById(R.id.search_view_create_group);
 //        mSearchView.onActionViewExpanded();
         mSearchView.setQueryHint("搜索好友");

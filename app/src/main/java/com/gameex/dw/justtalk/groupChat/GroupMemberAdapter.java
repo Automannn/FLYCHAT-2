@@ -1,36 +1,36 @@
 package com.gameex.dw.justtalk.groupChat;
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+import cn.jpush.im.android.api.model.UserInfo;
 
 public class GroupMemberAdapter extends RecyclerView.Adapter<GroupMemberAdapter.GroupMemberHolder> {
 
     private Context mContext;
-    private List<Bitmap> mBitmaps;
+    private List<UserInfo> mUserInfos;
 
-    GroupMemberAdapter(Context context, List<Bitmap> bitmaps) {
+    GroupMemberAdapter(Context context, List<UserInfo> userInfos) {
         mContext = context;
-        mBitmaps = bitmaps;
+        mUserInfos = userInfos;
     }
 
     @NonNull
     @Override
     public GroupMemberHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.group_member_item, viewGroup, false);
+        View view = inflater.inflate(R.layout.recycler_item_group_member, viewGroup, false);
         return new GroupMemberHolder(view);
     }
 
@@ -38,16 +38,16 @@ public class GroupMemberAdapter extends RecyclerView.Adapter<GroupMemberAdapter.
     public void onBindViewHolder(@NonNull GroupMemberHolder holder, int position) {
         if (position == 0) {
             holder.groupMaster.setVisibility(View.VISIBLE);
+        }else{
+            holder.groupMaster.setVisibility(View.GONE);
         }
-        Bitmap bitmap = mBitmaps.get(position);
-        Glide.with(mContext)
-                .load(bitmap)
-                .into(holder.icon);
+        UserInfo userInfo = mUserInfos.get(position);
+        UserInfoUtils.initUserIcon(userInfo,mContext,holder.icon);
     }
 
     @Override
     public int getItemCount() {
-        return mBitmaps == null ? 0 : mBitmaps.size();
+        return mUserInfos == null ? 0 : mUserInfos.size();
     }
 
     class GroupMemberHolder extends RecyclerView.ViewHolder {

@@ -26,11 +26,13 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
+import es.dmoral.toasty.Toasty;
 
 import static com.gameex.dw.justtalk.FlayChatApplication.APP_KEY;
 import static com.gameex.dw.justtalk.main.ContactFragment.ADD_CONTACT;
 import static com.gameex.dw.justtalk.main.ContactFragment.REMOVE_CONTACT;
 import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
+import static com.gameex.dw.justtalk.myNewFriends.NewFriendsActivity.DELETE_RECEIVE;
 
 public class UserBasicInfoActivity extends BaseActivity implements View.OnClickListener {
     /**
@@ -188,9 +190,9 @@ public class UserBasicInfoActivity extends BaseActivity implements View.OnClickL
     private void deleteChat() {
         Conversation conversation = JMessageClient.getSingleConversation(mUserInfo.getUserName());
         if (conversation.deleteAllMessage()) {
-            Toast.makeText(this, "聊天记录删除成功", Toast.LENGTH_SHORT).show();
+            Toasty.success(this, "聊天记录删除成功", Toasty.LENGTH_SHORT).show();
         } else {
-            Toast.makeText(this, "聊天记录删除失败", Toast.LENGTH_SHORT).show();
+            Toasty.error(this, "聊天记录删除失败", Toasty.LENGTH_SHORT).show();
         }
     }
 
@@ -206,10 +208,12 @@ public class UserBasicInfoActivity extends BaseActivity implements View.OnClickL
                                 "responseCode = " + responseCode +
                                 "invitationDesc = " + invitationDesc);
                         if (responseCode == 0) {
-                            Toast.makeText(UserBasicInfoActivity.this, "发送成功", Toast.LENGTH_SHORT).show();
+                            Toasty.success(UserBasicInfoActivity.this, "发送成功"
+                                    , Toasty.LENGTH_SHORT).show();
                             finish();
                         } else {
-                            Toast.makeText(UserBasicInfoActivity.this, "发送失败", Toast.LENGTH_SHORT).show();
+                            Toasty.error(UserBasicInfoActivity.this, "发送失败"
+                                    , Toasty.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -220,8 +224,8 @@ public class UserBasicInfoActivity extends BaseActivity implements View.OnClickL
                         @Override
                         public void gotResult(int i, String s) {
                             if (i == 0) {
-                                Toast.makeText(UserBasicInfoActivity.this, "好友移除成功",
-                                        Toast.LENGTH_SHORT).show();
+                                Toasty.info(UserBasicInfoActivity.this, "好友移除成功",
+                                        Toasty.LENGTH_SHORT).show();
                                 Intent intent = new Intent(REMOVE_CONTACT);
                                 intent.putExtra("phone", mUserInfo.getUserName());
                                 sendBroadcast(intent);
@@ -233,7 +237,7 @@ public class UserBasicInfoActivity extends BaseActivity implements View.OnClickL
                         }
                     });
                 } else {
-                    Toast.makeText(this, "发生了意想不到的错误...", Toast.LENGTH_SHORT).show();
+                    Toasty.error(this, "发生了意想不到的错误...", Toasty.LENGTH_SHORT).show();
                 }
                 break;
             case R.id.send_msg:
@@ -254,19 +258,23 @@ public class UserBasicInfoActivity extends BaseActivity implements View.OnClickL
                         if (i == 0) {
                             Intent intent = new Intent();
                             intent.setAction(UPDATE_MSG_INFO);
-                            MsgInfo msgInfo=new MsgInfo(mUserInfo.getUserName(),DataUtil.getCurrentDateStr()
-                                    ,"你们已经是好友了，聊点什么吧...",true);
+                            MsgInfo msgInfo = new MsgInfo(mUserInfo.getUserName(), DataUtil.getCurrentDateStr()
+                                    , "你们已经是好友了，聊点什么吧...", true);
                             msgInfo.setSingle(true);
-                            intent.putExtra("msg_info",msgInfo);
+                            intent.putExtra("msg_info", msgInfo);
                             sendBroadcast(intent);
                             Intent addContact = new Intent(ADD_CONTACT);
                             addContact.putExtra("username", mUserInfo.getUserName());
                             sendBroadcast(addContact);
+                            Intent removeReceive=new Intent(DELETE_RECEIVE);
+                            removeReceive.putExtra("userInfo",mUserInfo.toJson());
+                            sendBroadcast(removeReceive);
                             finish();
                         } else {
                             LogUtil.d(TAG, "onClick-accept: " + "responseCode = " + i +
                                     "desc = " + s);
-                            Toast.makeText(UserBasicInfoActivity.this, "添加失败", Toast.LENGTH_SHORT).show();
+                            Toasty.error(UserBasicInfoActivity.this, "添加失败"
+                                    , Toasty.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -278,11 +286,13 @@ public class UserBasicInfoActivity extends BaseActivity implements View.OnClickL
                         if (i == 0) {
                             mInviteShow.setVisibility(View.GONE);
                             mAddFriends.setVisibility(View.VISIBLE);
-                            Toast.makeText(UserBasicInfoActivity.this, "你拒绝了好友请求", Toast.LENGTH_SHORT).show();
+                            Toasty.warning(UserBasicInfoActivity.this
+                                    , "你拒绝了好友请求", Toasty.LENGTH_SHORT).show();
                         } else {
                             LogUtil.d(TAG, "onClick-refused: " + "responseCode = " + i +
                                     "desc = " + s);
-                            Toast.makeText(UserBasicInfoActivity.this, "请重试", Toast.LENGTH_SHORT).show();
+                            Toasty.error(UserBasicInfoActivity.this, "请重试"
+                                    , Toasty.LENGTH_SHORT).show();
                         }
                     }
                 });

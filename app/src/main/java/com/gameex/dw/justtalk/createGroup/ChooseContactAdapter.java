@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.publicInterface.RecyclerItemClick;
+import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -57,7 +58,7 @@ public class ChooseContactAdapter extends RecyclerView.Adapter<ChooseContactAdap
     @Override
     public ChooseContactHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.choose_contact_item, viewGroup, false);
+        View view = inflater.inflate(R.layout.recycler_item_choose_contact, viewGroup, false);
         mPref = PreferenceManager.getDefaultSharedPreferences(mContext);
         String userChoosedStr = mPref.getString("user_choosed", null);
         if (userChoosedStr != null) {
@@ -88,15 +89,7 @@ public class ChooseContactAdapter extends RecyclerView.Adapter<ChooseContactAdap
         } else {
             holder.index.setVisibility(View.GONE);
         }
-        if (userInfo.getExtra("icon_uri") != null) {
-            Glide.with(mContext)
-                    .load(Uri.parse(userInfo.getExtra("icon_uri")))
-                    .into(holder.icon);
-        } else {
-            Glide.with(mContext)
-                    .load(R.drawable.icon_user)
-                    .into(holder.icon);
-        }
+        UserInfoUtils.initUserIcon(userInfo, mContext, holder.icon);
         holder.name.setText(TextUtils.isEmpty(userInfo.getNickname())
                 ? userInfo.getUserName() : userInfo.getNickname());
     }

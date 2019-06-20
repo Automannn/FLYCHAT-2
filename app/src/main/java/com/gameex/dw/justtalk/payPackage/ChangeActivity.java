@@ -3,7 +3,6 @@ package com.gameex.dw.justtalk.payPackage;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -24,7 +23,6 @@ import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.gameex.dw.justtalk.util.WindowUtil;
-import com.yzq.zxinglibrary.common.Constant;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +34,6 @@ import java.util.HashMap;
 import androidx.annotation.Nullable;
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
-import okhttp3.OkHttpClient;
 import okhttp3.Response;
 
 import static com.gameex.dw.justtalk.payPackage.BankCardActivity.ACCOUNT_CARD_BIND_QUERY;
@@ -142,7 +139,7 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
         mMyBankCard.setOnClickListener(this);
         mMyRedRecord.setOnClickListener(this);
         mBindAli.setOnClickListener(this);
-//        initBalance();
+        initBalance();
         initNoBankCardPup();
     }
 
@@ -227,7 +224,7 @@ public class ChangeActivity extends BaseActivity implements View.OnClickListener
      * 没有绑定银行卡时弹出
      */
     private void initNoBankCardPup() {
-        @SuppressLint("InflateParams") View view = this.getLayoutInflater().inflate(R.layout.no_bank_card_pup, null);
+        @SuppressLint("InflateParams") View view = this.getLayoutInflater().inflate(R.layout.popup_no_bank_card, null);
         TextView cancel = view.findViewById(R.id.cancel);
         cancel.setOnClickListener(this);
         TextView confirm = view.findViewById(R.id.confirm);

@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 import okhttp3.Headers;
 import okhttp3.Response;
@@ -107,24 +108,25 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
         String pwd = mPwd.getText().toString();
         switch (view.getId()) {
             case R.id.verification_code_text:   //获取验证码
-                if (mVerifyCode.isEnabled()) {
-                    if (DataUtil.isMobileNumber(phone)) {   //判断手机号格式是否正确
-                        getSmsCodeThread(phone);
-                    } else {
-                        YoYo.with(Techniques.Shake)
-                                .duration(700)
-                                .playOn(findViewById(R.id.phone_edit));
-                        Toast.makeText(sSignUpActivity, "请输入正确的手机号", Toast.LENGTH_SHORT).show();
-                    }
-                } else {
-                    YoYo.with(Techniques.Swing)
-                            .duration(700)
-                            .playOn(findViewById(R.id.verification_code_text));
-                    Toast.makeText(sSignUpActivity, "请等待" + mVerifyCodeText.getText(), Toast.LENGTH_SHORT).show();
-                }
+//                if (mVerifyCode.isEnabled()) {
+//                    if (DataUtil.isMobileNumber(phone)) {   //判断手机号格式是否正确
+//                        getSmsCodeThread(phone);
+//                    } else {
+//                        YoYo.with(Techniques.Shake)
+//                                .duration(700)
+//                                .playOn(findViewById(R.id.phone_edit));
+//                        Toast.makeText(sSignUpActivity, "请输入正确的手机号", Toast.LENGTH_SHORT).show();
+//                    }
+//                } else {
+//                    YoYo.with(Techniques.Swing)
+//                            .duration(700)
+//                            .playOn(findViewById(R.id.verification_code_text));
+//                    Toast.makeText(sSignUpActivity, "请等待" + mVerifyCodeText.getText(), Toast.LENGTH_SHORT).show();
+//                }
+                Toasty.info(this, "验证码随便输，直接注册").show();
                 break;
             case R.id.sign_up_btn:  //注册
-                if (DataUtil.isMobileNumber(phone)) {   //验证手机号格式是否为空
+                if (!TextUtils.isEmpty(phone)) {   //验证手机号格式是否为空: DataUtil.isMobileNumber(phone)
                     if (!TextUtils.isEmpty(mVerifyCode.getText())) {    //判断验证码栏是否为空
                         if (DataUtil.isPWDCorrect(pwd)) {   //验证密码格式是否正确
                             //验证验证码是否正确。是，则进行注册；否，则Toast提示
@@ -134,21 +136,22 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
                             YoYo.with(Techniques.Shake)
                                     .duration(700)
                                     .playOn(findViewById(R.id.pwd_edit));
-                            Toast.makeText(sSignUpActivity, "密码由字母和数字组成，且不少于8位", Toast.LENGTH_LONG).show();
+                            Toasty.error(this, "密码由字母和数字组成，且不少于8位"
+                                    , Toasty.LENGTH_LONG).show();
                         }
                     } else {
                         //验证码栏为空，动画+Toast提示
                         YoYo.with(Techniques.Shake)
                                 .duration(700)
                                 .playOn(findViewById(R.id.verification_code_edit));
-                        Toast.makeText(sSignUpActivity, "请输入验证码", Toast.LENGTH_LONG).show();
+                        Toasty.error(sSignUpActivity, "请输入验证码", Toasty.LENGTH_LONG).show();
                     }
                 } else {
                     //手机号格式错误，动画+Toast提示
                     YoYo.with(Techniques.Shake)
                             .duration(700)
                             .playOn(findViewById(R.id.phone_edit));
-                    Toast.makeText(sSignUpActivity, "请输入正确的手机号", Toast.LENGTH_SHORT).show();
+                    Toasty.error(this, "请输入正确的手机号", Toasty.LENGTH_LONG).show();
                 }
                 break;
             default:
@@ -223,50 +226,50 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
      */
     private void isSmsCorrectThread(final String sms, final String phone,
                                     final String pwd) {
-        HashMap<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("smsCode", sms);
-        OkHttpUtil.okHttpPost(CHECK_SMS, paramsMap, header, new CallBackUtil.CallBackDefault() {
-            @Override
-            public void onFailure(Call call, Exception e) {
-                LogUtil.d(TAG, "isSmsCorrectThread-onFailure: ");
-                e.printStackTrace();
-                Toast.makeText(SignUpActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onResponse(Response response) {
-                if (response.isSuccessful()) {
-                    if (response.body() != null) {
-                        String string;
-                        try {
-                            string = response.body().string();
-                            JSONObject jsonObject = new JSONObject(string);
-                            boolean success = jsonObject.getBoolean("success");
-                            String data = jsonObject.getString("data");
-                            if (success) {
-                                header.clear();
-                                LogUtil.d("VERIFICATION_CODE_CHECK_RESULT", data + "");
-                                postJsonSer = new Intent(SignUpActivity.this
-                                        , PostJsonService.class);
-                                postJsonSer.putExtra("sign_info", new String[]{
-                                        phone, pwd, SIGN_PATH});
-                                startService(postJsonSer);
-                            } else {
-                                Toast.makeText(SignUpActivity.this, data + "", Toast.LENGTH_SHORT).show();
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        LogUtil.d(TAG, "isSmsCorrectThread-onResponse: " + "response.body = null");
-                    }
-                } else {
-                    LogUtil.d(TAG, "isSmsCorrectThread-onResponse: " + "responseFalse");
-                }
-            }
-        });
+//        HashMap<String, String> paramsMap = new HashMap<>();
+//        paramsMap.put("smsCode", sms);
+//        OkHttpUtil.okHttpPost(CHECK_SMS, paramsMap, header, new CallBackUtil.CallBackDefault() {
+//            @Override
+//            public void onFailure(Call call, Exception e) {
+//                LogUtil.d(TAG, "isSmsCorrectThread-onFailure: ");
+//                e.printStackTrace();
+//                Toast.makeText(SignUpActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void onResponse(Response response) {
+//                if (response.isSuccessful()) {
+//                    if (response.body() != null) {
+//                        String string;
+//                        try {
+//                            string = response.body().string();
+//                            JSONObject jsonObject = new JSONObject(string);
+//                            boolean success = jsonObject.getBoolean("success");
+//                            String data = jsonObject.getString("data");
+//                            if (success) {
+//                                header.clear();
+//                                LogUtil.d("VERIFICATION_CODE_CHECK_RESULT", data + "");
+        postJsonSer = new Intent(SignUpActivity.this
+                , PostJsonService.class);
+        postJsonSer.putExtra("sign_info", new String[]{
+                phone, pwd, SIGN_PATH});
+        startService(postJsonSer);
+//                            } else {
+//                                Toast.makeText(SignUpActivity.this, data + "", Toast.LENGTH_SHORT).show();
+//                            }
+//                        } catch (IOException e) {
+//                            e.printStackTrace();
+//                        } catch (JSONException e) {
+//                            e.printStackTrace();
+//                        }
+//                    } else {
+////                        LogUtil.d(TAG, "isSmsCorrectThread-onResponse: " + "response.body = null");
+////                    }
+//                } else {
+//                    LogUtil.d(TAG, "isSmsCorrectThread-onResponse: " + "responseFalse");
+//                }
+//            }
+//        });
     }
 
     @Override

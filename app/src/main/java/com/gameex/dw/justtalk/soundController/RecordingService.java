@@ -271,7 +271,7 @@ public class RecordingService extends Service {
      */
     private void showRecordDialog() {
         recordDialog = new BaseDialog(mContext, R.style.CusVersionDialog
-                , R.layout.record_anime_dialog);
+                , R.layout.dialog_record_anime);
         mWaveLine = recordDialog.findViewById(R.id.wave_line);//波形组件
         mWaveLine.startAnim();
         mRecordTime = recordDialog.findViewById(R.id.counter);  //显示录音时间

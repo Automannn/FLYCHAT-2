@@ -14,13 +14,13 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.cazaea.sweetalert.SweetAlertDialog;
 import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.gameex.dw.justtalk.main.BottomBarActivity;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.signUp.SignUpActivity;
+import com.gameex.dw.justtalk.updateVersion.BaseDialog;
 import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
@@ -34,8 +34,6 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import androidx.annotation.Nullable;
 import cn.jpush.im.android.api.JMessageClient;
@@ -61,23 +59,20 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private EditText mUsername, mPassword;
     private CheckBox mAutoLogin;
 
-    private final Timer mTimer = new Timer();
-    private TimerTask mTask;
-    private int i = -1;
-    private SweetAlertDialog prosDialog;
+    private BaseDialog mCirclePros;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        mCirclePros = new BaseDialog(this, R.style.CusVersionDialog, R.layout.dialog_progress);
         initView();
         if (!BarUtil.setStatusBarDarkTheme(this, true)) {
             //如果不支持设置深色风格 为了兼容总不能让状态栏白白的看不清, 于是设置一个状态栏颜色为半透明,
             //这样半透明+白=灰, 状态栏的文字能看得清
 //            BarUtil.setStatusBarColor(this,0x55000000);
         }
-
     }
 
     /**
@@ -124,49 +119,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
         forgotPwd.setOnClickListener(this);
     }
 
-    /**
-     * 初始化进度弹窗
-     */
-    private void initProsDialog() {
-        prosDialog = new SweetAlertDialog(this, SweetAlertDialog.PROGRESS_TYPE);
-        prosDialog.setTitleText("正在登录......");
-        prosDialog.setCancelable(false);
-        prosDialog.show();
-        mTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (i > 6) {
-                    i = 0;
-                }
-                i++;
-                switch (i) {
-                    case 0:
-                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorPrimary));
-                        break;
-                    case 1:
-                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorAccent));
-                        break;
-                    case 2:
-                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorBlueDeep));
-                        break;
-                    case 3:
-                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorGray));
-                        break;
-                    case 4:
-                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorCoffee));
-                        break;
-                    case 5:
-                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorRedDeep));
-                        break;
-                    case 6:
-                        prosDialog.getProgressHelper().setBarColor(getResources().getColor(R.color.colorBlue));
-                        break;
-                }
-            }
-        };
-        mTimer.schedule(mTask, 800, 800);
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -181,10 +133,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                 mPassword.setText(password);
                 mAutoLogin.setChecked(true);
                 editor = pref.edit();
-                editor.remove("account");
-                editor.remove("password");
-                editor.remove("userId");
-                editor.remove("remember_password");
+                editor.clear();
                 editor.apply();
             }
         }
@@ -220,7 +169,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                     }
                 });
             } else {
-                checkToLogin(0);
+                checkToLogin();
             }
         }
     }
@@ -228,134 +177,147 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     /**
      * 验证登录
      */
-    private void checkToLogin(int flag) {
-        if (flag == -1) {
-            JMessageClient.login("18180586504", "123456dw", new BasicCallback() {
-                @Override
-                public void gotResult(int responseCode, String registerDesc) {
-                    LogUtil.i("LOGIN_ACTIVITY_LMESSAGE_LOGIN",
-                            "JMessageClient.login " +
-                                    ", responseCode = " + responseCode +
-                                    " ; registerDesc = " + registerDesc);
-                    if (responseCode==0){
-                        Intent intentLogin = new Intent(LoginActivity.this, BottomBarActivity.class);
-                        startActivity(intentLogin);
-                        LoginActivity.this.finish();
-                    }
-                }
-            });
-        }
+    private void checkToLogin() {
         if (!TextUtils.isEmpty(mUsername.getText())) {
             if (!TextUtils.isEmpty(mPassword.getText())) {
-                initProsDialog();
+                mCirclePros.show();
                 final String account = mUsername.getText().toString();
                 final String password = mPassword.getText().toString();
-                HashMap<String, String> paramsMap = new HashMap<>();
-                if (DataUtil.isMobileNumber(account)) {
-                    paramsMap.put("phoneNumber", account);
-                } else {
-                    paramsMap.put("username", account);
-                }
-                paramsMap.put("password", password);
-                OkHttpUtil.okHttpPost(LOGIN_PATH, paramsMap, new CallBackUtil.CallBackDefault() {
-                    @Override
-                    public void onFailure(Call call, Exception e) {
-                        prosDialog.dismiss();
-                        e.printStackTrace();
-                        LogUtil.d(TAG, "checkToLogin-CallBackUtil-onFailure: ");
-                        Toasty.error(LoginActivity.this, "网络异常").show();
-                    }
 
+                JMessageClient.login(account, password, new BasicCallback() {
                     @Override
-                    public void onResponse(Response response) {
-                        if (response != null) {
-                            try {
-                                assert response.body() != null;
-                                String resBody = response.body().string();
-                                LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
-                                        + "response" + resBody);
-                                JSONObject jsonObject = new JSONObject(resBody);
-                                JSONObject object = jsonObject.getJSONObject("data");
-                                boolean isSuccess = jsonObject.getBoolean("success");
-                                if (isSuccess) {
-                                    String userId = object.getString("id");
-                                    prosDialog.dismiss();
-                                    editor = pref.edit();
-                                    if (mAutoLogin.isChecked()) {
-                                        editor.putBoolean("remember_password", true);
-                                        editor.putString("account", account);
-                                        editor.putString("password", password);
-                                        editor.putString("userId", userId);
-                                    } else {
-                                        editor.clear();
-                                    }
-                                    editor.apply();
-                                    JMessageClient.login(account, password, new BasicCallback() {
-                                        @Override
-                                        public void gotResult(int responseCode, String registerDesc) {
-                                            LogUtil.i("LOGIN_ACTIVITY_JMESSAGE_LOGIN",
-                                                    "JMessageClient.login " +
-                                                            ", responseCode = " + responseCode +
-                                                            " ; registerDesc = " + registerDesc);
-                                            if (responseCode == 0) {
-                                                Intent intentLogin = new Intent(
-                                                        LoginActivity.this, BottomBarActivity.class);
-                                                finish();
-                                                startActivity(intentLogin);
-                                                mTimer.cancel();
-                                            } else {
-                                                prosDialog.dismiss();
-                                                Toasty.error(LoginActivity.this, "登陆失败").show();
-                                            }
-                                        }
-                                    });
-                                } else {
-                                    prosDialog.dismiss();
-                                    int code = object.getInt("code");
-                                    String message = object.getString("message");
-                                    if (code == 403) {
-                                        YoYo.with(Techniques.Shake)
-                                                .duration(700)
-                                                .playOn(findViewById(R.id.username_layout));
-                                        Toasty.warning(LoginActivity.this, message).show();
-                                    } else if (code == 404) {
-                                        YoYo.with(Techniques.Shake)
-                                                .duration(700)
-                                                .playOn(findViewById(R.id.password_layout));
-                                        Toasty.warning(LoginActivity.this, message).show();
-                                    } else {
-                                        LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
-                                                + "code = " + code + " ;message = " + message);
-                                        Toasty.error(LoginActivity.this, message).show();
-                                    }
-                                }
-                            } catch (JSONException e) {
-                                prosDialog.dismiss();
-                                Toasty.error(LoginActivity.this, "服务器挂了").show();
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                prosDialog.dismiss();
-                                Toasty.error(LoginActivity.this, "服务器挂了").show();
-                                e.printStackTrace();
+                    public void gotResult(int responseCode, String registerDesc) {
+                        LogUtil.i(TAG,
+                                "JMessageClient.login " +
+                                        ", responseCode = " + responseCode +
+                                        " ; registerDesc = " + registerDesc);
+                        if (responseCode == 0) {
+                            mCirclePros.dismiss();
+                            editor = pref.edit();
+                            if (mAutoLogin.isChecked()) {
+                                editor.putBoolean("remember_password", true);
+                                editor.putString("account", account);
+                                editor.putString("password", password);
+//                                editor.putString("userId", userId);
+                            } else {
+                                editor.clear();
                             }
+                            editor.apply();
+                            Intent intentLogin = new Intent(
+                                    LoginActivity.this, BottomBarActivity.class);
+                            finish();
+                            startActivity(intentLogin);
+                        } else {
+                            mCirclePros.dismiss();
+                            Toasty.error(LoginActivity.this
+                                    , "登陆失败," + registerDesc).show();
                         }
                     }
                 });
+
+//                HashMap<String, String> paramsMap = new HashMap<>();
+//                if (DataUtil.isMobileNumber(account)) {
+//                    paramsMap.put("phoneNumber", account);
+//                } else {
+//                    paramsMap.put("username", account);
+//                }
+//                paramsMap.put("password", password);
+//                OkHttpUtil.okHttpPost(LOGIN_PATH, paramsMap, new CallBackUtil.CallBackDefault() {
+//                    @Override
+//                    public void onFailure(Call call, Exception e) {
+//                        mCirclePros.dismiss();
+//                        e.printStackTrace();
+//                        LogUtil.d(TAG, "checkToLogin-CallBackUtil-onFailure: ");
+//                        Toasty.error(LoginActivity.this, "网络异常").show();
+//                    }
+//
+//                    @Override
+//                    public void onResponse(Response response) {
+//                        if (response != null) {
+//                            try {
+//                                assert response.body() != null;
+//                                String resBody = response.body().string();
+//                                LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
+//                                        + "response" + resBody);
+//                                JSONObject jsonObject = new JSONObject(resBody);
+//                                JSONObject object = jsonObject.getJSONObject("data");
+//                                boolean isSuccess = jsonObject.getBoolean("success");
+//                                if (isSuccess) {
+//                                    String userId = object.getString("id");
+//                                    mCirclePros.dismiss();
+//                                    JMessageClient.login(account, password, new BasicCallback() {
+//                                        @Override
+//                                        public void gotResult(int responseCode, String registerDesc) {
+//                                            LogUtil.i(TAG,
+//                                                    "JMessageClient.login " +
+//                                                            ", responseCode = " + responseCode +
+//                                                            " ; registerDesc = " + registerDesc);
+//                                            if (responseCode == 0) {
+//                                                mCirclePros.dismiss();
+//                                                editor = pref.edit();
+//                                                if (mAutoLogin.isChecked()) {
+//                                                    editor.putBoolean("remember_password", true);
+//                                                    editor.putString("account", account);
+//                                                    editor.putString("password", password);
+//                                                    editor.putString("userId", userId);
+//                                                } else {
+//                                                    editor.clear();
+//                                                }
+//                                                editor.apply();
+//                                                Intent intentLogin = new Intent(
+//                                                        LoginActivity.this, BottomBarActivity.class);
+//                                                finish();
+//                                                startActivity(intentLogin);
+//                                            } else {
+//                                                mCirclePros.dismiss();
+//                                                Toasty.error(LoginActivity.this
+//                                                        , "登陆失败," + registerDesc).show();
+//                                            }
+//                                        }
+//                                    });
+//                                } else {
+//                                    mCirclePros.dismiss();
+//                                    int code = object.getInt("code");
+//                                    String message = object.getString("message");
+//                                    if (code == 403) {
+//                                        YoYo.with(Techniques.Shake)
+//                                                .duration(700)
+//                                                .playOn(findViewById(R.id.username_layout));
+//                                        Toasty.warning(LoginActivity.this, message).show();
+//                                    } else if (code == 404) {
+//                                        YoYo.with(Techniques.Shake)
+//                                                .duration(700)
+//                                                .playOn(findViewById(R.id.password_layout));
+//                                        Toasty.warning(LoginActivity.this, message).show();
+//                                    } else {
+//                                        LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
+//                                                + "code = " + code + " ;message = " + message);
+//                                        Toasty.error(LoginActivity.this, message).show();
+//                                    }
+//                                }
+//                            } catch (JSONException e) {
+//                                mCirclePros.dismiss();
+//                                Toasty.error(LoginActivity.this, "服务器挂了").show();
+//                                e.printStackTrace();
+//                            } catch (IOException e) {
+//                                mCirclePros.dismiss();
+//                                Toasty.error(LoginActivity.this, "服务器挂了").show();
+//                                e.printStackTrace();
+//                            }
+//                        }
+//                    }
+//                });
             } else {
-                if (flag == 1) {
-                    YoYo.with(Techniques.Shake)
-                            .duration(700)
-                            .playOn(findViewById(R.id.password_layout));
-                    Toasty.warning(this, "请输入密码").show();
-                }
-            }
-        } else {
-            if (flag == 1) {
                 YoYo.with(Techniques.Shake)
                         .duration(700)
-                        .playOn(findViewById(R.id.username_layout));
-                Toasty.warning(this, "用户名不能为空").show();
+                        .playOn(findViewById(R.id.password_layout));
+                Toasty.warning(this, "请输入密码").show();
             }
+        } else {
+            YoYo.with(Techniques.Shake)
+                    .duration(700)
+                    .playOn(findViewById(R.id.username_layout));
+            Toasty.warning(this, "用户名不能为空").show();
         }
     }
 
@@ -363,8 +325,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.login_btn:
-//                checkToLogin(1);
-                checkToLogin(-1);
+                checkToLogin();
                 break;
             case R.id.quick_sign_up:
                 Intent intentQuickSign = new Intent(this, SignUpActivity.class);

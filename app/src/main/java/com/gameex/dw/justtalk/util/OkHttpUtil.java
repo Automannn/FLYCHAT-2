@@ -6,7 +6,8 @@ import java.util.Map;
 
 public class OkHttpUtil {
     //    private static final String REALM_NAME = "https://wechat.automannn.cn/";
-    private static final String REALM_NAME = "http://h82dyr.natappfree.cc/";
+//    private static final String REALM_NAME = "http://h82dyr.natappfree.cc/";
+    private static final String REALM_NAME = "http://zitbv5.natappfree.cc/";
 
     public static final String METHOD_GET = "GET";
 

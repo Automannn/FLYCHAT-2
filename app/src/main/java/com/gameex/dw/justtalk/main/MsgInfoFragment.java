@@ -14,7 +14,6 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
@@ -38,6 +37,7 @@ import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
+import es.dmoral.toasty.Toasty;
 
 public class MsgInfoFragment extends Fragment {
     private static final String TAG = "MsgInfoFragment";
@@ -74,7 +74,7 @@ public class MsgInfoFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mView = inflater.inflate(R.layout.message_layout, container, false);
+        mView = inflater.inflate(R.layout.fragment_message, container, false);
         return mView;
     }
 
@@ -176,7 +176,8 @@ public class MsgInfoFragment extends Fragment {
                     } else {
                         LogUtil.d(TAG, "onReceiver: " +
                                 "responseCode = " + i + " ; desc = " + s);
-                        Toast.makeText(getContext(), "信息列表更新失败", Toast.LENGTH_SHORT).show();
+                        Toasty.error(Objects.requireNonNull(getContext()), "信息列表更新失败"
+                                , Toasty.LENGTH_SHORT).show();
                     }
                 }
             });

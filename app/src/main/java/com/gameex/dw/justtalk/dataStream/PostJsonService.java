@@ -9,6 +9,7 @@ import android.widget.Toast;
 
 import com.gameex.dw.justtalk.signUp.SignUpActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
+import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
 
@@ -24,6 +25,7 @@ import androidx.annotation.RequiresApi;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.options.RegisterOptionalUserInfo;
 import cn.jpush.im.api.BasicCallback;
+import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -62,52 +64,58 @@ public class PostJsonService extends Service {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-        OkHttpUtil.okHttpPostJson(signInfo[2], json.toString(), new CallBackUtil.CallBackDefault() {
-            @Override
-            public void onFailure(Call call, Exception e) {
-                LogUtil.d(TAG, "onStartCommand-onFailure: ");
-                e.printStackTrace();
-                Toast.makeText(PostJsonService.this, "网络异常", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onResponse(Response response) {
-                LogUtil.d(TAG, "onStartCommand-onResponse: " + "response = " + response);
-                try {
-                    if (response.isSuccessful() && response.body() != null) {
-                        JSONObject jsonObject = new JSONObject(response.body().string());
-                        boolean isSuccess = jsonObject.getBoolean("success");
-                        if (isSuccess) {
-                            RegisterOptionalUserInfo registerUser = new RegisterOptionalUserInfo();
+//        OkHttpUtil.okHttpPostJson(signInfo[2], json.toString(), new CallBackUtil.CallBackDefault() {
+//            @Override
+//            public void onFailure(Call call, Exception e) {
+//                LogUtil.d(TAG, "onStartCommand-onFailure: ");
+//                e.printStackTrace();
+//                Toast.makeText(PostJsonService.this, "网络异常", Toast.LENGTH_SHORT).show();
+//            }
+//
+//            @Override
+//            public void onResponse(Response response) {
+//                LogUtil.d(TAG, "onStartCommand-onResponse: " + "response = " + response);
+//                try {
+//                    if (response.isSuccessful() && response.body() != null) {
+//                        JSONObject jsonObject = new JSONObject(response.body().string());
+//                        boolean isSuccess = jsonObject.getBoolean("success");
+//                        if (isSuccess) {
+                            RegisterOptionalUserInfo optional = new RegisterOptionalUserInfo();
                             Map<String, String> extras = new HashMap<>();
-                            extras.put("index", "#");
-                            registerUser.setExtras(extras);
-                            JMessageClient.register(phone, pwd, registerUser, new BasicCallback() {
+                            extras.put("index", DataUtil.getPinYinFirstLetter(phone));
+                            optional.setExtras(extras);
+                            JMessageClient.register(phone, pwd, optional, new BasicCallback() {
                                 @Override
                                 public void gotResult(int responseCode, String registerDesc) {
-                                    LogUtil.i("JMESSAGE", "JMessageClient.register " +
+                                    LogUtil.i(TAG, "JMessageClient.register " +
                                             ", responseCode = " + responseCode +
                                             " ; registerDesc = " + registerDesc);
+                                    if (responseCode == 0) {
+                                        Intent intentL = new Intent();
+                                        intentL.putExtra("phone", phone);
+                                        SignUpActivity.sSignUpActivity.setResult(Activity.RESULT_OK, intentL);
+                                        SignUpActivity.sSignUpActivity.finish();
+                                        Toasty.success(SignUpActivity.sSignUpActivity, "注册成功"
+                                                , Toasty.LENGTH_SHORT).show();
+                                    } else {
+                                        Toasty.error(SignUpActivity.sSignUpActivity, registerDesc
+                                                , Toasty.LENGTH_SHORT).show();
+                                    }
                                 }
                             });
-                            Intent intent = new Intent();
-                            intent.putExtra("phone", phone);
-                            SignUpActivity.sSignUpActivity.setResult(Activity.RESULT_OK, intent);
-                            SignUpActivity.sSignUpActivity.finish();
-                            Toast.makeText(SignUpActivity.sSignUpActivity, "注册成功", Toast.LENGTH_SHORT).show();
-                        } else {
-                            final JSONObject jObject = jsonObject.getJSONObject("data");
-                            final String message = jObject.getString("message");
-                            Toast.makeText(SignUpActivity.sSignUpActivity, message + "", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+//                        } else {
+//                            final JSONObject jObject = jsonObject.getJSONObject("data");
+//                            final String message = jObject.getString("message");
+//                            Toast.makeText(SignUpActivity.sSignUpActivity, message + "", Toast.LENGTH_SHORT).show();
+//                        }
+//                    }
+//                } catch (JSONException e) {
+//                    e.printStackTrace();
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
         return super.onStartCommand(intent, flags, startId);
     }
 

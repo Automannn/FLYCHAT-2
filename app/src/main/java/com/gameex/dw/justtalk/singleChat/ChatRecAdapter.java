@@ -4,9 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.Handler;
-import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -30,9 +28,11 @@ import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
+import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.github.siyamed.shapeimageview.RoundedImageView;
+import com.rey.material.widget.ProgressView;
 import com.vanniktech.emoji.EmojiTextView;
 
 import org.json.JSONException;
@@ -43,19 +43,18 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.callback.DownloadCompletionCallback;
-import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.content.CustomContent;
 import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.content.VoiceContent;
+import cn.jpush.im.android.api.enums.MessageStatus;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 import es.dmoral.toasty.Toasty;
 import jaygoo.widget.wlv.WaveLineView;
 import okhttp3.Call;
@@ -80,7 +79,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
     @Override
     public ChatRecHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.chat_recycler_item, viewGroup, false);
+        View view = inflater.inflate(R.layout.recycler_item_chat, viewGroup, false);
         return new ChatRecHolder(view);
     }
 
@@ -88,6 +87,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
     @Override
     public void onBindViewHolder(@NonNull ChatRecHolder holder, int position) {
         Message message = mMessages.get(position);
+        messageLinsten(message, holder.circlePros);
         long milliSecond = message.getCreateTime();
         String date = DataUtil.msFormMMDD(milliSecond);
         String time = DataUtil.msFormHHmmTime(milliSecond);
@@ -124,6 +124,27 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
     }
 
     /**
+     * 判断消息状态，设置发送监听
+     *
+     * @param message 消息对象
+     */
+    private void messageLinsten(Message message, ProgressView circlePros) {
+        if (message.getStatus() == MessageStatus.send_going) {
+            circlePros.setVisibility(View.VISIBLE);
+        }
+        message.setOnSendCompleteCallback(new BasicCallback() {
+            @Override
+            public void gotResult(int i, String s) {
+                LogUtil.d(TAG, "messageLinsten: " + "responseCode = " + i
+                        + " ;desc = " + s);
+                if (i == 0) {
+                    circlePros.setVisibility(View.GONE);
+                }
+            }
+        });
+    }
+
+    /**
      * 绑定接收的内容
      *
      * @param holder  ChatRecHolder
@@ -131,22 +152,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
      */
     private void initLeftContent(final ChatRecHolder holder, Message message) {
         UserInfo userInfo = message.getFromUser();
-        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-            @Override
-            public void gotResult(int i, String s, Bitmap bitmap) {
-                if (i == 0) {
-                    Glide.with(mContext)
-                            .load(bitmap)
-                            .into(holder.leftCircle);
-                } else {
-                    LogUtil.d(TAG, "initLeftContent: " + "responseCode = " + i
-                            + " ;desc = " + s);
-                    Glide.with(mContext)
-                            .load(R.drawable.icon_user)
-                            .into(holder.leftCircle);
-                }
-            }
-        });
+        UserInfoUtils.initUserIcon(userInfo, mContext, holder.leftCircle);
         switch (message.getContentType()) {
             case text:
                 TextContent textContent = (TextContent) message.getContent();
@@ -194,22 +200,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
      */
     private void initRightContent(final ChatRecHolder holder, Message message) {
         UserInfo userInfo = message.getFromUser();
-        userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-            @Override
-            public void gotResult(int i, String s, Bitmap bitmap) {
-                if (i == 0) {
-                    Glide.with(mContext)
-                            .load(bitmap)
-                            .into(holder.rightCircle);
-                } else {
-                    LogUtil.d(TAG, "initLeftContent: " + "responseCode = " + i
-                            + " ;desc = " + s);
-                    Glide.with(mContext)
-                            .load(R.drawable.icon_user)
-                            .into(holder.rightCircle);
-                }
-            }
-        });
+        UserInfoUtils.initUserIcon(userInfo, mContext, holder.rightCircle);
         switch (message.getContentType()) {
             case text:
                 TextContent textContent = (TextContent) message.getContent();
@@ -263,6 +254,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
         ImageView open;
         RoundedImageView leftImg, rightImg;
         WaveLineView voiceLineLeft, voiceLineRight;
+        ProgressView circlePros;
 
         private PopupWindow redPup;
 
@@ -322,6 +314,8 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
             redMessageRight = itemView.findViewById(R.id.red_message_right);
             //用户收到信息的时间
             sendTime = itemView.findViewById(R.id.msg_time_send);
+            //进度展示
+            circlePros = itemView.findViewById(R.id.progress);
         }
 
         @Override

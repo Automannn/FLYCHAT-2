@@ -12,11 +12,11 @@ import com.gameex.dw.justtalk.R;
 public class BaseDialog extends Dialog {
     private int res;
 
-    public BaseDialog(Context context, int theme, int res) {
+    public BaseDialog(Context context, int theme, int layout) {
         super(context, theme);
         // TODO 自动生成的构造函数存根
-        setContentView(res);
-        this.res = res;
+        setContentView(layout);
+        this.res = layout;
         setCanceledOnTouchOutside(false);
         Window window=getWindow();
         window.setWindowAnimations(R.style.RecordDialog);

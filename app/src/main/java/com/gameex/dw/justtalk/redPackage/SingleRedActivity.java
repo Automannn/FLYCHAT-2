@@ -3,6 +3,7 @@ package com.gameex.dw.justtalk.redPackage;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.os.Bundle;
 import android.text.Editable;
@@ -126,7 +127,7 @@ public class SingleRedActivity extends BaseActivity implements View.OnClickListe
         mSend.setOnClickListener(this);
 
         userId = getUserId();
-        setPubKey(userId);
+        new Handler().post(() -> setPubKey(userId));
     }
 
     /**
@@ -205,7 +206,8 @@ public class SingleRedActivity extends BaseActivity implements View.OnClickListe
     private void setPubKey(String userId) {
         HashMap<String, String> paramsMap = new HashMap<>();
         paramsMap.put("userId", userId);
-        OkHttpUtil.okHttpPost(GET_TOKEN, paramsMap, new CallBackUtil.CallBackDefault() {
+        OkHttpUtil.okHttpPost(GET_TOKEN, paramsMap, new CallBackUtil.CallBackString() {
+
             @Override
             public void onFailure(Call call, Exception e) {
                 LogUtil.d(TAG, "setPubKey-onFailure: ");
@@ -214,26 +216,19 @@ public class SingleRedActivity extends BaseActivity implements View.OnClickListe
             }
 
             @Override
-            public void onResponse(Response response) {
-                if (response != null && response.isSuccessful()) {
+            public void onResponse(String response) {
+                if (response != null) {
                     try {
-                        JSONObject object = null;
-                        if (response.body() != null) {
-                            object = new JSONObject(response.body().string());
+                        JSONObject object = new JSONObject(response);
+                        String data = object.getString("data");
+                        boolean success = object.getBoolean("success");
+                        LogUtil.d(TAG, "setPubKey-onResponse: " +
+                                "data = " + data + " ;success = " + success);
+                        if (success) {
+                            mPubKey = data;
+                        } else {
+                            LogUtil.d(TAG, "setPubKey-onResponse-success=false: ");
                         }
-                        if (object != null) {
-                            String data = object.getString("data");
-                            boolean success = object.getBoolean("success");
-                            LogUtil.d(TAG, "setPubKey-onResponse: " +
-                                    "data = " + data + " ;success = " + success);
-                            if (success) {
-                                mPubKey = data;
-                            } else {
-                                LogUtil.d(TAG, "setPubKey-onResponse-success=false: ");
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -276,7 +271,7 @@ public class SingleRedActivity extends BaseActivity implements View.OnClickListe
                 Toast.makeText(this, "随机选取一句祝福语", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.send_red_package:
-                handOutRed();
+                new Handler().post(this::handOutRed);
                 break;
         }
     }

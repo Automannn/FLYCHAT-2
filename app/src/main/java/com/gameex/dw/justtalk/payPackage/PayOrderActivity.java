@@ -53,7 +53,7 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
         @Override
         public void handleMessage(Message msg) {
 //            Resul result = new Result((String) msg.obj);
-            Toasty.success(PayOrderActivity.this,"支付成功").show();
+            Toasty.success(PayOrderActivity.this, "支付成功").show();
             Intent intent = new Intent();
             intent.putExtra("pay_success", true);
             setResult(RESULT_OK, intent);
@@ -188,7 +188,7 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
                 finish();
                 break;
             case R.id.pay:
-                getReadyToPay();
+                new Handler().post(this::getReadyToPay);
                 break;
         }
     }

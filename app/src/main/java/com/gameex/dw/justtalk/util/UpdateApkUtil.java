@@ -3,9 +3,8 @@ package com.gameex.dw.justtalk.util;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.widget.TextView;
 
 import com.allenliu.versionchecklib.callback.APKDownloadListener;
@@ -48,7 +47,8 @@ public class UpdateApkUtil {
                     @Override
                     public UIData onRequestVersionSuccess(String result) {
                         LogUtil.d(TAG, "sendRequest-onRequestVersionSuccess: "
-                                + "result = " + result);
+                                + "result = " + result + " ;versionName = " + getVersionName()
+                                + " ;versionCode = " + getVersionCode());
                         return createUIData("检测到新版本v1.0.1"
                                 , "http://test-1251233192.coscd.myqcloud.com/1_1.apk"
                                 , "1、修复已知Bug\n2、优化用户体验\n3、增加在线更新功能\n4、增加录音动画");
@@ -222,7 +222,7 @@ public class UpdateApkUtil {
     private void createCusVersionDialog() {
         mBuilder.setCustomVersionDialogListener((context, versionBundle) -> {
             BaseDialog baseDialog = new BaseDialog(context, R.style.CusVersionDialog
-                    , R.layout.custom_version_dialog);
+                    , R.layout.dialog_custom_version);
             baseDialog.setCancelable(false);
 //            baseDialog.setCanceledOnTouchOutside(false);
             //versionBundle 就是UIData，之前开发者传入的，在这里可以拿出UI数据并展示
@@ -249,8 +249,8 @@ public class UpdateApkUtil {
 
             @Override
             public Dialog getCustomDownloadingDialog(Context context, int progress, UIData versionBundle) {
-                BaseDialog baseDialog=new BaseDialog(context, R.style.CusVersionDialog
-                        , R.layout.custom_download_dialog);
+                BaseDialog baseDialog = new BaseDialog(context, R.style.CusVersionDialog
+                        , R.layout.dialog_custom_download);
                 baseDialog.setOnDismissListener(dialogInterface -> AllenVersionChecker.getInstance().cancelAllMission(mContext));
                 return baseDialog;
             }
@@ -264,5 +264,41 @@ public class UpdateApkUtil {
                 tvProgress.setText(mContext.getString(R.string.versionchecklib_progress, progress));
             }
         });
+    }
+
+    /**
+     * 获取当前应用版本号
+     *
+     * @return string
+     */
+    private String getVersionCode() {
+        // 获取packagemanager的实例
+        PackageManager packageManager = mContext.getPackageManager();
+        // getPackageName()是你当前类的包名，0代表是获取版本信息
+        PackageInfo packInfo = null;
+        try {
+            packInfo = packageManager.getPackageInfo(mContext.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return packInfo == null ? null : String.valueOf(packInfo.versionCode);
+    }
+
+    /**
+     * 获取当前应用版本名
+     *
+     * @return string
+     */
+    private String getVersionName() {
+        // 获取packagemanager的实例
+        PackageManager packageManager = mContext.getPackageManager();
+        // getPackageName()是你当前类的包名，0代表是获取版本信息
+        PackageInfo packInfo = null;
+        try {
+            packInfo = packageManager.getPackageInfo(mContext.getPackageName(), 0);
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+        return packInfo == null ? null : packInfo.versionName;
     }
 }

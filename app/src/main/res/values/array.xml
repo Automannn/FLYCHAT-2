@@ -6,4 +6,12 @@
         <item>农业银行</item>
         <item>中兴银行</item>
     </string-array>
+    <integer-array name="pros_stroke_color">
+        <item>@color/colorAccent</item>
+        <item>@color/green</item>
+        <item>@color/purple</item>
+        <item>@color/indigo</item>
+        <item>@color/yellow</item>
+        <item>@color/colorRedDeep</item>
+    </integer-array>
 </resources>

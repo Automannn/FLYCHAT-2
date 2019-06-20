@@ -33,6 +33,7 @@ import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
+import es.dmoral.toasty.Toasty;
 
 public class CreateGroupActivity extends BaseActivity
         implements View.OnClickListener, FragmentCallBack, DoneCreateGroupCallBack {
@@ -100,6 +101,16 @@ public class CreateGroupActivity extends BaseActivity
         initView();
         initData();
         sActivity = this;
+    }
+
+    @Override
+    protected void onDestroy() {
+        SharedPreferences pref = PreferenceManager
+                .getDefaultSharedPreferences(CreateGroupActivity.this);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.remove("user_choosed");
+        editor.apply();
+        super.onDestroy();
     }
 
     /**
@@ -197,8 +208,8 @@ public class CreateGroupActivity extends BaseActivity
                         } else {
                             LogUtil.d(TAG, "onClick-done_create_group: "
                                     + "responseCode = " + i + "desc = " + s);
-                            Toast.makeText(CreateGroupActivity.this, "创建失败"
-                                    , Toast.LENGTH_SHORT).show();
+                            Toasty.error(CreateGroupActivity.this, "创建失败"
+                                    , Toasty.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -251,6 +262,9 @@ public class CreateGroupActivity extends BaseActivity
                     msgInfo.setGroupInfoJson(groupInfo.toJson());
                     intent.putExtra("msg_info", msgInfo);
                     startActivity(intent);
+                    Intent updateGroups = new Intent();
+                    updateGroups.putExtra("group_info", groupInfo.toJson());
+                    setResult(RESULT_OK, updateGroups);
                     finish();
                 } else {
                     LogUtil.d(TAG, "goCreateGroup: " + "responseCode = "
@@ -281,6 +295,11 @@ public class CreateGroupActivity extends BaseActivity
             mTitle.setText("发起群聊");
             mNext.setText("下一步");
         } else {
+            SharedPreferences pref = PreferenceManager
+                    .getDefaultSharedPreferences(CreateGroupActivity.this);
+            SharedPreferences.Editor editor = pref.edit();
+            editor.remove("user_choosed");
+            editor.apply();
             super.onBackPressed();
         }
     }

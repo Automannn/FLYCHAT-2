@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <TextView
+        android:id="@+id/date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_marginRight="@dimen/dp_10"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:text="@string/msg_data"/>
+
+    <RelativeLayout
+        android:id="@+id/new_friend"
+        android:layout_width="match_parent"
+        android:layout_height="?heightC"
+        android:background="@drawable/light_gray_white_underline_rip"
+        android:clickable="true"
+        android:focusable="true">
+
+        <com.github.siyamed.shapeimageview.CircularImageView
+            android:id="@+id/icon"
+            android:layout_width="?widthI"
+            android:layout_height="?heightL"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:src="@drawable/icon_user"
+            app:siBorderColor="@color/colorWhite"/>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@id/icon"
+            android:layout_toRightOf="@id/icon"
+            android:orientation="vertical"
+            tools:ignore="RelativeOverlap">
+
+            <TextView
+                android:id="@+id/name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/title_dashboard"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"/>
+
+            <TextView
+                android:id="@+id/reason"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/send_msg_str"/>
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/accept"
+            android:layout_width="?widthC"
+            android:layout_height="?heightA"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:background="@drawable/rip_dark_gray_light_gray"
+            android:text="@string/accept_str"
+            android:textColor="@color/colorAccent"
+            android:textSize="@dimen/sp_13"/>
+    </RelativeLayout>
+
+</LinearLayout>

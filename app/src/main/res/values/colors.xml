@@ -38,5 +38,8 @@
     <color name="gray">#999999</color>
 
     <color name="yellow">#FFD700</color>
+    <color name="green">#9ACD32</color>
+    <color name="purple">#FF1493</color>
+    <color name="indigo">#B9D3EE</color>
 
 </resources>

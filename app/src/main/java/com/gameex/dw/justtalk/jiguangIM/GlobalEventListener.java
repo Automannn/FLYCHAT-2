@@ -5,6 +5,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.Ringtone;
@@ -19,9 +20,15 @@ import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.singleChat.ChattingActivity;
 import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.GsonUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.SharedPreferenceUtil;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
@@ -31,6 +38,8 @@ import cn.jpush.im.android.api.event.ContactNotifyEvent;
 import cn.jpush.im.android.api.event.LoginStateChangeEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.event.NotificationClickEvent;
+import cn.jpush.im.android.api.event.OfflineMessageEvent;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -45,7 +54,10 @@ import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_Click
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_DEFAULT;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_EXTRA;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_ONE;
+import static com.gameex.dw.justtalk.main.BottomBarActivity.NEW_FRIEND;
+import static com.gameex.dw.justtalk.main.BottomBarActivity.NEW_MSG;
 import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
+import static com.gameex.dw.justtalk.myNewFriends.NewFriendsActivity.ADD_RECEIVE;
 
 /**
  * 在demo中对于通知栏点击事件和在线消息接收事件，我们都直接在全局监听
@@ -54,6 +66,7 @@ public class GlobalEventListener {
     private static final String TAG = "GLOBAL_EVENT_LISTENER";
     private Context appContext;
     private NotificationManager notifyManager;
+    private List<Map<String, String>> newFriendsDatas = new ArrayList<>();
 
     public GlobalEventListener(Context context) {
         appContext = context;
@@ -96,24 +109,42 @@ public class GlobalEventListener {
     }
 
     /**
+     * 在线消息事件
+     *
+     * @param omEvent MessageEvent
+     */
+    public void onEvent(OfflineMessageEvent omEvent) {
+        List<Message> messages = omEvent.getOfflineMessageList();
+        for (Message message : messages) {
+            goUpdateMsgInfos(message);
+        }
+    }
+
+    /**
      * 好友相关事件
      *
      * @param cnEvent ContactNotifyEvent
      */
     public void onEvent(ContactNotifyEvent cnEvent) {
+        String name = cnEvent.getFromUsername();
+        String reason = cnEvent.getReason();
+        String date = DataUtil.msFormMMDD(System.currentTimeMillis());
         LogUtil.d(TAG, "EventType = " + cnEvent.getType() +
-                "reason = " + cnEvent.getReason() +
-                "username = " + cnEvent.getFromUsername() +
+                "reason = " + reason + "username = " + name +
                 "AppKey = " + cnEvent.getfromUserAppKey());
         Uri ringtoneNotify = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         Ringtone ringtone = RingtoneManager.getRingtone(appContext, ringtoneNotify);
         Vibrator vibrator = (Vibrator) appContext
                 .getSystemService(Context.VIBRATOR_SERVICE);
+        Intent intent = new Intent();
         switch (cnEvent.getType()) {
             case invite_received:   //收到好友添加请求
                 //通知栏弹出通知提示,可查看请求信息;可进行“同意/拒绝”的处理;点击通知跳转至请求用户基本信息页，
                 notifyInviteReceived(cnEvent.getFromUsername(), cnEvent.getReason());
                 //若双方互发好友添加请求，则会自动成为好友，此处应作适当处理
+                saveNewFReceived(name, date, reason);
+                intent.setAction(NEW_FRIEND);
+                appContext.sendBroadcast(intent);
                 break;
             case invite_accepted:   //对方接受了你的好友请求
                 /*播放提示音，刷新联系人列表，飞聊标签页增加新朋友item，
@@ -121,11 +152,11 @@ public class GlobalEventListener {
                 */
                 ringtone.play();
                 vibrator.vibrate(new long[]{0, 200, 200, 100}, -1);
-                Intent intent = new Intent(UPDATE_MSG_INFO);
-                MsgInfo msgInfo=new MsgInfo(cnEvent.getFromUsername(),DataUtil.getCurrentDateStr()
-                        ,"我同意加你为好友了，你想和我聊点什么...",true);
+                intent.setAction(UPDATE_MSG_INFO);
+                MsgInfo msgInfo = new MsgInfo(cnEvent.getFromUsername(), DataUtil.getCurrentDateStr()
+                        , "我同意加你为好友了，你想和我聊点什么...", true);
                 msgInfo.setSingle(true);
-                intent.putExtra("msg_info",msgInfo);
+                intent.putExtra("msg_info", msgInfo);
                 appContext.sendBroadcast(intent);
                 break;
             case invite_declined:   //对方拒绝了你的好友请求
@@ -140,6 +171,39 @@ public class GlobalEventListener {
             default:
                 break;
         }
+    }
+
+    /**
+     * 缓存新朋友请求的相关信息
+     *
+     * @param username 用户名
+     * @param date     日期
+     * @param reason   理由
+     */
+    private void saveNewFReceived(String username, String date, String reason) {
+        JMessageClient.getUserInfo(username, new GetUserInfoCallback() {
+            @Override
+            public void gotResult(int i, String s, UserInfo userInfo) {
+                if (i == 0) {
+                    Map<String, String> map = new HashMap<>();
+                    map.put("username", username);
+                    map.put("date", date);
+                    map.put("reason", reason);
+                    map.put("userInfo", userInfo.toJson());
+                    newFriendsDatas.add(map);
+                    SharedPreferenceUtil.putList("new_friends_receive_list", newFriendsDatas);
+                    Intent intent = new Intent(ADD_RECEIVE);
+                    intent.putExtra("contact_username", username);
+                    intent.putExtra("contact_reason", reason);
+                    intent.putExtra("contact_date", date);
+                    intent.putExtra("userInfo", userInfo.toJson());
+                    appContext.sendBroadcast(intent);
+                } else {
+                    LogUtil.d(TAG, "saveNewFReceived: "
+                            + "responseCode = " + i + " ;desc = " + s);
+                }
+            }
+        });
     }
 
     /**
@@ -187,6 +251,8 @@ public class GlobalEventListener {
      * @param message 消息体
      */
     private void goUpdateMsgInfos(Message message) {
+        if (message.getFromUser().getUserName().equals(JMessageClient.getMyInfo().getUserName()))
+            return;
         String date = DataUtil.msFormMMDD(message.getCreateTime());
         MsgInfo msgInfo = new MsgInfo();
         msgInfo.setDate(date);
@@ -207,7 +273,7 @@ public class GlobalEventListener {
                 break;
             case voice:
                 msgInfo.setMsgLast("语音");
-                updateMsgInfo(message,msgInfo);
+                updateMsgInfo(message, msgInfo);
                 break;
             case eventNotification:
                 GroupInfo groupInfo = (GroupInfo) message.getTargetInfo();
@@ -228,7 +294,6 @@ public class GlobalEventListener {
                 Context.NOTIFICATION_SERVICE);
         final Notification.Builder builder = new Notification.Builder(appContext)
                 .setSmallIcon(R.drawable.logo)
-                .setContentText("新的朋友")
                 .setWhen(System.currentTimeMillis())
                 .setAutoCancel(true)
                 .setVibrate(new long[]{0, 200, 200, 100})
@@ -243,8 +308,9 @@ public class GlobalEventListener {
             @Override
             public void gotResult(int responseCode, String getUserDesc, UserInfo userInfo) {
                 if (responseCode == 0) {
-                    builder.setContentTitle(userInfo.getExtra("username") == null
-                            ? userInfo.getUserName() : userInfo.getExtra("username"));
+                    builder.setContentTitle(userInfo.getNickname() == null
+                            ? userInfo.getUserName() : userInfo.getNickname());
+                    builder.setContentText(username + "请求添加你为好友");
                     Bitmap bitmap = null;
                     try {
                         bitmap = MediaStore.Images.Media.getBitmap(appContext.getContentResolver()
@@ -329,6 +395,8 @@ public class GlobalEventListener {
         }
         intent.putExtra("msg_info", msgInfo);
         appContext.sendBroadcast(intent);
+        Intent newMsg = new Intent(NEW_MSG);
+        appContext.sendBroadcast(newMsg);
     }
 
     /**

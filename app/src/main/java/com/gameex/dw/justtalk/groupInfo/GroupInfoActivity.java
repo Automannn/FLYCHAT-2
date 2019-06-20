@@ -259,6 +259,7 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
         Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.back:
+                setResult(RESULT_OK);
                 finish();
                 break;
             case R.id.more:
@@ -382,7 +383,7 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                     DataUtil.cropPhoto(this, null, data.getData());
                 }
                 break;
-            case CROP_PHOTO:
+            case CROP_PHOTO:    //群头像
                 if (data != null) {
                     Bundle extras = data.getExtras();
                     assert extras != null;
@@ -411,13 +412,14 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                     }
                 }
                 break;
-            case EDIT_GROUP_NICK_CODE:
+            case EDIT_GROUP_NICK_CODE:  //群昵称
                 if (data != null && resultCode == RESULT_OK) {
                     String nick = data.getStringExtra("my_nick");
                     mGroupInfo.updateName(nick, new BasicCallback() {
                         @Override
                         public void gotResult(int i, String s) {
                             if (i == 0) {
+                                GroupInfoUtil.initGroupIcon(mGroupInfo, GroupInfoActivity.this, mIcon);
                                 mName.setText(nick);
                             } else {
                                 LogUtil.d(TAG, "onActivityResult-EDIT_GROUP_NICK_CODE: "
@@ -429,7 +431,7 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                     });
                 }
                 break;
-            case EDIT_MY_GROUP_NICK_CODE:
+            case EDIT_MY_GROUP_NICK_CODE:   //我的群名称
                 if (data != null && resultCode == RESULT_OK) {
                     String myNick = data.getStringExtra("my_nick");
                     UserInfo myInfo = JMessageClient.getMyInfo();
@@ -452,5 +454,11 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                 break;
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    @Override
+    public void onBackPressed() {
+        setResult(RESULT_OK);
+        super.onBackPressed();
     }
 }

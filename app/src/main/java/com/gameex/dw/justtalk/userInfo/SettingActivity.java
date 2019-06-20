@@ -2,7 +2,6 @@ package com.gameex.dw.justtalk.userInfo;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -14,6 +13,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.login.LoginActivity;
 import com.gameex.dw.justtalk.managePack.ActivityCollector;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
 import com.gameex.dw.justtalk.titleBar.OnViewClick;
@@ -21,6 +21,9 @@ import com.gameex.dw.justtalk.titleBar.TitleBarView;
 import com.warkiz.widget.IndicatorSeekBar;
 import com.warkiz.widget.OnSeekChangeListener;
 import com.warkiz.widget.SeekParams;
+
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * 设置界面activity
@@ -37,10 +40,22 @@ public class SettingActivity extends BaseActivity implements View.OnClickListene
     private TextView mTest;
     private IndicatorSeekBar mSeekBar;
 
+    /**
+     * 切换账号
+     */
+    @OnClick(R.id.other_login)
+    void changeLogin() {
+        ActivityCollector.finishAll();  //销毁所有活动
+        Intent intentLoginOut = new Intent(this, LoginActivity.class);
+        intentLoginOut.putExtra("flag", "LoginOut");
+        startActivity(intentLoginOut);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_setting);
+        ButterKnife.bind(this);
 
         sSettingActivity = this;
 

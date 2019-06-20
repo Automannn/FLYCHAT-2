@@ -84,7 +84,7 @@ public class DoneCreateFragment extends Fragment implements View.OnClickListener
     public View onCreateView(@NonNull LayoutInflater inflater
             , @Nullable ViewGroup container
             , @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.set_basic_info_create_group, container, false);
+        View view = inflater.inflate(R.layout.fragment_set_basic_info_create_group, container, false);
         mIcon = view.findViewById(R.id.group_icon_create);
         mName = view.findViewById(R.id.group_name_create);
         mNum = view.findViewById(R.id.group_num_create);

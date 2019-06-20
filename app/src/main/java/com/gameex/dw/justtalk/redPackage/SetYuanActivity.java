@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -181,7 +182,7 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
         mSend.setOnClickListener(this);
 
         userId = getUserId();
-        setPubKey(userId);
+        new Handler().post(() -> setPubKey(userId));
     }
 
     @Override
@@ -207,7 +208,7 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
                 Toast.makeText(this, "随机选取一句祝福语", Toast.LENGTH_SHORT).show();
                 break;
             case R.id.send_red_package:
-                handOutRed();
+                new Handler().post(this::handOutRed);
                 break;
         }
     }
@@ -217,7 +218,7 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
      */
     private void handOutRed() {
         String secretString = getSecretString(mPubKey);
-        if (secretString==null){
+        if (secretString == null) {
             return;
         }
         final String token = MD5.generate(secretString, false);
@@ -286,7 +287,8 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
     private void setPubKey(String userId) {
         HashMap<String, String> paramsMap = new HashMap<>();
         paramsMap.put("userId", userId);
-        OkHttpUtil.okHttpPost(GET_TOKEN, paramsMap, new CallBackUtil.CallBackDefault() {
+        OkHttpUtil.okHttpPost(GET_TOKEN, paramsMap, new CallBackUtil.CallBackString() {
+
             @Override
             public void onFailure(Call call, Exception e) {
                 LogUtil.d(TAG, "setPubKey-onFailure: ");
@@ -295,26 +297,19 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
             }
 
             @Override
-            public void onResponse(Response response) {
-                if (response != null && response.isSuccessful()) {
+            public void onResponse(String response) {
+                if (response != null) {
                     try {
-                        JSONObject object = null;
-                        if (response.body() != null) {
-                            object = new JSONObject(response.body().string());
+                        JSONObject object = new JSONObject(response);
+                        String data = object.getString("data");
+                        boolean success = object.getBoolean("success");
+                        LogUtil.d(TAG, "setPubKey-onResponse: " +
+                                "data = " + data + " ;success = " + success);
+                        if (success) {
+                            mPubKey = data;
+                        } else {
+                            LogUtil.d(TAG, "setPubKey-onResponse-success=false: ");
                         }
-                        if (object != null) {
-                            String data = object.getString("data");
-                            boolean success = object.getBoolean("success");
-                            LogUtil.d(TAG, "setPubKey-onResponse: " +
-                                    "data = " + data + " ;success = " + success);
-                            if (success) {
-                                mPubKey = data;
-                            } else {
-                                LogUtil.d(TAG, "setPubKey-onResponse-success=false: ");
-                            }
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -333,13 +328,13 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
      */
     private String getSecretString(String pubKey) {
         JSONObject secretJson = new JSONObject();
-        String yuan=mYuanNum.getText().toString();
-        String count=mPackageNum.getText().toString();
-        if (!DataUtil.isLegleYuan(yuan)){
+        String yuan = mYuanNum.getText().toString();
+        String count = mPackageNum.getText().toString();
+        if (!DataUtil.isLegleYuan(yuan)) {
             Toast.makeText(this, "红包金额不正确", Toast.LENGTH_SHORT).show();
             return null;
         }
-        if (!TextUtils.isDigitsOnly(count)){
+        if (!TextUtils.isDigitsOnly(count)) {
             Toast.makeText(this, "红包个数不正确", Toast.LENGTH_SHORT).show();
             return null;
         }

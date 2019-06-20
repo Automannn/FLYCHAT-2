@@ -67,7 +67,7 @@ public class RechargeActivity extends BaseActivity implements View.OnClickListen
 
         //金额面板
         GridView gridView = findViewById(R.id.grid);
-        mAdapter = new SimpleAdapter(this, mMapList, R.layout.recharge_item
+        mAdapter = new SimpleAdapter(this, mMapList, R.layout.grid_item_recharge
                 , new String[]{"yuan"}, new int[]{R.id.yuan});
         gridView.setAdapter(mAdapter);
         gridView.setOnItemClickListener((adapterView, view, position, l) -> {

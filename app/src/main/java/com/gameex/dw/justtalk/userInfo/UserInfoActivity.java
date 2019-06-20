@@ -40,6 +40,7 @@ import androidx.core.content.ContextCompat;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
+import es.dmoral.toasty.Toasty;
 
 import static com.gameex.dw.justtalk.main.MyInfoFragment.UPDATE_USER_INFO;
 import static com.gameex.dw.justtalk.util.DataUtil.CHOOSE_PHOTO;
@@ -253,6 +254,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     String nick = data.getStringExtra("my_nick");
                     mNickName.setText(nick);
                     mUserInfo.setNickname(nick);
+                    mUserInfo.setUserExtras("index",DataUtil.getPinYinFirstLetter(nick));
                     flag = true;
                 }
                 break;
@@ -331,7 +333,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
      * @param hint 提示文字
      */
     public void editPupWin(String hint, String text, final TextView textView) {
-        @SuppressLint("InflateParams") View view = this.getLayoutInflater().inflate(R.layout.user_info_edit_pup, null);
+        @SuppressLint("InflateParams") View view = this.getLayoutInflater().inflate(R.layout.popup_user_info_edit, null);
         final EditText edit;
         Button cancel, sure;
         edit = view.findViewById(R.id.user_info_edit);
@@ -366,12 +368,12 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
                     if (i == 0) {
                         Intent intent = new Intent(UPDATE_USER_INFO);
                         sendBroadcast(intent);
-                        Toast.makeText(UserInfoActivity.this
-                                , "用户信息更新成功", Toast.LENGTH_SHORT).show();
+                        Toasty.success(UserInfoActivity.this
+                                , "用户信息更新成功", Toasty.LENGTH_SHORT).show();
                         finish();
                     } else {
-                        Toast.makeText(UserInfoActivity.this
-                                , "用户信息更新失败", Toast.LENGTH_SHORT).show();
+                        Toasty.error(UserInfoActivity.this
+                                , "用户信息更新失败", Toasty.LENGTH_SHORT).show();
                     }
                 }
             });

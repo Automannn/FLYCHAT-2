@@ -3,6 +3,7 @@ package com.gameex.dw.justtalk.userInfo;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
@@ -15,6 +16,8 @@ import com.daimajia.androidanimations.library.Techniques;
 import com.daimajia.androidanimations.library.YoYo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.managePack.BaseActivity;
+
+import es.dmoral.toasty.Toasty;
 
 import static com.gameex.dw.justtalk.userInfo.UserInfoActivity.EDIT_NICK_REQUEST_CODE;
 
@@ -113,6 +116,10 @@ public class EditMyInfoActivity extends BaseActivity implements View.OnClickList
                     case "昵称":
                     case "群昵称":
                     case "我在本群的昵称":
+//                        if (TextUtils.isEmpty(mNick.getText())){
+//                            Toasty.error(this,"昵称不能为空",Toasty.LENGTH_SHORT).show();
+//                            return;
+//                        }
                         intent.putExtra("my_nick", mNick.getText().toString());
                         break;
                     case "个性签名":

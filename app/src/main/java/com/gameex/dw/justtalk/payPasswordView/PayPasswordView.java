@@ -10,14 +10,12 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
 
@@ -42,7 +40,7 @@ public class PayPasswordView extends RelativeLayout implements View.OnClickListe
         super(context, attrs);
         this.context = context;
         //view布局
-        View view = View.inflate(context, R.layout.layout_popup_bottom, null);
+        View view = View.inflate(context, R.layout.popup_keyboard_bottom, null);
         //初始化密码框
         mPayLayout = view.findViewById(R.id.pay_pwd_layout);
         valueList = new ArrayList<>();
@@ -179,7 +177,7 @@ public class PayPasswordView extends RelativeLayout implements View.OnClickListe
             ViewHolder viewHolder;
             if (convertView == null) {
                 //装载数字键盘布局
-                convertView = View.inflate(context, R.layout.item_gride, null);
+                convertView = View.inflate(context, R.layout.grid_item_pwd_keyboard, null);
                 viewHolder = new ViewHolder();
                 //初始化键盘按钮
                 viewHolder.btnKey = convertView.findViewById(R.id.btn_keys);

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -13,14 +12,16 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.objPack.MsgInfo;
 import com.gameex.dw.justtalk.singleChat.ChattingActivity;
 import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.GroupInfoUtil;
+import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.google.gson.Gson;
+import com.vanniktech.emoji.EmojiTextView;
 
 import java.util.List;
 
@@ -28,11 +29,14 @@ import androidx.annotation.NonNull;
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import es.dmoral.toasty.Toasty;
 import q.rorbin.badgeview.Badge;
 import q.rorbin.badgeview.QBadgeView;
+
+import static com.gameex.dw.justtalk.main.BottomBarActivity.NEW_MSG;
 
 /**
  * 飞聊item的RecyclerView的adapter
@@ -51,7 +55,7 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
     @Override
     public DashHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.message_item, viewGroup, false);
+        View view = inflater.inflate(R.layout.recycler_item_message, viewGroup, false);
         return new DashHolder(view);
     }
 
@@ -59,9 +63,21 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
     @Override
     public void onBindViewHolder(@NonNull DashHolder holder, int position) {
         MsgInfo msgInfo = mMsgInfos.get(position);
-        Glide.with(mContext)
-                .load(Uri.parse(msgInfo.getUriPath()))
-                .into(holder.userIcon);
+        if (msgInfo.getGroupInfoJson() == null) {
+            UserInfo userInfo = UserInfo.fromJson(msgInfo.getUserInfoJson());
+            UserInfoUtils.initUserIcon(userInfo, mContext, holder.userIcon);
+            Conversation conversation = JMessageClient.getSingleConversation(
+                    userInfo.getUserName());
+            if (conversation != null)
+                holder.badge.setBadgeNumber(conversation.getUnReadMsgCnt());
+        } else {
+            GroupInfo groupInfo = GroupInfo.fromJson(msgInfo.getGroupInfoJson());
+            GroupInfoUtil.initGroupIcon(groupInfo, mContext, holder.userIcon);
+            Conversation conversation = JMessageClient.getGroupConversation(
+                    groupInfo.getGroupID());
+            if (conversation != null)
+                holder.badge.setBadgeNumber(conversation.getUnReadMsgCnt());
+        }
         holder.userName.setText(msgInfo.getUsername());
         String lastMsg = msgInfo.getMsgLast();
         if (lastMsg != null && lastMsg.length() > 16) {
@@ -74,8 +90,6 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         } else {
             holder.notifyOff.setVisibility(View.VISIBLE);
         }
-
-        holder.badge.setBadgeText("");
     }
 
     @Override
@@ -87,7 +101,8 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         CardView msgCard;
         CircularImageView userIcon;
         ImageView notifyOff;
-        TextView userName, msgLast, msgTime;
+        TextView userName, msgTime;
+        EmojiTextView msgLast;
         Badge badge;
 
         DashHolder(@NonNull final View itemView) {
@@ -101,18 +116,13 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
             msgLast = itemView.findViewById(R.id.msg_last);
             msgTime = itemView.findViewById(R.id.msg_time);
             badge = new QBadgeView(mContext).bindTarget(msgCard);
-            badge.setBadgeTextSize(14,true);
-//            badge.setBadgeTextColor(R.color.colorRed);
-            badge.setBadgePadding(8,true);
-            badge.setGravityOffset(22,2,true);
+            badge.setGravityOffset(22, 2, true);
             badge.setBadgeGravity(Gravity.BOTTOM | Gravity.END);
-            badge.setShowShadow(true);
-//            badge.stroke(0xffffffff,2,true);
-            badge.setBadgeBackgroundColor(0xffFF0000);
-            badge.setOnDragStateChangedListener((dragState, badge, targetView) -> {
-                if (dragState == Badge.OnDragStateChangedListener.STATE_SUCCEED)
-                    Toasty.info(mContext, "标为已读", Toasty.LENGTH_SHORT).show();
-            });
+            //badge拖拽监听，加上则可已拖拽
+//            badge.setOnDragStateChangedListener((dragState, badge, targetView) -> {
+//                if (dragState == Badge.OnDragStateChangedListener.STATE_SUCCEED)
+//                    Toasty.info(mContext, "标为已读", Toasty.LENGTH_SHORT).show();
+//            });
         }
 
         @Override
@@ -138,6 +148,7 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
                     intent.putExtra("msg_info", msgInfo);
                     intent.putExtra("last_msg", msgInfo.getMsgLast());
                     mContext.startActivity(intent);
+                    notifyItemChanged(getAdapterPosition());
                     break;
             }
         }

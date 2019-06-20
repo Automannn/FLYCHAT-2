@@ -6,15 +6,17 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.text.TextUtils;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.objPack.Contact;
+import com.gameex.dw.justtalk.inviteFriends.InviteFriendsActivity;
+import com.gameex.dw.justtalk.myGroups.MyGroupActivity;
+import com.gameex.dw.justtalk.myNewFriends.NewFriendsActivity;
 import com.gameex.dw.justtalk.publicInterface.FragmentCallBack;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.RecScrollHelper;
@@ -26,17 +28,25 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.widget.NestedScrollView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import butterknife.ButterKnife;
+import butterknife.Unbinder;
 import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.callback.GetUserInfoListCallback;
 import cn.jpush.im.android.api.model.UserInfo;
+import es.dmoral.toasty.Toasty;
+import q.rorbin.badgeview.Badge;
+import q.rorbin.badgeview.QBadgeView;
 
-public class ContactFragment extends Fragment {
+import static com.gameex.dw.justtalk.main.BottomBarActivity.NEW_FRIEND;
+
+public class ContactFragment extends Fragment implements View.OnClickListener {
     private static final String TAG = "ContactFragment";
     /**
      * 移除联系人action
@@ -49,8 +59,25 @@ public class ContactFragment extends Fragment {
     public static final String ADD_CONTACT =
             "com.gameex.dw.flychat.ContactFragment.CONTACT_ADAPTER_ADD";
 
+    private Unbinder mUnbinder;
     private View mView;
     private RecyclerView mContactRec;
+    public NestedScrollView mScrollView;
+
+    /**
+     * 新的朋友
+     */
+    private LinearLayout mNewFriends;
+
+    /**
+     * 邀请好友
+     */
+    private LinearLayout mInviteFriends;
+
+    /**
+     * 我的群组
+     */
+    private LinearLayout mMyGroups;
     private ContactAdapter mAdapter;
     /**
      * 缓存操作
@@ -75,6 +102,7 @@ public class ContactFragment extends Fragment {
     private static String[] indexStr = new String[]{"↑", "A", "B", "C", "D", "E"
             , "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S"
             , "T", "U", "V", "W", "X", "Y", "Z", "#"};
+    private Badge mBadge;
 
     @Override
     public void onAttach(Context context) {
@@ -92,13 +120,17 @@ public class ContactFragment extends Fragment {
         IntentFilter filter = new IntentFilter();
         filter.addAction(REMOVE_CONTACT);
         filter.addAction(ADD_CONTACT);
+        filter.addAction(NEW_FRIEND);
         Objects.requireNonNull(getActivity()).registerReceiver(mReceiver, filter);
     }
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mView = inflater.inflate(R.layout.contact_layout, container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater
+            , @Nullable ViewGroup container
+            , @Nullable Bundle savedInstanceState) {
+        mView = inflater.inflate(R.layout.fragment_contact, container, false);
+        mUnbinder = ButterKnife.bind(mView);
         return mView;
     }
 
@@ -111,6 +143,7 @@ public class ContactFragment extends Fragment {
     @Override
     public void onDestroy() {
         Objects.requireNonNull(getActivity()).unregisterReceiver(mReceiver);
+        mUnbinder.unbind();
         super.onDestroy();
     }
 
@@ -118,6 +151,21 @@ public class ContactFragment extends Fragment {
      * 初始化布局
      */
     private void initView() {
+        mScrollView = mView.findViewById(R.id.nested_scroll);
+        mNewFriends = mView.findViewById(R.id.new_friends);
+        mBadge = new QBadgeView(getActivity()).bindTarget(mNewFriends)
+                .setGravityOffset(22, 2, true)
+                .setBadgeGravity(Gravity.BOTTOM | Gravity.END);
+        //badge拖拽监听，加上则可已拖拽
+//            .setOnDragStateChangedListener((dragState, badge, targetView) -> {
+//                if (dragState == Badge.OnDragStateChangedListener.STATE_SUCCEED)
+//                    Toasty.info(mContext, "标为已读", Toasty.LENGTH_SHORT).show();
+//            });
+        mNewFriends.setOnClickListener(this);
+        mInviteFriends = mView.findViewById(R.id.invite_friends);
+        mInviteFriends.setOnClickListener(this);
+        mMyGroups = mView.findViewById(R.id.my_groups);
+        mMyGroups.setOnClickListener(this);
         DefaultItemAnimator animatorContact = new DefaultItemAnimator();
         animatorContact.setAddDuration(300);
         animatorContact.setChangeDuration(300);
@@ -126,46 +174,24 @@ public class ContactFragment extends Fragment {
         mContactRec = mView.findViewById(R.id.contact_recycler);
         mContactRec.setItemAnimator(animatorContact);
         mContactRec.setLayoutManager(new LinearLayoutManager(BottomBarActivity.sBottomBarActivity));
-        String userInfosStr = mPref.getString("contact_list", "");
-        if (!TextUtils.isEmpty(userInfosStr)) {
-            mContacts = (List<UserInfo>) UserInfo.fromJsonToCollection(userInfosStr);
-            mAdapter = new ContactAdapter(BottomBarActivity.sBottomBarActivity,
-                    Contact.getBasicContact(), mContacts);
-            mContactRec.setAdapter(mAdapter);
-        } else {
-            ContactManager.getFriendList(new GetUserInfoListCallback() {
-                @Override
-                public void gotResult(int responseCode, String friendListDesc, List<UserInfo> list) {
-                    if (responseCode == 0) {
-                        LogUtil.d(TAG, "ContactManager.getFriendList : " +
-                                "list = " + list.toString());
-                        mContacts = list;
-                        mAdapter = new ContactAdapter(BottomBarActivity.sBottomBarActivity,
-                                Contact.getBasicContact(), mContacts);
-                        mContactRec.setAdapter(mAdapter);
-                        mEditor = mPref.edit();
-                        mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
-                        mEditor.apply();
-                    } else {
-                        LogUtil.d(TAG, "ContactManager.getFriendList : " +
-                                "responseCode = " + responseCode + " ; friendListDesc" +
-                                friendListDesc);
-                    }
-                }
-            });
-        }
+        mAdapter = new ContactAdapter(BottomBarActivity.sBottomBarActivity
+                , mContacts);
+        mContactRec.setAdapter(mAdapter);
+        updateContact();
         mCallBack.sendMessage(UserInfo.collectionToJson(mContacts));
-        new Handler(Objects.requireNonNull(getActivity()).getMainLooper()).post(this::updateContact);
         WaveSideBar indexBar = mView.findViewById(R.id.glide_side_bar);
         indexBar.setIndexItems(indexStr);
         indexBar.setOnSelectIndexItemListener(index -> {
             for (int i = 0; i < mContacts.size(); i++) {
                 String indexContact = mContacts.get(i).getExtra("index");
-                if (indexContact != null) {
-                    if (indexContact.equals(index)) {
-                        RecScrollHelper.scrollToPosition(mContactRec, i);
-                        return;
-                    }
+                if (indexContact == null) return;
+                if (index.equals(indexStr[0])) {
+                    mScrollView.scrollTo(0, 0);
+                    return;
+                }
+                if (indexContact.equals(index)) {
+                    RecScrollHelper.scrollToPosition(mContactRec, i);
+                    return;
                 }
             }
         });
@@ -186,7 +212,7 @@ public class ContactFragment extends Fragment {
                 mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
                 mEditor.apply();
                 mCallBack.sendMessage(UserInfo.collectionToJson(mContacts));
-                mAdapter.notifyItemInserted(j);
+                mAdapter.notifyItemRangeChanged(j, mContacts.size() - 1);
                 break;
             }
         }
@@ -199,7 +225,7 @@ public class ContactFragment extends Fragment {
      * @param userInfo 用户基本信息
      */
     private void addNewNoIndex(String index, UserInfo userInfo) {
-        if (mContacts.size() == 0) {
+        if (mContacts.size() == 0 || index.equals("#")) {
             mContacts.add(userInfo);
             mEditor = mPref.edit();
             mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
@@ -211,7 +237,8 @@ public class ContactFragment extends Fragment {
         for (int j = 0; j < mContacts.size(); j++) {
             UserInfo contact = mContacts.get(j);
             String indexContact = contact.getExtra("index");
-            if (indexContact.equals("#") || Integer.parseInt(index) < Integer.parseInt(indexContact)) {
+            int c = index.compareTo(indexContact);
+            if (indexContact.equals("#") || c < 0) {
                 mContacts.add(j, userInfo);
                 mEditor = mPref.edit();
                 mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
@@ -219,6 +246,16 @@ public class ContactFragment extends Fragment {
                 mCallBack.sendMessage(UserInfo.collectionToJson(mContacts));
                 mAdapter.notifyItemInserted(j);
                 break;
+            } else {
+                if (j == mContacts.size() - 1 || index.compareTo(mContacts.get(j + 1).getExtra("index")) < 0) {
+                    mContacts.add(j + 1, userInfo);
+                    mEditor = mPref.edit();
+                    mEditor.putString("contact_list", UserInfo.collectionToJson(mContacts));
+                    mEditor.apply();
+                    mCallBack.sendMessage(UserInfo.collectionToJson(mContacts));
+                    mAdapter.notifyItemInserted(j);
+                    break;
+                }
             }
         }
     }
@@ -302,6 +339,27 @@ public class ContactFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onClick(View view) {
+        Intent intent = new Intent();
+        switch (view.getId()) {
+            case R.id.new_friends:  //新的朋友
+                mBadge.hide(false);
+                intent.setClass(Objects.requireNonNull(getContext()), NewFriendsActivity.class);
+                Objects.requireNonNull(getActivity()).startActivity(intent);
+                break;
+            case R.id.invite_friends:   //邀请朋友
+                intent.setClass(Objects.requireNonNull(getActivity()), InviteFriendsActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.my_groups:    //我的群组
+                intent.setClass(Objects.requireNonNull(getActivity()), MyGroupActivity.class);
+                intent.putExtra("user_infos", UserInfo.collectionToJson(mContacts));
+                startActivity(intent);
+                break;
+        }
+    }
+
     private class UpdateContactReceiver extends BroadcastReceiver {
 
         @Override
@@ -336,6 +394,9 @@ public class ContactFragment extends Fragment {
                             }
                         }
                     });
+                    break;
+                case NEW_FRIEND:
+                    mBadge.setBadgeText("");
                     break;
             }
         }

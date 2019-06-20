@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 
 import com.gameex.dw.justtalk.jiguangIM.GlobalEventListener;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.SharedPreferenceUtil;
 import com.vanniktech.emoji.EmojiManager;
 import com.vanniktech.emoji.twitter.TwitterEmojiProvider;
 
@@ -59,5 +60,8 @@ public class FlayChatApplication extends MultiDexApplication {
                 new GlobalEventListener(getApplicationContext()));
 
         EmojiManager.install(new TwitterEmojiProvider());
+
+        //初始化缓存工具类
+        SharedPreferenceUtil.getInstance(this, null);
     }
 }

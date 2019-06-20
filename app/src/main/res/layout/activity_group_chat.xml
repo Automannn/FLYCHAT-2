@@ -56,9 +56,9 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginEnd="@dimen/dp_10"
                 android:layout_marginRight="@dimen/dp_10"
-                app:siBorderAlpha="0"
                 android:background="@drawable/light_gray_rip_out"
                 android:src="@drawable/icon_group"
+                app:siBorderAlpha="0"
                 tools:ignore="ContentDescription"/>
         </RelativeLayout>
 
@@ -68,8 +68,8 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layoutAnimation="@anim/layout_animation_fall_down"
-            android:paddingLeft="@dimen/dp_5"
-            android:paddingRight="@dimen/dp_5"/>
+            android:paddingLeft="@dimen/dp_10"
+            android:paddingRight="@dimen/dp_10"/>
 
     </LinearLayout>
 
@@ -117,6 +117,7 @@
                 android:paddingLeft="5dp"
                 android:paddingRight="5dp"
                 android:paddingBottom="@dimen/dp_5"
+                android:scrollbars="vertical"
                 android:textColor="@color/colorMineThemeText"
                 android:textCursorDrawable="@drawable/cursor_dra"
                 android:textSize="?smallFont"
@@ -126,13 +127,13 @@
                 android:id="@+id/record_voice"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/colorWhite"
-                android:text="@string/record_voice_str"
                 android:background="@drawable/dark_gray_light_blue_rip"
                 android:gravity="center"
-                android:visibility="gone"
                 android:padding="@dimen/dp_8"
-                android:textSize="?smallFont"/>
+                android:text="@string/record_voice_str"
+                android:textColor="@color/colorWhite"
+                android:textSize="?smallFont"
+                android:visibility="gone"/>
 
         </RelativeLayout>
 

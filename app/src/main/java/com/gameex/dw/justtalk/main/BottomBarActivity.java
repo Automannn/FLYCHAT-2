@@ -2,10 +2,13 @@ package com.gameex.dw.justtalk.main;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -38,6 +41,7 @@ import java.util.Objects;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.view.menu.MenuView;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
@@ -45,7 +49,11 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.model.Conversation;
 import es.dmoral.toasty.Toasty;
+import q.rorbin.badgeview.Badge;
+import q.rorbin.badgeview.QBadgeView;
 
 import static com.gameex.dw.justtalk.main.MyInfoFragment.REQUEST_CODE_SCAN;
 
@@ -57,6 +65,16 @@ public class BottomBarActivity extends BaseActivity
     private static final String TAG = "BottomBarActivity";
     @SuppressLint("StaticFieldLeak")
     public static BottomBarActivity sBottomBarActivity;
+    /**
+     * 收到新消息
+     */
+    public static final String NEW_MSG =
+            "com.gameex.dw.justtalk.main.BottomBarActivity.NEW_MSG";
+    /**
+     * 收到新好友邀请
+     */
+    public static final String NEW_FRIEND =
+            "com.gameex.dw.justtalk.main.BottomBarActivity.NEW_FRIEND";
     /**
      * 标题栏
      */
@@ -89,6 +107,17 @@ public class BottomBarActivity extends BaseActivity
 
     private long exitTime;
     private String mUserInfosStr;
+    private MainActReceiver mReceiver;
+    /**
+     * 底部导航栏子tab中的ImageView
+     */
+    private View mView1, mView2;
+    /**
+     * 角标
+     */
+    private Badge mBadge1, mBadge2;
+    private int mBadgeSpaceView;
+
 
     @Override
     public void sendMessage(String value) {
@@ -102,6 +131,35 @@ public class BottomBarActivity extends BaseActivity
         initView();
         getTitlePW();
         sBottomBarActivity = this;
+        mReceiver = new MainActReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(NEW_MSG);
+        filter.addAction(NEW_FRIEND);
+        registerReceiver(mReceiver, filter);
+    }
+
+    @Override
+    protected void onPause() {
+        if (mBadge1 != null) {
+            // 隐藏角标
+            mBadge1.hide(false);
+        }
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        if (mBadge1 != null) {
+            // 显示badegeview,当数字<=0时将不显示
+            mBadge1.setBadgeNumber(JMessageClient.getAllUnReadMsgCount());
+        }
+        super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        unregisterReceiver(mReceiver);
+        super.onDestroy();
     }
 
     /**
@@ -118,11 +176,6 @@ public class BottomBarActivity extends BaseActivity
         mSearchView.setMenuItem(item);
         return true;*/
         return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
     }
 
     /**
@@ -177,6 +230,39 @@ public class BottomBarActivity extends BaseActivity
         navigation.setSelectedItemId(R.id.navigation_home);
         viewPager.setAdapter(new ViewPagerAdapter(getSupportFragmentManager()));
         viewPager.setOffscreenPageLimit(2);
+        initMenuView();
+    }
+
+    /**
+     * 初始化底部导航栏前两个子view，及相关数据
+     */
+    private void initMenuView() {
+        // 具体child的查找和view的嵌套结构请在源码中查看
+        // 从bottomNavigationView中获得BottomNavigationMenuView
+        BottomNavigationMenuView menuView = (BottomNavigationMenuView) navigation.getChildAt(0);
+        // 从BottomNavigationMenuView中获得childview, BottomNavigationItemView
+        // 获得viewIndex对应子tab
+        mView1 = menuView.getChildAt(0);
+        mView2 = menuView.getChildAt(1);
+        // 从子tab中获得其中显示图片的ImageView
+        @SuppressLint("CutPasteId") View icon = mView1.findViewById(com.google.android.material.R.id.icon);
+        // 获得图标的宽度
+        int iconWidth = icon.getWidth();
+        // 获得tab的宽度/2
+        int tabWidth = mView1.getWidth() / 2;
+        // 计算badge要距离右边的距离
+        mBadgeSpaceView = tabWidth - iconWidth;
+        //绑定角标
+        mBadge1 = new QBadgeView(this).bindTarget(mView1)
+                .setGravityOffset(mBadgeSpaceView, 3, false);
+        //badge拖拽监听，加上则可已拖拽
+//            .setOnDragStateChangedListener((dragState, badge, targetView) -> Toasty.info(sBottomBarActivity,"标为已读").show());
+        mBadge2 = new QBadgeView(this).bindTarget(mView2)
+                .setGravityOffset(mBadgeSpaceView, 3, false)
+                //badge拖拽监听，加上则可已拖拽
+                .setOnDragStateChangedListener((dragState, badge, targetView) -> {
+
+                });
     }
 
     /**
@@ -214,7 +300,7 @@ public class BottomBarActivity extends BaseActivity
     @SuppressLint("ClickableViewAccessibility")
     private void getTitlePW() {
         @SuppressLint("InflateParams") View view = this.getLayoutInflater().inflate(
-                R.layout.title_pup_layout, null);
+                R.layout.popup_title, null);
         RelativeLayout talkGround, addFriend, SQ, helpBack;
         talkGround = view.findViewById(R.id.talk_ground_layout);
         talkGround.setOnClickListener(this);
@@ -277,6 +363,7 @@ public class BottomBarActivity extends BaseActivity
                     mTitleBarView.setSearchIVVisible(View.VISIBLE);
                     break;
                 case R.id.navigation_dashboard:
+                    mBadge2.hide(false);
                     viewPager.setCurrentItem(1);
                     mTitleBarView.setTitle("联系人");
                     mTitleBarView.setRightIVVisible(View.VISIBLE);
@@ -498,6 +585,27 @@ public class BottomBarActivity extends BaseActivity
                 break;
             default:
                 break;
+        }
+    }
+
+    /**
+     * 给底部导航栏添加角标
+     */
+    class MainActReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            assert action != null;
+            switch (action) {
+                case NEW_MSG:
+                    // 显示badegeview,当数字<=0时将不显示
+                    mBadge1.setBadgeNumber(JMessageClient.getAllUnReadMsgCount());
+                    break;
+                case NEW_FRIEND:
+                    // 显示badegeview,当数字<=0时将不显示
+                    mBadge2.setBadgeText("");
+                    break;
+            }
         }
     }
 

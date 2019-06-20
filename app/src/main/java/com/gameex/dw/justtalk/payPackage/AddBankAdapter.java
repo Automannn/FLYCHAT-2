@@ -32,7 +32,7 @@ public class AddBankAdapter extends RecyclerView.Adapter<AddBankAdapter.AddBankH
     @Override
     public AddBankHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.item_bank_card, viewGroup, false);
+        View view = inflater.inflate(R.layout.recycler_item_bank_card, viewGroup, false);
         return new AddBankHolder(view);
     }
 

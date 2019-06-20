@@ -1,13 +1,12 @@
 package com.gameex.dw.justtalk.groupChat;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Rect;
 import android.net.Uri;
 import android.os.Bundle;
@@ -22,6 +21,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.SimpleAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,9 +39,11 @@ import com.gameex.dw.justtalk.imagePicker.Glide4Engine;
 import com.gameex.dw.justtalk.redPackage.SetYuanActivity;
 import com.gameex.dw.justtalk.util.BarUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
+import com.gameex.dw.justtalk.util.FileUtil;
 import com.gameex.dw.justtalk.util.GroupInfoUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.vanniktech.emoji.EmojiEditText;
 import com.vanniktech.emoji.EmojiPopup;
 import com.zhihu.matisse.Matisse;
@@ -61,8 +63,6 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
-import cn.jpush.im.android.api.content.ImageContent;
 import cn.jpush.im.android.api.content.TextContent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.model.Conversation;
@@ -71,9 +71,9 @@ import cn.jpush.im.android.api.model.GroupMemberInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.android.api.options.MessageSendingOptions;
-import cn.jpush.im.api.BasicCallback;
 import es.dmoral.toasty.Toasty;
 
+import static com.gameex.dw.justtalk.main.BottomBarActivity.NEW_MSG;
 import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
 import static com.gameex.dw.justtalk.singleChat.ChattingActivity.RECORD_COMPLETE;
 
@@ -89,6 +89,10 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
      * ZhiHu`s image picker`s request code
      */
     private static final int REQUEST_CODE_CHOOSE = 23;
+    /**
+     * 更新群头像
+     */
+    private static final int REQUEST_CODE_UPDATE_ICON = 102;
     private ViewGroup mRootView;
     /**
      * 返回箭头
@@ -118,6 +122,10 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
      * 群消息适配器
      */
     private GroupChatAdapter mChatAdapter;
+    /**
+     * 底部编辑栏
+     */
+    private LinearLayout mSendLinear;
     /**
      * 发送语音按钮
      */
@@ -149,7 +157,7 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
     /**
      * 群成员头像Uri
      */
-    private List<Bitmap> mBitmaps = new ArrayList<>();
+    private List<UserInfo> mUserInfos = new ArrayList<>();
     private List<Message> mMessages = new ArrayList<>();
 
     /**
@@ -173,13 +181,9 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
      */
     private InputMethodManager mIMM;
     /**
-     * 虚拟键高度，若没有/隐藏虚拟键，则为0
+     * 软键盘高度
      */
-    private int navigationBarHeight;
-    /**
-     * 软件盘高度，有虚拟键，则为软键盘高度+虚拟键高度
-     */
-    private int heightDifference;
+    private int mKeyBoardHeight = 0;
     private float posY, curY;
     private boolean isSendVoice = false;
     private GroupReceiver mReceiver;
@@ -203,6 +207,8 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
         JMessageClient.exitConversation();
         JMessageClient.unRegisterEventReceiver(this);
         unregisterReceiver(mReceiver);
+        Intent intent = new Intent(NEW_MSG);
+        sendBroadcast(intent);
     }
 
     /**
@@ -215,6 +221,7 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
         mNameNum = findViewById(R.id.group_name_member_num);
         mGroup = findViewById(R.id.group_info);
         mRecyclerView = findViewById(R.id.group_member_title_rec);
+        mSendLinear = findViewById(R.id.send_linear);
         mMsgRecycler = findViewById(R.id.group_chat_recycler);
         voiceImg = findViewById(R.id.voice_msg);
         mRecord = findViewById(R.id.record_voice);
@@ -230,7 +237,7 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
     private void initData() {
         mIMM = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
         //获得虚拟键高度
-        navigationBarHeight = BarUtil.getNavigationBarHeight(this);
+//        navigationBarHeight = BarUtil.getNavigationBarHeight(this);
 
         JMessageClient.registerEventReceiver(this);
         mGroupId = getIntent().getLongExtra("group_id", -1);
@@ -253,9 +260,9 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         mRecyclerView.setLayoutManager(layoutManager);
-        mMemberAdapter = new GroupMemberAdapter(this, mBitmaps);
+        mMemberAdapter = new GroupMemberAdapter(this, mUserInfos);
         mRecyclerView.setAdapter(mMemberAdapter);
-        getBitmaps();
+        getUserInfos();
 
         DefaultItemAnimator animatorMsg = new DefaultItemAnimator();
         animatorMsg.setAddDuration(300);
@@ -317,26 +324,6 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
                 }
             }
         });
-        mEdit.getViewTreeObserver().addOnGlobalLayoutListener(() -> {  //当键盘弹出/隐藏时调用此方法
-            Rect r = new Rect();
-            //获取当前界面可视部分
-            GroupChatActivity.this.getWindow()
-                    .getDecorView()
-                    .getWindowVisibleDisplayFrame(r);
-            //获取屏幕的高度
-            int screenHeight = GroupChatActivity.this.getWindow()
-                    .getDecorView()
-                    .getRootView()
-                    .getHeight();
-            //此处就是用来获取键盘的高度的， 在键盘没有弹出的时候 此高度为0 键盘弹出的时候为一个正数
-            heightDifference = screenHeight - r.bottom;
-            if (heightDifference > navigationBarHeight) {
-                if (mGridView.getVisibility() == View.VISIBLE) {
-                    showFunction();
-                }
-            }
-            LogUtil.d(TAG, "initView-onGlobalLayout: " + "Size = " + heightDifference);
-        });
         mEmoji.setOnClickListener(this);
         initEmojiPopup();
         mSend.setOnClickListener(this);
@@ -345,7 +332,7 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
 
         //底部功能栏适配器
         SimpleAdapter simpleAdapter = new SimpleAdapter(this, initGridList()
-                , R.layout.function_item, new String[]{"icon", "icon_name"}
+                , R.layout.grid_item_function, new String[]{"icon", "icon_name"}
                 , new int[]{R.id.function_img, R.id.function_name});
         mGridView.setAdapter(simpleAdapter);
         mGridView.setOnItemClickListener((adapterView, view, position, id) -> {
@@ -380,12 +367,69 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
                 .setOnEmojiBackspaceClickListener(v -> LogUtil.d(TAG, "Clicked on Backspace"))
                 .setOnEmojiClickListener((emoji, imageView) -> LogUtil.d(TAG, "Clicked on emoji"))
                 .setOnEmojiPopupShownListener(() -> LogUtil.d(TAG, "Emoji popup id shown"))
-                .setOnSoftKeyboardOpenListener(keyBoardHeight -> LogUtil.d(TAG, "Opened soft keyboard"))
+                .setOnSoftKeyboardOpenListener(keyBoardHeight -> {
+                    LogUtil.d(TAG, "Opened soft keyboard: " + "keyBoardHeight = " + keyBoardHeight);
+                    mKeyBoardHeight = keyBoardHeight;
+                    if (mGridView.getVisibility() == View.VISIBLE) {
+                        mGridView.setVisibility(View.GONE);
+                    }
+                    LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)
+                            mSendLinear.getLayoutParams();
+                    params.bottomMargin = keyBoardHeight;
+                    mSendLinear.setLayoutParams(params);
+                })
                 .setOnEmojiPopupDismissListener(() -> LogUtil.d(TAG, "Emoji popup id dismiss"))
-                .setOnSoftKeyboardCloseListener(() -> LogUtil.d(TAG, "Closed soft keyboard"))
+                .setOnSoftKeyboardCloseListener(() -> {
+                    LogUtil.d(TAG, "Closed soft keyboard");
+                    if (mKeyBoardHeight > 0) {
+                        mKeyBoardHeight = 0;
+                        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)
+                                mSendLinear.getLayoutParams();
+                        params.bottomMargin = mKeyBoardHeight;
+                        mSendLinear.setLayoutParams(params);
+                    }
+                })
                 .setKeyboardAnimationStyle(R.style.emoji_fade_animation_style)
                 .setPageTransformer(new PageTransformer())
                 .build(mEdit);
+    }
+
+    @SuppressLint("CheckResult")
+    private void requestPermission() {
+        new RxPermissions(this)
+                .request(Manifest.permission.RECORD_AUDIO)
+                .subscribe(granted -> {
+                    if (granted) {
+//                        if (mGridView.getVisibility() == View.VISIBLE) {
+//                            showFunction();
+//                        }
+                        if (mRecord.getVisibility() == View.VISIBLE) {
+                            YoYo.with(Techniques.SlideOutDown)
+                                    .duration(200)
+                                    .onEnd(animator -> mRecord.setVisibility(View.GONE))
+                                    .playOn(mRecord);
+                            mEdit.setVisibility(View.VISIBLE);
+                            YoYo.with(Techniques.SlideInDown)
+                                    .duration(200)
+                                    .playOn(mEdit);
+                        } else {
+                            if (mIMM != null && mKeyBoardHeight > 0) {
+                                mIMM.hideSoftInputFromWindow(voiceImg.getWindowToken(), 0);
+                            }
+                            mRecord.setVisibility(View.VISIBLE);
+                            YoYo.with(Techniques.SlideInUp)
+                                    .duration(200)
+                                    .playOn(mRecord);
+                            YoYo.with(Techniques.SlideOutUp)
+                                    .duration(200)
+                                    .onEnd(animator -> mEdit.setVisibility(View.GONE))
+                                    .playOn(mEdit);
+                        }
+                    } else {
+                        Toast.makeText(this
+                                , "无法开启录音功能", Toast.LENGTH_SHORT).show();
+                    }
+                });
     }
 
     /**
@@ -464,39 +508,30 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
                         , GroupInfoActivity.class);
                 intent.putExtra("group_info", mGroupInfo.toJson());
                 intent.putExtra("group_id", mGroupId);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CODE_UPDATE_ICON);
                 break;
             case R.id.voice_msg:    //发送语音
-                if (mRecord.getVisibility() == View.VISIBLE) {
-                    YoYo.with(Techniques.SlideOutDown)
-                            .duration(200)
-                            .onEnd(animator -> mRecord.setVisibility(View.GONE))
-                            .playOn(mRecord);
-                    mEdit.setVisibility(View.VISIBLE);
-                    YoYo.with(Techniques.SlideInDown)
-                            .duration(200)
-                            .playOn(mEdit);
-                } else {
-                    if (mIMM != null && heightDifference > navigationBarHeight) {
-                        mIMM.hideSoftInputFromWindow(view.getWindowToken(), 0);
-                    }
-                    mRecord.setVisibility(View.VISIBLE);
-                    YoYo.with(Techniques.SlideInUp)
-                            .duration(200)
-                            .playOn(mRecord);
-                    YoYo.with(Techniques.SlideOutUp)
-                            .duration(200)
-                            .onEnd(animator -> mEdit.setVisibility(View.GONE))
-                            .playOn(mEdit);
-                }
+                requestPermission();
                 break;
             case R.id.emoji_circle:
-                mEmojiPopup.toggle();
+                if (mRecord.getVisibility() == View.VISIBLE) {
+                    YoYo.with(Techniques.FadeOutLeft)
+                            .duration(100)
+                            .onEnd(animator -> {
+                                mRecord.setVisibility(View.GONE);
+                                mEdit.setVisibility(View.VISIBLE);
+                                YoYo.with(Techniques.FadeIn)
+                                        .duration(100)
+                                        .onEnd(animator1 -> mEmojiPopup.toggle())
+                                        .playOn(mEdit);
+                            })
+                            .playOn(mRecord);
+                } else mEmojiPopup.toggle();
                 break;
             case R.id.send_circle:
                 String content = Objects.requireNonNull(mEdit.getText()).toString();
                 if (content.isEmpty()) {
-                    if (mIMM != null && heightDifference > navigationBarHeight) {
+                    if (mIMM != null && mKeyBoardHeight > 0) {
                         mIMM.hideSoftInputFromWindow(view.getWindowToken(), 0);
                         new Handler().postDelayed(this::showFunction, 50);
                     } else {
@@ -539,32 +574,24 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
         TextContent textContent = new TextContent(content);
         assert mConversation != null;
         final Message message = mConversation.createSendMessage(textContent);
-        sendListener(message, true);
+        goUpdateAdapter(message, true);
     }
 
     /**
      * 发送图片消息处理
      *
-     * @param imgBitmap 图片文件
+     * @param file 图片文件
      */
-    private void sendImgMsg(Bitmap imgBitmap) {
+    private void sendImgMsg(File file) {
         if (mConversation == null) {
             mConversation = Conversation.createGroupConversation(mGroupId);
         }
-        ImageContent.createImageContentAsync(imgBitmap, "flychat"
-                , new ImageContent.CreateImageContentCallback() {
-                    @Override
-                    public void gotResult(int i, String s, ImageContent imageContent) {
-                        if (i == 0) {
-                            assert mConversation != null;
-                            final Message message = mConversation.createSendMessage(imageContent);
-                            sendListener(message, false);
-                        } else {
-                            Toast.makeText(GroupChatActivity.this
-                                    , "发送图片失败-" + s, Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                });
+        try {
+            Message message = mConversation.createSendImageMessage(file, "flychat");
+            goUpdateAdapter(message, false);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -580,7 +607,7 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
         }
         try {
             Message message = mConversation.createSendVoiceMessage(voiceFile, duration, name);
-            sendListener(message, false);
+            goUpdateAdapter(message, false);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -596,7 +623,7 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
             mConversation = Conversation.createGroupConversation(mGroupId);
         }
         Message message = mConversation.createSendCustomMessage(map, "红包");
-        sendListener(message, false);
+        goUpdateAdapter(message, false);
     }
 
     /**
@@ -605,23 +632,11 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
      * @param message     消息对象
      * @param isClearText 是否清空文本编辑框
      */
-    private void sendListener(final Message message, final boolean isClearText) {
-        message.setOnSendCompleteCallback(new BasicCallback() {
-            @Override
-            public void gotResult(int requestCode, String responseDesc) {
-                if (requestCode == 0) {
-                    LogUtil.d("requestCode = 0",
-                            "发送成功" + "responseDesc = " + responseDesc);
-                    updateAdapter(message);
-                    if (isClearText) {
-                        mEdit.setText("");
-                    }
-                } else {
-                    Toast.makeText(GroupChatActivity.this, "发送失败，请重试"
-                            , Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+    private void goUpdateAdapter(final Message message, final boolean isClearText) {
+        updateAdapter(message);
+        if (isClearText) {
+            mEdit.setText("");
+        }
         MessageSendingOptions options = new MessageSendingOptions();
         options.setRetainOffline(true);
         JMessageClient.sendMessage(message);
@@ -631,24 +646,12 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
      * 初始化标题栏头像图片
      */
     @SuppressLint("SetTextI18n")
-    private void getBitmaps() {
-//        List<Uri> uris = new ArrayList<>();
+    private void getUserInfos() {
         List<GroupMemberInfo> groupMemberInfos = mGroupInfo.getGroupMemberInfos();
         for (GroupMemberInfo groupMemberInfo : groupMemberInfos) {
             UserInfo userInfo = groupMemberInfo.getUserInfo();
-            userInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
-                @Override
-                public void gotResult(int i, String s, Bitmap bitmap) {
-                    LogUtil.d(TAG, "getUris: " + "responseCode = " + i
-                            + " ;desc = " + s);
-                    if (i == 0) {
-                        mBitmaps.add(bitmap);
-                    } else {
-                        mBitmaps.add(BitmapFactory.decodeResource(getResources(), R.drawable.icon_user));
-                    }
-                    mMemberAdapter.notifyItemInserted(mBitmaps.size() - 1);
-                }
-            });
+            mUserInfos.add(userInfo);
+            mMemberAdapter.notifyItemInserted(mUserInfos.size() - 1);
         }
         mNameNum.setText(getIntent().getStringExtra("group_name")
                 + "（" + groupMemberInfos.size() + "）");
@@ -687,13 +690,10 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
         } else if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
             assert data != null;
             List<Uri> path = Matisse.obtainResult(data);
-            try {
-                Bitmap bitmap = BitmapFactory.decodeStream(
-                        getContentResolver().openInputStream(path.get(0)));
-                sendImgMsg(bitmap);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            sendImgMsg(FileUtil.getFileByUri(GroupChatActivity.this
+                    , path.get(0)));
+        } else if (requestCode == REQUEST_CODE_UPDATE_ICON && resultCode == RESULT_OK) {
+            GroupInfoUtil.initGroupIcon(mGroupInfo, GroupChatActivity.this, mGroup);
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }

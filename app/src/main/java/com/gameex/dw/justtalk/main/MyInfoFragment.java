@@ -8,9 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -38,11 +37,11 @@ import com.yzq.zxinglibrary.encode.CodeCreator;
 
 import java.util.Objects;
 
-import androidx.annotation.ColorRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import cn.jpush.im.android.api.JMessageClient;
+import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import es.dmoral.toasty.Toasty;
 
@@ -86,7 +85,7 @@ public class MyInfoFragment extends Fragment implements View.OnClickListener {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        mView = inflater.inflate(R.layout.mine_layout, container, false);
+        mView = inflater.inflate(R.layout.fragment_mine, container, false);
         return mView;
     }
 
@@ -160,7 +159,7 @@ public class MyInfoFragment extends Fragment implements View.OnClickListener {
         settingLayout.setOnClickListener(this);
         onlineServiceLayout = mView.findViewById(R.id.online_service_layout);
         onlineServiceLayout.setOnClickListener(this);
-        initDataOfMine();
+        new Handler().postDelayed(this::initDataOfMine, 200);
     }
 
     /**
@@ -170,7 +169,7 @@ public class MyInfoFragment extends Fragment implements View.OnClickListener {
      */
     private void showQrDialog(Bitmap bitmap) {
         mQRCodeDialog = new Dialog(BottomBarActivity.sBottomBarActivity, R.style.qr_code_dialog_style);
-        mQRCodeDialog.setContentView(R.layout.qr_code_dialog);
+        mQRCodeDialog.setContentView(R.layout.dialog_qr_code);
         ImageView qrImg = mQRCodeDialog.findViewById(R.id.qr_code_img_dialog);
         qrImg.setImageBitmap(bitmap);
         mQRCodeDialog.setCanceledOnTouchOutside(true);
@@ -187,7 +186,7 @@ public class MyInfoFragment extends Fragment implements View.OnClickListener {
     public void onClick(View view) {
         Intent intent = new Intent();
         switch (view.getId()) {
-            case R.id.mine_info_layout:
+            case R.id.mine_info_layout://我的详细信息
                 if (mUserInfo == null) {
                     mUserInfo = JMessageClient.getMyInfo();
                 }
@@ -195,42 +194,53 @@ public class MyInfoFragment extends Fragment implements View.OnClickListener {
                 intent.putExtra("mine_info", mUserInfo.toJson());
                 startActivity(intent);
                 break;
-            case R.id.qr_code_img:
-                /*
-                contentEtString:字符串内容
-                w:图片宽
-                h:图片高
-                logo:不需要的话，直接传空
-                 */
-                Bitmap logo = BitmapFactory.decodeResource(getResources(),
-                        R.drawable.icon_user);
-                Bitmap qrCodeBit = CodeCreator.createQRCode("www.baidu.com",
-                        400, 400, logo);
-                showQrDialog(qrCodeBit);
+            case R.id.qr_code_img://我的二维码
+                if (mUserInfo == null) {
+                    return;
+                }
+                mUserInfo.getAvatarBitmap(new GetAvatarBitmapCallback() {
+                    @Override
+                    public void gotResult(int i, String s, Bitmap bitmap) {
+                        if (i == 0) {
+                            /*
+                            contentEtString:字符串内容
+                            w:图片宽
+                            h:图片高
+                            logo:不需要的话，直接传空
+                            */
+                            Bitmap qrCodeBit = CodeCreator.createQRCode("www.baidu.com",
+                                    400, 400, bitmap);
+                            showQrDialog(qrCodeBit);
+                        } else {
+                            Toasty.error(Objects.requireNonNull(getActivity())
+                                    , "二维码拉取失败", Toasty.LENGTH_SHORT).show();
+                        }
+                    }
+                });
                 break;
-            case R.id.loose_change_layout:
+            case R.id.loose_change_layout://零钱
                 intent.setClass(Objects.requireNonNull(getActivity()), ChangeActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.fly_chat_store_layout:
+            case R.id.fly_chat_store_layout://商城
                 mApkUtil.sendRequest();
-                Toasty.info(Objects.requireNonNull(getActivity()), "进入商城"
-                        , Toasty.LENGTH_SHORT, true).show();
+                Toasty.info(Objects.requireNonNull(getActivity()), "敬请期待"
+                        , Toasty.LENGTH_SHORT).show();
                 break;
-            case R.id.scan_layout:
+            case R.id.scan_layout://扫一扫
                 requestPermission();
                 break;
-            case R.id.my_favorite_layout:
-                Toasty.custom(Objects.requireNonNull(getActivity()), "查看收藏条目", R.drawable.favorite
-                        , R.color.colorAccent, 700, true, true).show();
+            case R.id.my_favorite_layout://收藏
+                Toasty.info(Objects.requireNonNull(getActivity()), "敬请期待"
+                        , Toasty.LENGTH_SHORT).show();
                 break;
-            case R.id.setting_layout:
+            case R.id.setting_layout://设置
                 intent.setClass(BottomBarActivity.sBottomBarActivity, SettingActivity.class);
                 startActivity(intent);
                 break;
-            case R.id.online_service_layout:
-                Toasty.normal(Objects.requireNonNull(getActivity()), "请求客服"
-                        , R.drawable.vector_hook_check).show();
+            case R.id.online_service_layout://客服
+                Toasty.info(Objects.requireNonNull(getActivity()), "敬请期待"
+                        , Toasty.LENGTH_SHORT).show();
                 break;
             default:
                 break;

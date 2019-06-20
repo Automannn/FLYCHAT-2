@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
 import java.util.List;
@@ -33,22 +34,14 @@ public class DoneCreateAdapter extends RecyclerView.Adapter<DoneCreateAdapter.Do
     @Override
     public DoneCreateHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(mContext);
-        View view = inflater.inflate(R.layout.done_create_item, viewGroup, false);
+        View view = inflater.inflate(R.layout.recycler_item_done_create, viewGroup, false);
         return new DoneCreateHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull DoneCreateHolder holder, int position) {
         UserInfo userInfo = mUserInfos.get(position);
-        if (userInfo.getExtra("icon_uri") != null) {
-            Glide.with(mContext)
-                    .load(Uri.parse(userInfo.getExtra("icon_uri")))
-                    .into(holder.icon);
-        } else {
-            Glide.with(mContext)
-                    .load(R.drawable.icon_user)
-                    .into(holder.icon);
-        }
+        UserInfoUtils.initUserIcon(userInfo, mContext, holder.icon);
         holder.name.setText(TextUtils.isEmpty(userInfo.getNickname())
                 ? userInfo.getUserName() : userInfo.getNickname());
     }
