@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * gson工具类
+ */
 public class GsonUtil {
 
     private static GsonUtil util;

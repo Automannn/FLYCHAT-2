@@ -4,10 +4,13 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 网络操作工具类
+ */
 public class OkHttpUtil {
     //    private static final String REALM_NAME = "https://wechat.automannn.cn/";
-//    private static final String REALM_NAME = "http://h82dyr.natappfree.cc/";
-    private static final String REALM_NAME = "http://zitbv5.natappfree.cc/";
+//    private static final String REALM_NAME = "http://192.168.1.103:80/";
+    private static final String REALM_NAME = "http://flytalk.flyxia.cn:80/";
 
     public static final String METHOD_GET = "GET";
 
@@ -50,7 +53,7 @@ public class OkHttpUtil {
     /**
      * get请求，可以传递参数
      *
-     * @param path       路径
+     * @param path      路径
      * @param paramsMap map集合，封装键值对参数
      * @param headerMap map集合，封装请求头键值对
      * @param callBack  回调接口，onFailure方法在请求失败时调用，onResponse方法在请求成功后调用，这两个方法都执行在UI线程。

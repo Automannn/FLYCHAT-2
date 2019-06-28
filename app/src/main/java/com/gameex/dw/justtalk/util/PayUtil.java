@@ -23,6 +23,9 @@ import java.util.Map;
 
 import static com.gameex.dw.justtalk.FlayChatApplication.WE_CHAT_APP_ID;
 
+/**
+ * 支付工具类
+ */
 public class PayUtil {
     private static final String TAG = "PayUtil";
     /**

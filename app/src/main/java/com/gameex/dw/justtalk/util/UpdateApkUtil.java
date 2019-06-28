@@ -16,14 +16,16 @@ import com.allenliu.versionchecklib.v2.callback.CustomDownloadingDialogListener;
 import com.allenliu.versionchecklib.v2.callback.RequestVersionListener;
 import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.managePack.ActivityCollector;
-import com.gameex.dw.justtalk.updateVersion.BaseDialog;
+import com.gameex.dw.justtalk.manage.ActivityCollector;
 
 import java.io.File;
 
 import androidx.annotation.Nullable;
 import es.dmoral.toasty.Toasty;
 
+/**
+ * app更新工具类
+ */
 public class UpdateApkUtil {
     private static final String TAG = "UpdateApkUtil";
 

@@ -7,6 +7,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * 录音播放工具类
+ */
 public class VoiceSpeaker {
     private static final String TAG = "VoiceSpeaker";
 

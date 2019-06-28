@@ -21,6 +21,9 @@ import com.gameex.dw.justtalk.R;
 
 import es.dmoral.toasty.Toasty;
 
+/**
+ * 第三方密码输入组件
+ */
 public class PayPasswordView extends RelativeLayout implements View.OnClickListener {
 
     Context context;

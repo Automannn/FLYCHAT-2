@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorWhite"
-    tools:context=".redPackage.SingleRedActivity">
+    tools:context=".activity.SingleRedActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -43,9 +43,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?heightD"
-        android:paddingLeft="@dimen/dp_10"
-        android:paddingRight="@dimen/dp_10">
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dp_20">
 
         <TextView
             android:id="@+id/yuan_count"
@@ -90,10 +89,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?heightD"
-        android:layout_marginTop="@dimen/dp_10"
-        android:paddingLeft="@dimen/dp_10"
-        android:paddingRight="@dimen/dp_10">
+        android:layout_height="wrap_content"
+        android:padding="@dimen/dp_20">
 
         <EditText
             android:id="@+id/red_package_message"
@@ -115,17 +112,13 @@
             android:layout_height="?heightJ"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
+            android:visibility="gone"
             android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/dp_5"
             android:layout_marginLeft="@dimen/dp_5"
             android:src="@drawable/update"
             tools:ignore="ContentDescription"/>
     </RelativeLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_1"
-        android:background="@color/colorLightGray"/>
 
     <TextView
         android:id="@+id/money"
@@ -140,8 +133,10 @@
 
     <Button
         android:id="@+id/send_red_package"
-        android:layout_width="@dimen/dp_340"
-        android:layout_height="@dimen/dp_44"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_20"
+        android:layout_marginEnd="@dimen/dp_20"
         android:layout_gravity="center_horizontal"
         android:alpha="0.5"
         android:background="@drawable/red_deep_bg"

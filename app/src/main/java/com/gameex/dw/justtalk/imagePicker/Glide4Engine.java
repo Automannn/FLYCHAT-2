@@ -10,6 +10,9 @@ import com.bumptech.glide.Priority;
 import com.bumptech.glide.request.RequestOptions;
 import com.zhihu.matisse.engine.ImageEngine;
 
+/**
+ * 知乎图片选择框架所用到的类
+ */
 public class Glide4Engine implements ImageEngine {
 
     @Override

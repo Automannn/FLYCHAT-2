@@ -19,11 +19,13 @@
     <string name="search">搜索</string>
     <string name="username">用户名</string>
     <string name="nick_str">昵称</string>
-    <string name="username_phone_str">昵称/手机号</string>
+    <string name="username_phone_str">手机号</string>
     <string name="remember_pwd">记住密码</string>
+    <string name="delete_local_str">从本地删除</string>
+    <string name="delete_online_str">从线上删除</string>
 
     <string name="msg_push_str">消息通知</string>
-    <string name="open_str">开启</string>
+    <string name="open_str">已开启</string>
     <string name="search_chat_str">查找聊天记录</string>
     <string name="chat_file_str">聊天文件</string>
     <string name="add_to_contact_str">添加到通讯录</string>
@@ -66,6 +68,7 @@
     <string name="invite_by_qzone_str">分享至QQ空间</string>
 
     <string name="accept_str">同意</string>
+    <string name="accepted_str">已同意</string>
     <string name="refused_str">拒绝</string>
     <string name="arrow_up_str">收起</string>
     <string name="arrow_down_str">下拉</string>
@@ -87,6 +90,14 @@
     <string name="group_chat_file_str">聊天文件</string>
     <string name="invite_group_member_str">邀请群成员</string>
     <string name="group_member_str">群组成员</string>
+    <string name="group_owner_str">群主</string>
+    <string name="group_keeper_str">管理员</string>
+    <string name="exit_group_str">退出群组</string>
+    <string name="delete_member_str">移出群组</string>
+    <string name="banned_member_str">禁言</string>
+    <string name="cancel_banned_str">取消禁言</string>
+    <string name="set_keeper_str">设为管理员</string>
+    <string name="remove_keeper_str">取消管理员</string>
 
     <string name="talk_ground_text">发起群聊</string>
     <string name="add_friends_text">添加朋友</string>
@@ -97,6 +108,7 @@
     <string name="red_detail_str">红包详情</string>
     <string name="who_can_get">谁可以领</string>
     <string name="yuan_count_str">总金额</string>
+    <string name="single_pack_yuan_str">单个金额</string>
     <string name="edit_yuan_str">填写金额</string>
     <string name="red_package_num_str">红包个数</string>
     <string name="edit_package_num_str">填写个数</string>
@@ -111,10 +123,19 @@
     <string name="change_to_package_str">改为普通红包</string>
     <string name="money_count_str">￥0.00</string>
 
-    <string name="change_str">零钱</string>
-    <string name="my_change_str">我的零钱</string>
+    <string name="charge_str">零钱</string>
+    <string name="my_charge_str">我的零钱</string>
     <string name="recharge_str">充值</string>
     <string name="cash_withdrawal_str">提现</string>
+    <string name="charge_withdraw_str">零钱提现</string>
+    <string name="all_draw_str">全部提现</string>
+    <string name="withdraw_notice_str">当前零钱余额￥1.56&#160;&#160;,&#160;&#160;</string>
+    <string name="yuan_simple_str">￥</string>
+    <string name="withdraw_amount_str">提现金额&#160;(&#160;手续费0.8%&#160;)&#160;</string>
+    <string name="withdraw_bank_str">到账银行卡</string>
+    <string name="choose_withdraw_bank_str">选择到账银行卡</string>
+    <string name="new_withdraw_bank_str">使用新卡提现</string>
+    <string name="withdraw_ps_str">2个工作日内到账</string>
     <string name="my_bank_card_str">我的银行卡</string>
     <string name="my_red_packet_record_str">我的红包记录</string>
     <string name="bind_alipay_str">绑定支付宝</string>
@@ -191,4 +212,5 @@
     <string name="mp_desk">收银台</string>
     <string name="payBYAPK">APK接入</string>
     <string name="payBYJAR">JAR接入</string>
+    <string name="add_str">添加</string>
 </resources>

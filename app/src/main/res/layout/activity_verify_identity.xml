@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorMineBack"
     android:orientation="vertical"
-    tools:context=".payPackage.VerifyIdentityActivity">
+    tools:context=".activity.VerifyIdentityActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

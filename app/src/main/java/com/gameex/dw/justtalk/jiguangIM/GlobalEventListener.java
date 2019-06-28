@@ -5,7 +5,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.media.Ringtone;
@@ -15,12 +14,11 @@ import android.os.Vibrator;
 import android.provider.MediaStore;
 import android.text.TextUtils;
 
-import com.gameex.dw.justtalk.objPack.MsgInfo;
+import com.gameex.dw.justtalk.activity.ChattingActivity;
+import com.gameex.dw.justtalk.entry.MsgInfo;
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.singleChat.ChattingActivity;
-import com.gameex.dw.justtalk.groupChat.GroupChatActivity;
+import com.gameex.dw.justtalk.activity.GroupChatActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
-import com.gameex.dw.justtalk.util.GsonUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.SharedPreferenceUtil;
 
@@ -39,11 +37,11 @@ import cn.jpush.im.android.api.event.LoginStateChangeEvent;
 import cn.jpush.im.android.api.event.MessageEvent;
 import cn.jpush.im.android.api.event.NotificationClickEvent;
 import cn.jpush.im.android.api.event.OfflineMessageEvent;
-import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 
+import static com.gameex.dw.justtalk.activity.NewFriendsActivity.ADD_RECEIVE;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.CONTACT_NOTIFY_ACCEPT;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.CONTACT_NOTIFY_CLICKED;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.CONTACT_NOTIFY_DELETE;
@@ -54,10 +52,9 @@ import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_Click
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_DEFAULT;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_EXTRA;
 import static com.gameex.dw.justtalk.jiguangIM.NotificationReceiver.NOTIFY_TYPE_ONE;
-import static com.gameex.dw.justtalk.main.BottomBarActivity.NEW_FRIEND;
-import static com.gameex.dw.justtalk.main.BottomBarActivity.NEW_MSG;
-import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
-import static com.gameex.dw.justtalk.myNewFriends.NewFriendsActivity.ADD_RECEIVE;
+import static com.gameex.dw.justtalk.activity.BottomBarActivity.NEW_FRIEND;
+import static com.gameex.dw.justtalk.activity.BottomBarActivity.NEW_MSG;
+import static com.gameex.dw.justtalk.fragment.MsgInfoFragment.UPDATE_MSG_INFO;
 
 /**
  * 在demo中对于通知栏点击事件和在线消息接收事件，我们都直接在全局监听

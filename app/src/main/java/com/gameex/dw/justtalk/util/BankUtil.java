@@ -10,6 +10,9 @@ import java.util.HashMap;
 import okhttp3.Call;
 import okhttp3.Response;
 
+/**
+ * 银行卡，绑定情况查询工具类
+ */
 public class BankUtil {
     /**
      * 绑卡情况查询路径

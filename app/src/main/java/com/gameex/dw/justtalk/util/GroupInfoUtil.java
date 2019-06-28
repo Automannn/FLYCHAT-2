@@ -13,6 +13,9 @@ import com.github.siyamed.shapeimageview.CircularImageView;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.GroupInfo;
 
+/**
+ * 群组信息操作工具类
+ */
 public class GroupInfoUtil {
     private static final String TAG = "GroupInfoUtil";
 

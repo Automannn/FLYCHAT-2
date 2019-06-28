@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
     android:orientation="vertical"
-    tools:context=".payPackage.RechargeActivity">
+    tools:context=".activity.RechargeActivity">
 
     <LinearLayout
         android:layout_width="match_parent"

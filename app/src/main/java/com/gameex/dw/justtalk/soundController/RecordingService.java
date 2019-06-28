@@ -16,8 +16,8 @@ import android.os.Message;
 import android.widget.TextView;
 
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.managePack.BaseActivity;
-import com.gameex.dw.justtalk.updateVersion.BaseDialog;
+import com.gameex.dw.justtalk.manage.BaseActivity;
+import com.gameex.dw.justtalk.util.BaseDialog;
 import com.gameex.dw.justtalk.util.LogUtil;
 
 import java.io.File;
@@ -32,9 +32,12 @@ import cn.jpush.im.android.api.JMessageClient;
 import es.dmoral.toasty.Toasty;
 import jaygoo.widget.wlv.WaveLineView;
 
-import static com.gameex.dw.justtalk.singleChat.ChattingActivity.RECORD_COMPLETE;
+import static com.gameex.dw.justtalk.activity.ChattingActivity.RECORD_COMPLETE;
 import static com.tencent.wxop.stat.common.StatConstants.LOG_TAG;
 
+/**
+ * 录音服务
+ */
 public class RecordingService extends Service {
     private static final String TAG = "RecordingService";
     /**

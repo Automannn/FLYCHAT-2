@@ -82,7 +82,7 @@
                                     android:layout_marginStart="@dimen/dp_5"
                                     android:layout_marginLeft="@dimen/dp_5"
                                     android:text="@string/red_test_str"
-                                    android:textColor="@color/colorWhite"
+                                    android:textColor="@color/yellow"
                                     android:textSize="@dimen/sp_16"/>
 
                             </LinearLayout>
@@ -224,7 +224,7 @@
                                     android:layout_marginStart="@dimen/dp_5"
                                     android:layout_marginLeft="@dimen/dp_5"
                                     android:text="@string/red_test_str"
-                                    android:textColor="@color/colorWhite"
+                                    android:textColor="@color/yellow"
                                     android:textSize="@dimen/sp_16"/>
 
                             </LinearLayout>

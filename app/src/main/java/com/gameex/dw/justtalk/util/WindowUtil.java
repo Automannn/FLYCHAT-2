@@ -7,9 +7,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.util.DisplayMetrics;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.Toast;
+
+import static android.content.Context.INPUT_METHOD_SERVICE;
 
 public class WindowUtil {
 
@@ -71,5 +77,38 @@ public class WindowUtil {
         } else {
             Toast.makeText(context.getApplicationContext(), "请下载浏览器", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    /**
+     * 隐藏键盘
+     */
+    public static void hideInput(Activity activity) {
+        InputMethodManager imm = (InputMethodManager) activity.getSystemService(INPUT_METHOD_SERVICE);
+        View v = activity.getWindow().peekDecorView();
+        if (null != v && imm != null) {
+            imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+        }
+    }
+
+    /**
+     * 根据EditText所在坐标和用户点击的坐标相对比，来判断是否隐藏键盘，因为当用户点击EditText时没必要隐藏
+     *
+     * @param v     view
+     * @param event motionEvent
+     * @return boolean
+     */
+    public static boolean isShouldHideInput(View v, MotionEvent event) {
+        if ((v instanceof EditText)) {
+            int[] l = {0, 0};
+            v.getLocationInWindow(l);
+            int left = l[0], top = l[1], bottom = top + v.getHeight(), right = left
+                    + v.getWidth();
+            float x = event.getX();
+            float y = event.getY();
+            return /*!(event.getX() > left) || !(event.getX() < right)
+                    ||*/ !(event.getY() > top) || !(event.getY() < bottom);
+        }
+        // 如果焦点不是EditText则忽略，这个发生在视图刚绘制完，第一个焦点不在EditView上，和用户用轨迹球选择其他的焦点
+        return false;
     }
 }

@@ -23,7 +23,6 @@
             android:layout_height="@dimen/dp_30"
             android:layout_marginEnd="@dimen/dp_15"
             android:layout_marginRight="@dimen/dp_15"
-            android:src="@drawable/icon_postal"
             app:siBorderColor="@color/colorBlueDeep"/>
 
         <LinearLayout
@@ -36,7 +35,6 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/dp_6"
-                android:text="邮政储蓄"
                 android:textColor="@color/colorWhite"
                 android:textSize="@dimen/sp_16"/>
 
@@ -45,14 +43,12 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="@dimen/dp_6"
-                android:text="储蓄卡"
                 android:textColor="@color/colorLightGray"/>
 
             <TextView
                 android:id="@+id/number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="**** **** **** 7578"
                 android:textColor="@color/colorWhite"
                 android:textSize="@dimen/sp_20"/>
 

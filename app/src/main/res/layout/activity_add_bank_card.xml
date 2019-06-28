@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
     android:orientation="vertical"
-    tools:context=".payPackage.AddBankCardActivity">
+    tools:context=".activity.AddBankCardActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -215,7 +215,7 @@
         android:alpha="0.5"
         android:background="@drawable/coffee_bg"
         android:enabled="false"
-        android:text="@string/next_str"
+        android:text="@string/done_str"
         android:textColor="@color/colorWhite"/>
 
 </LinearLayout>

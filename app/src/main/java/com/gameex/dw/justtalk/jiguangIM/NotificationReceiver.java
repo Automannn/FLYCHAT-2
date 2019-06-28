@@ -7,11 +7,10 @@ import android.content.Intent;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
-import com.gameex.dw.justtalk.login.LoginActivity;
-import com.gameex.dw.justtalk.managePack.ActivityCollector;
-import com.gameex.dw.justtalk.managePack.BaseActivity;
-import com.gameex.dw.justtalk.objPack.MsgInfo;
-import com.gameex.dw.justtalk.userInfo.UserBasicInfoActivity;
+import com.gameex.dw.justtalk.activity.LoginActivity;
+import com.gameex.dw.justtalk.manage.ActivityCollector;
+import com.gameex.dw.justtalk.manage.BaseActivity;
+import com.gameex.dw.justtalk.entry.MsgInfo;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 
@@ -20,9 +19,12 @@ import cn.jpush.im.android.api.ContactManager;
 import cn.jpush.im.api.BasicCallback;
 
 import static com.gameex.dw.justtalk.FlayChatApplication.APP_KEY;
-import static com.gameex.dw.justtalk.main.ContactFragment.ADD_CONTACT;
-import static com.gameex.dw.justtalk.main.MsgInfoFragment.UPDATE_MSG_INFO;
+import static com.gameex.dw.justtalk.fragment.ContactFragment.ADD_CONTACT;
+import static com.gameex.dw.justtalk.fragment.MsgInfoFragment.UPDATE_MSG_INFO;
 
+/**
+ * 自定义广播，处理极光推送的通知栏
+ */
 public class NotificationReceiver extends BroadcastReceiver {
     public static final String TAG = "NOTIFICATION_RECEIVER";
     /**
@@ -99,7 +101,8 @@ public class NotificationReceiver extends BroadcastReceiver {
 //                collapseStatusBar(context); //收起通知栏->无效
                 break;
             case CONTACT_NOTIFY_CLICKED:
-                notifyToDo.setClass(context, UserBasicInfoActivity.class);
+                //TODO:
+//                notifyToDo.setClass(context, UserBasicInfoActivity.class);
                 notifyToDo.putExtra("user_info_json"
                         , intent.getStringExtra("user_info_json"));
                 notifyToDo.putExtra("isInvite", true);

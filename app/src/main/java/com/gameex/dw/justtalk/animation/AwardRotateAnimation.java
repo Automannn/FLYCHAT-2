@@ -7,6 +7,7 @@ import android.view.animation.DecelerateInterpolator;
 import android.view.animation.Transformation;
 
 /**
+ * 红包打开时，铜板图片的旋转动画
  * Created by HuoWei on 2017/12/20.
  */
 public class AwardRotateAnimation extends Animation {

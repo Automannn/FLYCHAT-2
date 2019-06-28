@@ -24,6 +24,7 @@ import cn.jpush.im.android.api.model.Conversation;
 import cn.jpush.im.android.api.model.Message;
 
 /**
+ * 极光demon，为派上用场（目前）
  * Created by chenyn on 16/4/6.
  *
  * @desc :  极光IMG

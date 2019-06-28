@@ -20,7 +20,7 @@ public class LogUtil {
 
     public static final int ERROR = 5;
 
-    public static final int NOTHING = 6;
+    public static final int NOTHING = VERBOSE;
 
     public static int level = VERBOSE;
 

@@ -23,6 +23,9 @@ import java.lang.reflect.Method;
 import androidx.annotation.IntDef;
 import androidx.drawerlayout.widget.DrawerLayout;
 
+/**
+ * 通知栏、标题栏、虚拟键操作工具类
+ */
 public class BarUtil {
 
     /**

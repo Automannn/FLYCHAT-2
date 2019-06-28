@@ -7,7 +7,7 @@
     android:orientation="vertical"
     android:gravity="center_horizontal"
     android:background="@color/colorWhite"
-    tools:context=".login.LoginActivity">
+    tools:context=".activity.LoginActivity">
 
     <com.github.siyamed.shapeimageview.CircularImageView
         android:id="@+id/circle_img_login"

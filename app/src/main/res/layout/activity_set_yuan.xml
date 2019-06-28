@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorWhite"
     android:orientation="vertical"
-    tools:context=".redPackage.SetYuanActivity">
+    tools:context=".activity.SetYuanActivity">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -51,7 +51,8 @@
         android:clickable="true"
         android:focusable="true"
         android:paddingLeft="@dimen/dp_10"
-        android:paddingRight="@dimen/dp_10">
+        android:paddingRight="@dimen/dp_10"
+        android:visibility="gone">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -67,13 +68,13 @@
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"/>
 
-            <TextView
-                android:id="@+id/group_member_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/group_member_count_str"
-                android:textColor="@color/colorLightGray"
-                android:textSize="?smallSuperFont"/>
+            <!--<TextView-->
+            <!--android:id="@+id/group_member_count"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:text="@string/group_member_count_str"-->
+            <!--android:textColor="@color/colorLightGray"-->
+            <!--android:textSize="?smallSuperFont"/>-->
 
         </LinearLayout>
 
@@ -104,30 +105,50 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?heightD"
-        android:paddingLeft="@dimen/dp_10"
-        android:paddingRight="@dimen/dp_10">
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10"
+        android:padding="@dimen/dp_20">
 
-        <TextView
-            android:id="@+id/yuan_count"
+        <RelativeLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerVertical="true"
-            android:text="@string/yuan_count_str"
-            android:textColor="@color/colorMineThemeText"
-            android:textSize="?smallFont"/>
+            android:layout_centerVertical="true">
 
-        <ImageView
-            android:id="@+id/ping"
-            android:layout_width="?widthG"
-            android:layout_height="?heightJ"
-            android:layout_centerVertical="true"
-            android:layout_marginStart="@dimen/dp_5"
-            android:layout_marginLeft="@dimen/dp_5"
-            android:layout_toEndOf="@id/yuan_count"
-            android:layout_toRightOf="@id/yuan_count"
-            android:src="@drawable/ping"
-            tools:ignore="ContentDescription"/>
+            <TextView
+                android:id="@+id/normal_yuan_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/single_pack_yuan_str"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"
+                android:visibility="gone"/>
+
+            <LinearLayout
+                android:id="@+id/ping_yuan_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:ignore="UseCompoundDrawables">
+
+                <TextView
+                    android:id="@+id/yuan_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/yuan_count_str"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?smallFont"/>
+
+                <ImageView
+                    android:id="@+id/ping"
+                    android:layout_width="?widthG"
+                    android:layout_height="?heightJ"
+                    android:layout_marginStart="@dimen/dp_5"
+                    android:layout_marginLeft="@dimen/dp_5"
+                    android:src="@drawable/ping"
+                    tools:ignore="ContentDescription"/>
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
         <EditText
             android:id="@+id/yuan_num"
@@ -152,7 +173,7 @@
         <TextView
             android:id="@+id/yuan"
             android:layout_width="?widthG"
-            android:layout_height="?heightJ"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
@@ -163,16 +184,23 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?heightD"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_10"
-        android:paddingLeft="@dimen/dp_10"
-        android:paddingRight="@dimen/dp_10">
+        android:padding="@dimen/dp_20">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/group_member_count"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/group_member_count_str"
+                android:textColor="@color/colorLightGray"
+                android:textSize="?smallSuperFont"/>
 
             <TextView
                 android:layout_width="wrap_content"
@@ -217,9 +245,9 @@
             android:layout_toStartOf="@id/num"
             android:layout_toLeftOf="@id/num"
             android:background="@null"
+            android:digits="123456789"
             android:gravity="end"
             android:hint="@string/edit_package_num_str"
-            android:digits="123456789"
             android:inputType="number"
             android:textColor="@color/colorMineThemeText"
             android:textColorHint="@color/colorLightGray"
@@ -230,7 +258,7 @@
         <TextView
             android:id="@+id/num"
             android:layout_width="?widthG"
-            android:layout_height="?heightJ"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
@@ -241,10 +269,9 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="?heightD"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_10"
-        android:paddingLeft="@dimen/dp_10"
-        android:paddingRight="@dimen/dp_10">
+        android:padding="@dimen/dp_20">
 
         <EditText
             android:id="@+id/red_package_message"
@@ -270,13 +297,9 @@
             android:layout_marginStart="@dimen/dp_5"
             android:layout_marginLeft="@dimen/dp_5"
             android:src="@drawable/update"
+            android:visibility="gone"
             tools:ignore="ContentDescription"/>
     </RelativeLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_1"
-        android:background="@color/colorLightGray"/>
 
     <TextView
         android:id="@+id/money"
@@ -291,9 +314,11 @@
 
     <Button
         android:id="@+id/send_red_package"
-        android:layout_width="@dimen/dp_340"
-        android:layout_height="@dimen/dp_44"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
+        android:layout_marginLeft="@dimen/dp_20"
+        android:layout_marginRight="@dimen/dp_20"
         android:alpha="0.5"
         android:background="@drawable/red_deep_bg"
         android:enabled="false"

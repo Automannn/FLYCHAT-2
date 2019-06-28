@@ -13,6 +13,9 @@ import com.github.siyamed.shapeimageview.CircularImageView;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 
+/**
+ * 用户信息操作工具类
+ */
 public class UserInfoUtils {
     private static final String TAG = "UserInfoUtils";
 
@@ -45,15 +48,18 @@ public class UserInfoUtils {
      */
     public static String[] getUNFirstPosStr(UserInfo userInfo) {
         String[] strings = new String[2];
+        String username=userInfo.getUserName();
         String nick = userInfo.getNickname();
-        if (TextUtils.isEmpty(nick)) {
+        if (username.equals("系统消息")) {
+            strings[0] = "系";
+        } else if (TextUtils.isEmpty(nick)) {
             strings[0] = "#";
         } else if (nick.length() == 0) {
             strings[0] = nick;
         } else {
             strings[0] = nick.substring(0, 1);
         }
-        strings[1] = userInfo.getUserName();
+        strings[1] = username;
         return strings;
     }
 }

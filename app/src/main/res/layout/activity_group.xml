@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorMineBack"
     android:orientation="vertical"
-    tools:context=".groupInfo.GroupInfoActivity">
+    tools:context=".activity.GroupInfoActivity">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -51,8 +51,8 @@
             android:layout_alignParentBottom="true"
             android:layout_marginEnd="@dimen/dp_10"
             android:layout_marginRight="@dimen/dp_10"
-            android:padding="@dimen/dp_8"
             android:background="@drawable/light_gray_rip_out"
+            android:padding="@dimen/dp_8"
             android:src="@drawable/more"
             tools:ignore="ContentDescription"/>
     </RelativeLayout>
@@ -83,12 +83,12 @@
                     android:id="@+id/group_icon_info"
                     android:layout_width="?widthF"
                     android:layout_height="?heightG"
-                    android:background="@drawable/light_gray_rip_out"
-                    android:clickable="true"
-                    android:focusable="true"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="@dimen/dp_20"
                     android:layout_marginRight="@dimen/dp_20"
+                    android:background="@drawable/light_gray_rip_out"
+                    android:clickable="true"
+                    android:focusable="true"
                     android:src="@drawable/icon_group"
                     app:siBorderColor="@color/colorWhite"/>
 
@@ -174,15 +174,15 @@
                     android:id="@+id/group_member_count"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="0"
-                    android:textSize="?smallFont"
-                    android:layout_toLeftOf="@id/right_arrow"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/dp_5"
                     android:layout_marginRight="@dimen/dp_5"
+                    android:layout_toStartOf="@id/right_arrow"
+                    android:layout_toLeftOf="@id/right_arrow"
+                    android:text="0"
                     android:textColor="@color/colorLightGray"
-                    tools:ignore="RelativeOverlap"
-                    android:layout_toStartOf="@id/right_arrow"/>
+                    android:textSize="?smallFont"
+                    tools:ignore="RelativeOverlap"/>
 
                 <ImageView
                     android:id="@+id/right_arrow"
@@ -351,7 +351,7 @@
                     android:layout_marginEnd="@dimen/dp_26"
                     android:layout_marginRight="@dimen/dp_26"
                     android:text="@string/open_str"
-                    android:textColor="@color/colorLightGray"
+                    android:textColor="@color/colorAccent"
                     android:textSize="?smallFont"
                     tools:ignore="RelativeOverlap"/>
 
@@ -404,6 +404,7 @@
                 android:id="@+id/group_chat_file"
                 android:layout_width="match_parent"
                 android:layout_height="?heightI"
+                android:layout_marginBottom="@dimen/dp_70"
                 android:background="@drawable/light_gray_white_rip"
                 android:clickable="true"
                 android:focusable="true"
@@ -411,7 +412,6 @@
                 android:paddingLeft="@dimen/dp_20"
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/group_chat_file_str"
-                android:layout_marginBottom="@dimen/dp_70"
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"
                 tools:ignore="RelativeOverlap"/>

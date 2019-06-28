@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:background="@color/colorMineBack"
     android:orientation="vertical"
-    tools:context=".myNewFriends.NewFriendsActivity">
+    tools:context=".activity.NewFriendsActivity">
 
     <LinearLayout
         android:id="@+id/title_linear"

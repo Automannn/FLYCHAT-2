@@ -10,62 +10,90 @@
         android:id="@+id/award_animation_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:gravity="center_horizontal"
         android:layout_marginLeft="@dimen/dp_30"
         android:layout_marginTop="@dimen/dp_100"
         android:layout_marginRight="@dimen/dp_30"
         android:layout_marginBottom="@dimen/dp_100"
-        android:background="@mipmap/group_award_background">
+        android:background="@mipmap/group_award_background"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
 
-        <ImageView
-            android:id="@+id/close"
-            android:layout_width="@dimen/dp_20"
-            android:layout_height="@dimen/dp_20"
-            android:layout_margin="@dimen/dp_15"
-            android:background="@drawable/light_gray_rip_out"
-            android:clickable="true"
-            android:focusable="true"
-            android:layout_gravity="start"
-            android:src="@mipmap/close_award"
-            tools:ignore="ContentDescription"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-        <com.github.siyamed.shapeimageview.CircularImageView
-            android:id="@+id/group_award_logo"
-            android:layout_width="@dimen/dp_80"
-            android:layout_height="@dimen/dp_80"
-            android:layout_marginTop="@dimen/dp_30"
-            android:src="@drawable/icon_user"
-            app:siBorderColor="@color/colorRedDeep"/>
+            <ImageView
+                android:id="@+id/close"
+                android:layout_width="@dimen/dp_20"
+                android:layout_height="@dimen/dp_20"
+                android:layout_marginStart="@dimen/dp_15"
+                android:layout_marginLeft="@dimen/dp_15"
+                android:layout_marginTop="@dimen/dp_15"
+                android:background="@drawable/light_gray_rip_out"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@mipmap/close_award"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:ignore="ContentDescription"/>
 
-        <TextView
-            android:id="@+id/group_award_name"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/dp_10"
-            android:text="红包"
-            android:textColor="@color/colorLightGray"
-            android:textSize="24sp"
-            android:textStyle="bold"/>
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/dp_25"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:id="@+id/group_award_object"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="55555"
-            android:textColor="@color/colorLightGray"
-            android:textSize="30sp"/>
+                <com.github.siyamed.shapeimageview.CircularImageView
+                    android:id="@+id/group_award_logo"
+                    android:layout_width="@dimen/dp_80"
+                    android:layout_height="@dimen/dp_80"
+                    android:src="@drawable/icon_user"
+                    app:siBorderColor="@color/colorRedDeep"/>
 
-        <!--android:background="@drawable/open_group_award_anima"-->
-        <ImageView
-            android:id="@+id/open"
-            android:layout_width="@dimen/dp_90"
-            android:layout_height="@dimen/dp_90"
-            android:background="@drawable/light_gray_rip_out"
-            android:clickable="true"
-            android:focusable="true"
-            android:src="@mipmap/open_group_award_icon"
-            tools:ignore="ContentDescription"/>
+                <TextView
+                    android:id="@+id/group_award_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/red_package_str"
+                    android:textColor="@color/yellow"
+                    android:textSize="24sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/group_award_object"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/yellow"
+                    android:textSize="20sp"/>
+
+            </LinearLayout>
+
+            <androidx.constraintlayout.widget.Guideline
+                android:id="@+id/open_line"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layout_constraintGuide_percent="0.58"/>
+
+            <!--android:background="@drawable/open_group_award_anima"-->
+            <ImageView
+                android:id="@+id/open"
+                android:layout_width="@dimen/dp_90"
+                android:layout_height="@dimen/dp_90"
+                android:background="@drawable/light_gray_rip_out"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@mipmap/open_group_award_icon"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/open_line"
+                tools:ignore="ContentDescription"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 
 </RelativeLayout>

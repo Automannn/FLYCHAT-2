@@ -59,10 +59,10 @@
 
         </LinearLayout>
 
-        <Button
+        <TextView
             android:id="@+id/accept"
-            android:layout_width="?widthC"
-            android:layout_height="?heightA"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
@@ -71,7 +71,10 @@
             android:background="@drawable/rip_dark_gray_light_gray"
             android:text="@string/accept_str"
             android:textColor="@color/colorAccent"
-            android:textSize="@dimen/sp_13"/>
+            android:padding="@dimen/dp_8"
+            android:textSize="?smallSuperFont"
+            android:gravity="center"
+            tools:ignore="RelativeOverlap"/>
     </RelativeLayout>
 
 </LinearLayout>

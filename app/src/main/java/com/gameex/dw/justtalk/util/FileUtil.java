@@ -14,6 +14,9 @@ import android.provider.MediaStore;
 import java.io.File;
 import java.util.Objects;
 
+/**
+ * 文件操作工具类
+ */
 public class FileUtil {
     private static final String TAG = "FileUtil";
 

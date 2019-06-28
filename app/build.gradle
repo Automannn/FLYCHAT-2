@@ -29,17 +29,11 @@ android {
         ]
     }
     signingConfigs {
-        debug {
-            storeFile file("D:\\Learn\\AndroidProjectAPK\\JustTalk\\fly_chat.jks") //签名文件路径
-            storePassword "970517"
-            keyAlias "key0"
-            keyPassword "970517" //签名密码
-        }
         release {
-            storeFile file("D:\\Learn\\AndroidProjectAPK\\JustTalk\\fly_chat.jks") //签名文件路径
-            storePassword "970517"
-            keyAlias "key0"
-            keyPassword "970517" //签名密码
+            storeFile file('D:/Learn/AndroidProjectAPK/JustTalk/fly_chat.jks') //签名文件路径
+            storePassword '970517'
+            keyAlias 'key0'
+            keyPassword '970517' //签名密码
         }
     }
     buildTypes {
@@ -48,14 +42,13 @@ android {
 //            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'/'proguard-android.txt'), 'proguard-rules.pro'/'proguard-project.txt'
 //        }
         release {
-            minifyEnabled false //是否代码混淆
+            // 不显示Log
+            buildConfigField "boolean", "LOG_DEBUG", "false"
+            minifyEnabled true //是否代码混淆
             multiDexEnabled true    //防止方法数量超过65536导致错误
-//            zipAlignEnabled true    //是否移除无用资源
+            zipAlignEnabled true    //是否移除无用资源
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
             signingConfig signingConfigs.release
-        }
-        debug {
-            signingConfig signingConfigs.debug
         }
     }
     sourceSets {
@@ -71,10 +64,11 @@ android {
         variant ->
             variant.outputs.all {
                 if (buildType.name == 'release') {
-                    outputFileName = "flychat" + "_" +
-                            defaultConfig.versionName + "_" +
-                            new Date().format("yyyy-MM-dd") + "_" +
-                            buildType.name + ".apk"
+                    outputFileName = "flychat" +
+                            defaultConfig.versionName +
+//                            new Date().format("yyyy-MM-dd") + "_" +
+//                            buildType.name +
+                            ".apk"
                 }
             }
     }

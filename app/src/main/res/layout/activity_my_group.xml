@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@color/colorMineBack"
-    tools:context=".myGroups.MyGroupActivity">
+    tools:context=".activity.MyGroupActivity">
 
     <com.gameex.dw.justtalk.titleBar.TitleBarView
         android:id="@+id/title_bar"

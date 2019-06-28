@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.SearchUserActivity">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_74"
+        android:background="@color/colorPrimary"
+        tools:ignore="UselessParent">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:background="@drawable/light_gray_rip_out"
+            android:padding="@dimen/dp_8"
+            android:src="@drawable/left_arrow"
+            tools:ignore="ContentDescription"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:layout_toEndOf="@id/back"
+            android:layout_toRightOf="@id/back"
+            android:gravity="center"
+            android:text="@string/search"
+            android:textColor="@color/colorMineBack"
+            android:textSize="@dimen/sp_20"
+            tools:ignore="RelativeOverlap"/>
+    </RelativeLayout>
+
+    <EditText
+        android:id="@+id/search"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dp_20"
+        android:background="@drawable/login_et_bg"
+        android:hint="@string/username_phone_str"
+        android:inputType="number"
+        android:padding="@dimen/dp_8"
+        android:textColor="@color/login_edit_text_selector_color"
+        android:textCursorDrawable="@drawable/cursor_dra"
+        android:textSize="@dimen/sp_16"
+        tools:ignore="Autofill"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recycler"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layoutAnimation="@anim/layout_animation_fall_down"/>
+
+</LinearLayout>

@@ -7,7 +7,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:background="@color/colorMineBack"
-    tools:context=".inviteFriends.InviteFriendsActivity">
+    tools:context=".activity.InviteFriendsActivity">
 
     <com.gameex.dw.justtalk.titleBar.TitleBarView
         android:id="@+id/title_bar_invite"
