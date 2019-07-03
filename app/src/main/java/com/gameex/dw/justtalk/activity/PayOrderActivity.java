@@ -1,5 +1,9 @@
 package com.gameex.dw.justtalk.activity;
 
+import android.annotation.SuppressLint;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
@@ -16,6 +20,7 @@ import com.gameex.dw.justtalk.manage.BaseActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
+import com.gameex.dw.justtalk.util.PayResult;
 import com.gameex.dw.justtalk.util.PayUtil;
 
 import org.json.JSONException;
@@ -23,6 +28,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 import androidx.annotation.Nullable;
 import es.dmoral.toasty.Toasty;
@@ -53,12 +59,16 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-//            Resul result = new Result((String) msg.obj);
-            Toasty.success(PayOrderActivity.this, "支付成功").show();
-            Intent intent = new Intent();
-            intent.putExtra("pay_success", true);
-            setResult(RESULT_OK, intent);
-            finish();
+            PayResult payResult = new PayResult((Map<String, String>) msg.obj);
+            if ("9000".equals(payResult.getResultStatus())) {
+                Intent intent = new Intent();
+                intent.putExtra("pay_success", true);
+                setResult(RESULT_OK, intent);
+                finish();
+                Toasty.success(PayOrderActivity.this, "支付成功").show();
+            } else {
+                Toasty.normal(PayOrderActivity.this, payResult.getMemo()).show();
+            }
         }
     };
     /**

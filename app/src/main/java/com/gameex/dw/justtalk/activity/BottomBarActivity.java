@@ -8,10 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
@@ -54,6 +56,7 @@ import q.rorbin.badgeview.Badge;
 import q.rorbin.badgeview.QBadgeView;
 
 import static com.gameex.dw.justtalk.fragment.MyInfoFragment.REQUEST_CODE_SCAN;
+import static com.gameex.dw.justtalk.util.DataUtil.TELEPHONE_REGEX;
 
 /**
  * 主界面activity
@@ -238,28 +241,34 @@ public class BottomBarActivity extends BaseActivity
         // 具体child的查找和view的嵌套结构请在源码中查看
         // 从bottomNavigationView中获得BottomNavigationMenuView
         BottomNavigationMenuView menuView = (BottomNavigationMenuView) navigation.getChildAt(0);
+        int iconSize = navigation.getItemIconSize();
         // 从BottomNavigationMenuView中获得childview, BottomNavigationItemView
         // 获得viewIndex对应子tab
         mView1 = menuView.getChildAt(0);
         mView2 = menuView.getChildAt(1);
         // 从子tab中获得其中显示图片的ImageView
-        @SuppressLint("CutPasteId") View icon = mView1.findViewById(com.google.android.material.R.id.icon);
+//        ImageView icon = mView1.findViewById(com.google.android.material.R.id.icon);
         // 获得图标的宽度
-        int iconWidth = icon.getWidth();
+//        int iconWidth = icon.getWidth();
         // 获得tab的宽度/2
-        int tabWidth = mView1.getWidth() / 2;
+//        int tabWidth = mView1.getWidth() / 2;
         // 计算badge要距离右边的距离
-        mBadgeSpaceView = tabWidth - iconWidth;
+//        mBadgeSpaceView = tabWidth - iconWidth;
         //绑定角标
+        int[] windowHW = WindowUtil.getWH(this);    //获取屏幕宽高
+        int tabWidth = windowHW[0] / 3; //取屏幕宽/3得到tab宽
+        int badgeOffX = (tabWidth / 2) - iconSize;  //tab宽的一半减去tab_icon的宽
         mBadge1 = new QBadgeView(this).bindTarget(mView1)
-                .setGravityOffset(mBadgeSpaceView, 3, false);
+                .setGravityOffset(badgeOffX, 3, false);
         //badge拖拽监听，加上则可已拖拽
-//            .setOnDragStateChangedListener((dragState, badge, targetView) -> Toasty.info(sBottomBarActivity,"标为已读").show());
+//                .setOnDragStateChangedListener((dragState, badge, targetView) -> {
+//                    if (dragState == Badge.OnDragStateChangedListener.STATE_SUCCEED)
+//                        //重置所有未读消息数
+//                });
         mBadge2 = new QBadgeView(this).bindTarget(mView2)
-                .setGravityOffset(mBadgeSpaceView, 3, false)
+                .setGravityOffset(badgeOffX, 3, false)
                 //badge拖拽监听，加上则可已拖拽
                 .setOnDragStateChangedListener((dragState, badge, targetView) -> {
-
                 });
     }
 
@@ -430,7 +439,7 @@ public class BottomBarActivity extends BaseActivity
         fats[0] = mMsgInfoFragment;
         mContactFragment = new ContactFragment();
         fats[1] = mContactFragment;
-        mMyInfoFragment = new MyInfoFragment();
+        mMyInfoFragment = MyInfoFragment.getInstance(JMessageClient.getMyInfo().toJson());
         fats[2] = mMyInfoFragment;
         return fats;
     }
@@ -538,7 +547,16 @@ public class BottomBarActivity extends BaseActivity
         if (requestCode == REQUEST_CODE_SCAN && resultCode == RESULT_OK) {
             if (data != null) {
                 String content = data.getStringExtra(Constant.CODED_CONTENT);
-                WindowUtil.openBrowser(this, content);
+                Intent intent = new Intent();
+//                if (content.matches(TELEPHONE_REGEX)){
+                intent.setClass(BottomBarActivity.this, UserBasicInfoActivity.class);
+                intent.putExtra("username", content);
+//                }else{
+//                    intent.setClass(BottomBarActivity.this,UserBasicInfoActivity.class);
+//                    intent.putExtra("groupid",content);
+//                }
+                startActivity(intent);
+//                WindowUtil.openBrowser(this, content);  //用浏览器打开
             }
         }
         super.onActivityResult(requestCode, resultCode, data);

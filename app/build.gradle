@@ -28,29 +28,6 @@ android {
                 TENCENT_APPID : "101574877",//腾讯开放平台注册应用得到的appId
         ]
     }
-    signingConfigs {
-        release {
-            storeFile file('D:/Learn/AndroidProjectAPK/JustTalk/fly_chat.jks') //签名文件路径
-            storePassword '970517'
-            keyAlias 'key0'
-            keyPassword '970517' //签名密码
-        }
-    }
-    buildTypes {
-//        release {
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'/'proguard-android.txt'), 'proguard-rules.pro'/'proguard-project.txt'
-//        }
-        release {
-            // 不显示Log
-            buildConfigField "boolean", "LOG_DEBUG", "false"
-            minifyEnabled true //是否代码混淆
-            multiDexEnabled true    //防止方法数量超过65536导致错误
-            zipAlignEnabled true    //是否移除无用资源
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
-    }
     sourceSets {
         main {
             jniLibs.srcDirs = ['libs']
@@ -66,8 +43,6 @@ android {
                 if (buildType.name == 'release') {
                     outputFileName = "flychat" +
                             defaultConfig.versionName +
-//                            new Date().format("yyyy-MM-dd") + "_" +
-//                            buildType.name +
                             ".apk"
                 }
             }
@@ -84,6 +59,7 @@ dependencies {
 
     implementation 'androidx.appcompat:appcompat:1.0.2'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
+    implementation 'com.google.android.material:material:1.0.0'
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'com.android.support.test:runner:1.0.2'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
@@ -123,7 +99,7 @@ dependencies {
     implementation 'cn.jiguang.sdk:jshare-jchatpromodel:1.6.0'
     implementation 'cn.jiguang.sdk:jcore:2.0.1'
     implementation 'cn.jiguang.sdk:jpush:3.3.2'
-//    implementation 'cn.jiguang.sdk:jmessage:2.8.2'
+    implementation 'cn.jiguang.sdk:jmessage:2.8.2'
 
     implementation 'com.vanniktech:emoji-twitter:0.6.0'
     implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
@@ -134,7 +110,6 @@ dependencies {
     implementation files('libs\\UPPayAssistEx.jar')
     implementation files('libs\\UPPayPluginExPro.jar')
 //    implementation files('libs\\jcore-android-1.2.7.jar')
-    implementation files('libs\\jmessage-sdk-android-2.8.2.jar')
     implementation(name: 'MobilePayment-v1.0.0', ext: 'aar')
 
     implementation 'com.github.GrenderG:Toasty:1.4.2'

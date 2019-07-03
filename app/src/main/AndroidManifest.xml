@@ -57,6 +57,11 @@
         tools:ignore="GoogleAppIndexingWarning"
         tools:replace="android:appComponentFactory,android:icon"
         tools:targetApi="p">
+        <activity
+            android:name=".activity.GroupBasicInfoActivity"
+            android:label="@string/title_activity_group_basic_info"
+            android:theme="@style/AppTheme.NoActionBar">
+        </activity>
         <activity android:name=".activity.SearchUserActivity">
         </activity>
         <activity android:name=".activity.ShopWebActivity">

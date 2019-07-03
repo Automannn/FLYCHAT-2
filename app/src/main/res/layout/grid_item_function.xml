@@ -5,12 +5,14 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
+    android:padding="@dimen/dp_5"
     tools:ignore="UseCompoundDrawables">
 
     <ImageView
         android:id="@+id/function_img"
-        android:layout_width="@dimen/dp_45"
-        android:layout_height="@dimen/dp_45"
+        android:layout_width="@dimen/dp_35"
+        android:layout_height="@dimen/dp_35"
+        android:layout_gravity="center"
         android:src="@drawable/icon_red_package"
         tools:ignore="ContentDescription"/>
 
@@ -19,8 +21,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
-        android:text="红包"
-        android:textColor="@color/colorMineThemeText"
-        android:textSize="@dimen/sp_16"/>
+        android:textColor="@color/colorMineThemeText"/>
 
 </LinearLayout>

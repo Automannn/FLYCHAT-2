@@ -44,7 +44,7 @@ public class StartActivity extends AppCompatActivity {
                 .subscribe(permission -> {
                     LogUtil.d(TAG, "requestPermission: " + "permission = " + permission.name);
                     //1s后前往主页
-                    mHandler.postDelayed(() -> gotoLogin(), 1000);
+                    mHandler.postDelayed(() -> gotoLogin(), 500);
                     if (permission.shouldShowRequestPermissionRationale) {
                         Toast.makeText(StartActivity.this
                                 , "您禁止了此权限，可能会影响那您的正常使用", Toast.LENGTH_SHORT).show();

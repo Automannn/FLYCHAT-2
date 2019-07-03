@@ -30,6 +30,7 @@ import java.util.HashMap;
 import androidx.appcompat.app.AppCompatActivity;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
+import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 import okhttp3.Response;
 
@@ -202,21 +203,10 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
                             try {
                                 JSONObject json = new JSONObject(response.body().string());
                                 boolean success = json.getBoolean("success");
-                                JSONObject data = json.getJSONObject("data");
-                                if (success) {
-                                    mCirclePros.dismiss();
-                                    String bankCardNumber = data.getString("bankCardNumber");
-                                    String id = data.getString("id");
-                                    LogUtil.d(TAG, "bindCard-onResponse: "
-                                            + "bankCardNumber = " + bankCardNumber + " ;id = " + id);
-                                    finish();
-                                } else {
-                                    mCirclePros.dismiss();
-                                    int code = data.getInt("code");
-                                    String message = data.getString("message");
-                                    LogUtil.d(TAG, "bindCard-onResponse: "
-                                            + "code = " + code + " ;message = " + message);
-                                }
+                                String data = json.getString("data");
+                                if (success) finish();
+                                mCirclePros.dismiss();
+                                Toasty.info(AddBankCardActivity.this, data).show();
                             } catch (JSONException e) {
                                 mCirclePros.dismiss();
                                 e.printStackTrace();

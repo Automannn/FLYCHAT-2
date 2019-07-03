@@ -1,6 +1,7 @@
 package com.gameex.dw.justtalk.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,6 +21,7 @@ import com.gameex.dw.justtalk.util.GroupInfoUtil;
 import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.google.gson.Gson;
+import com.rey.material.app.Dialog;
 import com.vanniktech.emoji.EmojiTextView;
 
 import java.util.List;
@@ -163,18 +165,32 @@ public class DashAdapter extends RecyclerView.Adapter<DashAdapter.DashHolder> {
         public boolean onLongClick(View view) {
             switch (view.getId()) {
                 case R.id.message_card:
-                    Toasty.warning(mContext, "已删除", Toasty.LENGTH_SHORT, false);
-                    mMsgInfos.remove(mMsgInfos.get(getAdapterPosition()));
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
-                    SharedPreferences.Editor editor = pref.edit();
-                    Gson gson = new Gson();
-                    String msgsStr = gson.toJson(mMsgInfos);
-                    editor.putString("msg_list", msgsStr);
-                    editor.apply();
-                    notifyItemRemoved(getAdapterPosition());
+                    showDialog();
                     break;
             }
             return true;
+        }
+
+        /**
+         * 长按会话弹窗提示删除此会话
+         */
+        private void showDialog() {
+            Dialog dialog = new Dialog(mContext);
+            dialog.title("删除聊天")
+                    .positiveAction("确定")
+                    .positiveActionClickListener(view -> {
+                        mMsgInfos.remove(mMsgInfos.get(getAdapterPosition()));
+                        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
+                        SharedPreferences.Editor editor = pref.edit();
+                        Gson gson = new Gson();
+                        String msgsStr = gson.toJson(mMsgInfos);
+                        editor.putString("msg_list", msgsStr);
+                        editor.apply();
+                        notifyItemRemoved(getAdapterPosition());
+                        dialog.dismiss();
+                    })
+                    .cancelable(true)
+                    .show();
         }
     }
 }

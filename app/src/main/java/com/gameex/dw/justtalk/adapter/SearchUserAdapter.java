@@ -57,11 +57,11 @@ public class SearchUserAdapter extends RecyclerView.Adapter<SearchUserHodler> {
         if (mGroupInfo != null) {
             GroupMemberInfo memberInfo = mGroupInfo.getGroupMember(userInfo.getUserName(), null);
             if (memberInfo == null) {
-                holder.add.setText("已在本群");
-                holder.add.setEnabled(false);
-            } else {
                 holder.add.setText("添加");
                 holder.add.setEnabled(true);
+            } else {
+                holder.add.setText("已在本群");
+                holder.add.setEnabled(false);
             }
         }
     }

@@ -37,6 +37,7 @@ import com.gameex.dw.justtalk.manage.BaseActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.FileUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.RecScrollHelper;
 import com.gameex.dw.justtalk.util.UserInfoUtils;
 import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
@@ -132,10 +133,10 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     private SimpleAdapter mSimpleAdapter;
 
     private List<Map<String, Object>> mGridList = new ArrayList<>();
-    private int[] icon = {R.drawable.icon_image, R.drawable.icon_group_chat, R.drawable.icon_red_packit
+    private int[] icon = {R.drawable.icon_image, R.drawable.icon_red_packit
             , R.drawable.icon_voice_chat, R.drawable.icon_shock, R.drawable.icon_location
             , R.drawable.icon_business_card, R.drawable.icon_collection, R.drawable.icon_file};
-    private String[] iconName = {"图片", "邀请群聊", "红包", "语音聊天", "震", "位置", "名片", "收藏", "文件"};
+    private String[] iconName = {"图片", "红包", "语音聊天", "震", "位置", "名片", "收藏", "文件"};
     private List<Message> mMessages = new ArrayList<>();
     private MsgInfo mMsgInfo;
     private UserInfo mUserInfo;
@@ -207,7 +208,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     @SuppressLint({"SetTextI18n", "ClickableViewAccessibility"})
     private void initView() {
         setContentView(R.layout.activity_chatting);
-        ButterKnife.bind(this);
+        ButterKnife.bind(this); //黄油刀
         mRootView = findViewById(R.id.view_single);
         mIMM = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
 
@@ -229,11 +230,14 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         mRecycler = findViewById(R.id.chat_recycler);
         mRecycler.setLayoutManager(new LinearLayoutManager(this));
         mRecycler.setItemAnimator(animator);
+        mRecycler.setHasFixedSize(true);    //来避免 requestLayout 浪费资源
         if (mConversation != null) {
             mMessages = mConversation.getAllMessage();
         }
         mRecAdapter = new ChatRecAdapter(this, mMessages);
         mRecycler.setAdapter(mRecAdapter);
+        if (mMessages != null && mMessages.size() > 0)
+            RecScrollHelper.scrollToPosition(mRecycler, mMessages.size() - 1);
 
         mSendLayout = findViewById(R.id.send_linear);
         mVoiceCircle = findViewById(R.id.voice_msg);
@@ -293,6 +297,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 , new int[]{R.id.function_img, R.id.function_name});
         mGridView.setAdapter(mSimpleAdapter);
         mGridView.setOnItemClickListener((adapterView, view, position, id) -> {
+            Intent intent = new Intent();
             switch (position) {
                 case 0:
                     Matisse.from(this)
@@ -308,8 +313,8 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                             .theme(com.zhihu.matisse.R.style.Matisse_Dracula)
                             .forResult(REQUEST_CODE_CHOOSE);
                     break;
-                case 2:
-                    Intent intent = new Intent(ChattingActivity.this
+                case 1:
+                    intent.setClass(ChattingActivity.this
                             , SingleRedActivity.class);
                     startActivityForResult(intent, REQUEST_SINGLE_RED_PACKAGE);
                     break;

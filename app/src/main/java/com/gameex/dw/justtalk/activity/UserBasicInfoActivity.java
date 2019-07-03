@@ -146,9 +146,12 @@ public class UserBasicInfoActivity extends BaseActivity implements View.OnClickL
             }
         });
 
-        JMessageClient.getUserInfo(UserInfo.fromJson(
-                getIntent().getStringExtra("user_info_json"))
-                .getUserName(), new GetUserInfoCallback() {
+        String userPhone = getIntent().getStringExtra("username");
+        String userInfoJson = getIntent().getStringExtra("user_info_json");
+        String username = TextUtils.isEmpty(userPhone) ? UserInfo.fromJson(userInfoJson)
+                .getUserName() : userPhone;
+
+        JMessageClient.getUserInfo(username, new GetUserInfoCallback() {
             @Override
             public void gotResult(int i, String s, UserInfo userInfo) {
                 if (i == 0) {

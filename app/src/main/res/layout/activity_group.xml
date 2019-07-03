@@ -404,7 +404,6 @@
                 android:id="@+id/group_chat_file"
                 android:layout_width="match_parent"
                 android:layout_height="?heightI"
-                android:layout_marginBottom="@dimen/dp_70"
                 android:background="@drawable/light_gray_white_rip"
                 android:clickable="true"
                 android:focusable="true"
@@ -413,6 +412,23 @@
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/group_chat_file_str"
                 android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"
+                tools:ignore="RelativeOverlap"/>
+
+            <TextView
+                android:id="@+id/exit"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:layout_marginTop="@dimen/dp_20"
+                android:layout_marginBottom="@dimen/dp_70"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/exit_group_str"
+                android:textColor="@color/colorRed"
                 android:textSize="?smallFont"
                 tools:ignore="RelativeOverlap"/>
 

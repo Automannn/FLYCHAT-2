@@ -1,6 +1,7 @@
 package com.gameex.dw.justtalk.activity;
 
 import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -8,8 +9,10 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -21,20 +24,28 @@ import com.automannn.commonUtils.security.Base64;
 import com.automannn.commonUtils.security.MD5;
 import com.automannn.commonUtils.security.RSA;
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.adapter.RandomDialogAdapter;
 import com.gameex.dw.justtalk.manage.BaseActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.gameex.dw.justtalk.util.WindowUtil;
+import com.rey.material.app.BottomSheetDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import butterknife.ButterKnife;
 import butterknife.OnEditorAction;
 import butterknife.OnTextChanged;
@@ -162,6 +173,8 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
      */
     private String mPubKey;
 
+    private List<String> mNum = new ArrayList<>();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -244,7 +257,14 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
                 Toasty.info(this, "随机选取一句祝福语", Toasty.LENGTH_SHORT).show();
                 break;
             case R.id.send_red_package:
-                new Handler().post(this::handOutRed);
+                int packageNum = Integer.parseInt(mPackageNum.getText().toString());
+                if (packageNum <= 0) return;
+                if (mChangetoPackage.getText().equals("改为普通红包")) {
+                    List<String> num = getStringList(packageNum);
+                    randomDialog(num.size(), num);
+                } else {
+                    handOutRed(null, null);
+                }
                 break;
         }
     }
@@ -268,10 +288,87 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
     }
 
     /**
+     * 初始化特殊红包
+     *
+     * @param n 特殊红包数
+     * @return list-string
+     */
+    private List<String> getStringList(int n) {
+        List<String> list = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            list.add("6");
+        }
+        return list;
+    }
+
+    /**
+     * 设定特殊红包弹窗
+     *
+     * @param tail 总红包数
+     * @param num  初始总红包
+     */
+    @SuppressLint("SetTextI18n")
+    private void randomDialog(int tail, List<String> num) {
+        mNum = num; //列表数据等于初始总红包，第一次弹出时加载初始总红包
+
+        BottomSheetDialog dialog = new BottomSheetDialog(this, R.style.qr_code_dialog_style);
+        dialog.setContentView(R.layout.dialog_random_red_packit);   //设定dialog布局文件
+        dialog.heightParam(ViewGroup.LayoutParams.WRAP_CONTENT);
+        dialog.inDuration(300);
+        dialog.outDuration(300);
+        TextView amount = dialog.findViewById(R.id.amount); //共多少个红包
+        amount.setText("共" + tail + "个");
+        EditText setAmount = dialog.findViewById(R.id.set_amount);  //特殊红包数
+        if (mNum.size() == tail)
+            mNum = getStringList(mNum.size() - 1);
+        setAmount.setText(mNum.size() + "");
+        DefaultItemAnimator animator = new DefaultItemAnimator();   //列表刷新动画
+        animator.setChangeDuration(300);
+        animator.setRemoveDuration(300);
+        animator.setAddDuration(300);
+        animator.setMoveDuration(300);
+        RecyclerView recycler = dialog.findViewById(R.id.recycler); //列表
+        recycler.setItemAnimator(animator); //设定刷新动画
+        recycler.setLayoutManager(new LinearLayoutManager(this));   //布局管理器
+        //分割线
+        recycler.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        RandomDialogAdapter adapter = new RandomDialogAdapter(this, mNum);  //适配器
+        recycler.setAdapter(adapter);
+        setAmount.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                if (!TextUtils.isEmpty(editable)) {
+                    int n = Integer.parseInt(editable.toString());  //新输入的特殊红包数
+                    if (n <= tail) {  //若输入不为null或“”，并且小于初始总红包数
+                        dialog.dismiss();
+                        randomDialog(tail, getStringList(n));
+                    } else {
+                        Toasty.info(SetYuanActivity.this, "不能超过总红包数").show();
+                    }
+                }
+            }
+        });
+        Button button = dialog.findViewById(R.id.done);
+        button.setOnClickListener(view -> new Handler().post(() -> handOutRed(setAmount.getText().toString(), adapter.getList())));
+        dialog.setCanceledOnTouchOutside(true);
+        dialog.show();
+    }
+
+    /**
      * 发送红包
      */
-    private void handOutRed() {
-        String secretString = getSecretString(mPubKey);
+    private void handOutRed(String tailCount, String tailNumber) {
+        String secretString = getSecretString(mPubKey, tailCount, tailNumber);
         if (secretString == null) {
             return;
         }
@@ -299,10 +396,7 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
                                     object = new JSONObject(response.body().string());
                                 }
                                 if (object != null) {
-                                    String data = object.getString("data");
                                     boolean success = object.getBoolean("success");
-                                    LogUtil.d(TAG, "handOutRed-onResponse: " +
-                                            "data = " + data + " ;success = " + success);
                                     if (success) {
                                         Intent intent = new Intent();
                                         intent.putExtra("yuan", mYuan.getText().toString());
@@ -310,6 +404,11 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
                                         intent.putExtra("blessings", mRedMessage.getText().toString());
                                         setResult(RESULT_OK, intent);
                                         finish();
+                                    } else {
+                                        JSONObject data = object.getJSONObject("data");
+                                        Toasty.info(SetYuanActivity.this, data.getString("message")).show();
+                                        LogUtil.d(TAG, "handOutRed-onResponse: " +
+                                                "data = " + data + " ;success = " + success);
                                     }
                                 }
                             } catch (IOException e) {
@@ -380,7 +479,7 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
      * @param pubKey 用户公匙
      * @return string
      */
-    private String getSecretString(String pubKey) {
+    private String getSecretString(String pubKey, String tailCount, String tailNumber) {
         JSONObject secretJson = new JSONObject();
         String yuan = mYuanNum.getText().toString();
         String count = mPackageNum.getText().toString();
@@ -397,6 +496,10 @@ public class SetYuanActivity extends BaseActivity implements View.OnClickListene
             secretJson.put("count", Integer.parseInt(count));
             secretJson.put("personCount", Integer.parseInt(count));
             secretJson.put("expireTime", 120);
+            if (tailCount != null && tailNumber != null) {
+                secretJson.put("tailCount", tailCount);
+                secretJson.put("tailNumber", tailNumber);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }

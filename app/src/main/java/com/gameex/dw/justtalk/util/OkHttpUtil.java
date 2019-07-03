@@ -8,8 +8,7 @@ import java.util.Map;
  * 网络操作工具类
  */
 public class OkHttpUtil {
-    //    private static final String REALM_NAME = "https://wechat.automannn.cn/";
-//    private static final String REALM_NAME = "http://192.168.1.103:80/";
+//    private static final String REALM_NAME = "http://192.168.1.106:8080/";
     private static final String REALM_NAME = "http://flytalk.flyxia.cn:80/";
 
     public static final String METHOD_GET = "GET";

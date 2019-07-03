@@ -40,6 +40,7 @@ import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.FileUtil;
 import com.gameex.dw.justtalk.util.GroupInfoUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.RecScrollHelper;
 import com.gameex.dw.justtalk.util.WindowUtil;
 import com.github.siyamed.shapeimageview.CircularImageView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -177,10 +178,10 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
      * 底部功能栏数据
      */
     private List<Map<String, Object>> mGridList = new ArrayList<>();
-    private int[] icon = {R.drawable.icon_image, R.drawable.icon_group_chat, R.drawable.icon_red_packit
+    private int[] icon = {R.drawable.icon_image, R.drawable.icon_collection, R.drawable.icon_red_packit
             , R.drawable.icon_voice_chat, R.drawable.icon_shock, R.drawable.icon_location
-            , R.drawable.icon_business_card, R.drawable.icon_collection, R.drawable.icon_file};
-    private String[] iconName = {"图片", "邀请群聊", "红包", "语音聊天", "震", "位置", "名片", "收藏", "文件"};
+            , R.drawable.icon_business_card, R.drawable.icon_group_chat, R.drawable.icon_file};
+    private String[] iconName = {"图片", "收藏", "红包", "语音聊天", "震", "位置", "名片", "邀请群聊", "文件"};
 
     /**
      * 软键盘相关
@@ -266,6 +267,7 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
         mRecyclerView.setLayoutManager(layoutManager);
+        mRecyclerView.setHasFixedSize(true);    //来避免 requestLayout 浪费资源
         mMemberInfos = mGroupInfo.getGroupMemberInfos();
         mNameNum.setText(mGroupInfo.getGroupName() + "（" + mMemberInfos.size() + "）");
         mMemberAdapter = new MemberIconAdapter(this, mMemberInfos);
@@ -278,12 +280,14 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
         animatorMsg.setRemoveDuration(300);
         mMsgRecycler.setItemAnimator(animatorMsg);
         mMsgRecycler.setLayoutManager(new LinearLayoutManager(this));
+        mMsgRecycler.setHasFixedSize(true);    //来避免 requestLayout 浪费资源
         if (mConversation != null) {
             mMessages = mConversation.getAllMessage();
         }
         mChatAdapter = new GroupChatAdapter(this, mMessages);
         mMsgRecycler.setAdapter(mChatAdapter);
-//        new Handler(this.getMainLooper()).post(this::getBitmaps);
+        if (mMessages != null && mMessages.size() > 0)
+            RecScrollHelper.scrollToPosition(mMsgRecycler, mMessages.size() - 1);
 
         voiceImg.setOnClickListener(this);
         mRecord.setOnTouchListener((view, motionEvent) -> {
@@ -343,6 +347,7 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
                 , new int[]{R.id.function_img, R.id.function_name});
         mGridView.setAdapter(simpleAdapter);
         mGridView.setOnItemClickListener((adapterView, view, position, id) -> {
+            Intent intent = new Intent();
             switch (position) {
                 case 0:
                     Matisse.from(this)
@@ -359,9 +364,15 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
                             .forResult(REQUEST_CODE_CHOOSE);
                     break;
                 case 2:
-                    Intent intent = new Intent(GroupChatActivity.this
+                    intent.setClass(GroupChatActivity.this
                             , SetYuanActivity.class);
+                    intent.putExtra("group_info", mGroupInfo.toJson());
                     startActivityForResult(intent, REQUEST_GROUP_RED_PACKAGE);
+                    break;
+                case 7:
+                    intent.setClass(GroupChatActivity.this, SearchUserActivity.class);
+                    intent.putExtra("groupId", mGroupInfo.getGroupID());
+                    startActivity(intent);
                     break;
                 default:
                     Toasty.info(GroupChatActivity.this, "敬请期待").show();

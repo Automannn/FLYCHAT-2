@@ -27,6 +27,8 @@ import java.util.List;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.callback.GetAvatarBitmapCallback;
 import cn.jpush.im.android.api.callback.GetGroupInfoCallback;
@@ -136,6 +138,10 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
      */
     private TextView mMemberCount;
     /**
+     * 退出群组
+     */
+    private TextView mExit;
+    /**
      * 群组体
      */
     private GroupInfo mGroupInfo;
@@ -182,6 +188,8 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
         mChatFile = findViewById(R.id.group_chat_file);
         mMemberCount = findViewById(R.id.group_member_count);
         mInviteMember = findViewById(R.id.invite_member_layout);
+        mExit = findViewById(R.id.exit);
+        mExit.setOnClickListener(this);
     }
 
     /**
@@ -338,8 +346,7 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                         , false).show();
                 break;
             case R.id.group_icon_info_layout:   //修改群昵称
-                //TODO:
-//                intent.setClass(this, EditMyInfoActivity.class);
+                intent.setClass(this, EditMyInfoActivity.class);
                 intent.putExtra("title", "群昵称");
                 intent.putExtra("my_nick", mName.getText());
                 startActivityForResult(intent, EDIT_GROUP_NICK_CODE);
@@ -353,8 +360,7 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                 startActivity(intent);
                 break;
             case R.id.mine_group_nick_layout:   //修改我在本群的昵称
-                //TODO:
-//                intent.setClass(this, EditMyInfoActivity.class);
+                intent.setClass(this, EditMyInfoActivity.class);
                 intent.putExtra("title", "我在本群的昵称");
                 intent.putExtra("my_nick", mNick.getText());
                 startActivityForResult(intent, EDIT_MY_GROUP_NICK_CODE);
@@ -430,6 +436,19 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                 intent.setClass(GroupInfoActivity.this, SearchUserActivity.class);
                 intent.putExtra("groupId", mGroupInfo.getGroupID());
                 startActivity(intent);
+                break;
+            case R.id.exit:
+                JMessageClient.exitGroup(mGroupInfo.getGroupID(), new BasicCallback() {
+                    @Override
+                    public void gotResult(int i, String s) {
+                        if (i == 0) {
+                            Toasty.info(GroupInfoActivity.this, "已退出").show();
+                        } else {
+                            Toasty.info(GroupInfoActivity.this, "出错了，请重试").show();
+                            LogUtil.d(TAG, "OnClick-exit: " + "responseCode = " + i + " ;desc = " + s);
+                        }
+                    }
+                });
                 break;
             case R.id.take_photo:
                 requestPermission();

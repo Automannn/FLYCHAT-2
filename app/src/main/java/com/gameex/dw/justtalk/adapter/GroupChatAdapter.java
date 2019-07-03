@@ -166,26 +166,30 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
      * @param holder  GroupChatHolder
      * @param content EventNotificationContent
      */
+    @SuppressLint("SetTextI18n")
     private void dealEventNotify(GroupChatHolder holder, EventNotificationContent content) {
         LogUtil.d(TAG, "dealEventNotify: " + "content = " + content.toJson());
+        List<String> displayNames = content.getUserDisplayNames();
+        String nameString = displayNames.toString();
+        String names = nameString.substring(1, nameString.length() - 1);
         switch (content.getEventNotificationType()) {
             case group_keeper_added:    //用户被指派为管理员
-                holder.leftMsg.setText("系统消息：新官上任");
+                holder.leftMsg.setText("系统消息：" + names + "成为新的管理员");
                 break;
             case group_member_added:    //群成员被添加
-                holder.leftMsg.setText("系统消息：萌新加入");
+                holder.leftMsg.setText("系统消息：" + names + "加入群组");
                 break;
             case group_member_exit: //群成员退群
-                holder.leftMsg.setText("系统消息：群成员偷跑");
+                holder.leftMsg.setText("系统消息：" + names + "退出群组");
                 break;
             case group_member_removed:  //群成员被移除
-                holder.leftMsg.setText("系统消息：群成员被踢");
+                holder.leftMsg.setText("系统消息：" + names + "已被移出本群");
                 break;
             case group_member_keep_silence: //群成员被禁言
-                holder.leftMsg.setText("系统消息：群成员被掌嘴");
+                holder.leftMsg.setText("系统消息：" + names + "被禁言");
                 break;
             case group_owner_changed:   //群主权限转移
-                holder.leftMsg.setText("系统消息：群主退位");
+                holder.leftMsg.setText("系统消息：" + names + "成为了新的群主");
                 break;
             default:
                 holder.leftLayout.setVisibility(View.GONE);
@@ -206,6 +210,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
         UserInfoUtils.initUserIcon(userInfo, mContext, holder.leftCircle);
         switch (message.getContentType()) {
             case text:
+                holder.leftCircle.setVisibility(View.VISIBLE);
                 TextContent textContent = (TextContent) message.getContent();
                 holder.leftMsg.setVisibility(View.VISIBLE);
                 holder.leftMsg.setText(textContent.getText());
@@ -214,6 +219,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                 holder.voiceMsgLeft.setVisibility(View.GONE);
                 break;
             case image:
+                holder.leftCircle.setVisibility(View.VISIBLE);
                 ImageContent imageContent = (ImageContent) message.getContent();
                 holder.leftMsg.setVisibility(View.GONE);
                 holder.redMsgLeft.setVisibility(View.GONE);
@@ -224,6 +230,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                         .into(holder.leftImg);
                 break;
             case voice:
+                holder.leftCircle.setVisibility(View.VISIBLE);
                 VoiceContent voiceContent = (VoiceContent) message.getContent();
                 holder.leftMsg.setVisibility(View.GONE);
                 holder.leftImg.setVisibility(View.GONE);
@@ -232,6 +239,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                 holder.voiceDurationLeft.setText(voiceContent.getDuration() / 1000 + "");
                 break;
             case custom:
+                holder.leftCircle.setVisibility(View.VISIBLE);
                 CustomContent customContent = (CustomContent) message.getContent();
                 String blessings = customContent.getStringValue("blessings");
                 holder.leftMsg.setVisibility(View.GONE);
@@ -249,6 +257,7 @@ public class GroupChatAdapter extends RecyclerView.Adapter<GroupChatAdapter.Grou
                 dealEventNotify(holder, (EventNotificationContent) message.getContent());
                 break;
             default:
+                holder.leftCircle.setVisibility(View.GONE);
                 holder.leftMsg.setVisibility(View.GONE);
                 holder.leftImg.setVisibility(View.GONE);
                 holder.redMsgLeft.setVisibility(View.GONE);

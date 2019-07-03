@@ -46,7 +46,7 @@ public class DataUtil {
      * "[^4]"代表除了4
      * "\\d{8}"代表后面可以是0-9的数字，有8位
      */
-    private static final String TELEPHONE_REGEX
+    public static final String TELEPHONE_REGEX
             = "((13[0-9])|(15[^4])|(18[0-9])|(17[0-8])|(147,145))\\d{8}$";
     /**
      * (?!^\d+$)不能全是数字

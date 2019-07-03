@@ -245,7 +245,7 @@
             android:layout_toStartOf="@id/num"
             android:layout_toLeftOf="@id/num"
             android:background="@null"
-            android:digits="123456789"
+            android:digits="0123456789"
             android:gravity="end"
             android:hint="@string/edit_package_num_str"
             android:inputType="number"
