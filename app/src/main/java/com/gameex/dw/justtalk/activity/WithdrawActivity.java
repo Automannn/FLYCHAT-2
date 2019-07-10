@@ -26,6 +26,7 @@ import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.DialogUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
+import com.gameex.dw.justtalk.util.SharedPreferenceUtil;
 import com.rey.material.app.BottomSheetDialog;
 
 import org.json.JSONException;
@@ -49,6 +50,10 @@ public class WithdrawActivity extends BaseActivity implements View.OnClickListen
      * 提现接口
      */
     private static final String WITHDRAW_PLATFORM = "account/withdrawPlatform";
+    /**
+     * 提现接口，天付宝
+     */
+    private static final String SINGLE_PAY_PATH = "tianfubao/singlePay";
     /**
      * 更新界面的bank信息action
      */
@@ -155,6 +160,7 @@ public class WithdrawActivity extends BaseActivity implements View.OnClickListen
             default:
                 break;
         }
+        mBankIcon.setTag(bankInfo.getSignSn());
         mTextViews.get(0).setText(bankInfo.getBankName() + "(" + bankInfo.getBankEndNum() + ")");
         mTextViews.get(0).setTag(bankInfo.getBankId());
     }
@@ -242,6 +248,43 @@ public class WithdrawActivity extends BaseActivity implements View.OnClickListen
             }
         });
 
+    }
+
+    /**
+     * 天付宝提现接口
+     */
+    private void withdtawByAtionPay() {
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("userId", SharedPreferenceUtil.getData("userId", ""));
+        params.put("signSn", mBankIcon.getTag());
+        params.put("money", Double.valueOf(mAmount.getText().toString()));
+        HashMap<String, String> map = new HashMap<>();
+        map.put("map", params.toString());
+        OkHttpUtil.okHttpPost(SINGLE_PAY_PATH, map, new CallBackUtil.CallBackString() {
+            @Override
+            public void onFailure(Call call, Exception e) {
+                e.printStackTrace();
+                Toasty.error(WithdrawActivity.this, "网络连接异常").show();
+            }
+
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject object = new JSONObject(response);
+                    boolean success = object.getBoolean("success");
+                    if (success) {
+                        JSONObject data = object.getJSONObject("data");
+                        String spbillNo = data.getString("spbillNo");
+                        //TODO: 跳转提现结果界面
+                    } else {
+                        Toasty.normal(WithdrawActivity.this, object.getString("data")).show();
+                    }
+                    LogUtil.d(TAG, "withdtawByAtionPay-onResponse: " + "response = " + response);
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     /**

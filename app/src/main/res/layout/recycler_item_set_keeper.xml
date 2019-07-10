@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/relative"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/light_gray_white_rip"
+    android:clickable="true"
+    android:focusable="true"
+    android:paddingTop="@dimen/dp_4"
+    android:paddingBottom="@dimen/dp_4"
+    android:paddingLeft="@dimen/dp_16"
+    android:paddingRight="@dimen/dp_16">
+
+    <com.github.siyamed.shapeimageview.CircularImageView
+        android:id="@+id/icon"
+        android:layout_width="?widthI"
+        android:layout_height="?heightL"
+        android:layout_centerVertical="true"
+        android:src="@drawable/icon_user"
+        app:siBorderAlpha="0"/>
+
+    <TextView
+        android:id="@+id/name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:layout_toEndOf="@id/icon"
+        android:layout_toRightOf="@id/icon"
+        android:text="@string/title_dashboard"
+        android:textColor="@color/colorMineThemeText"
+        android:textSize="?smallFont"/>
+
+</RelativeLayout>

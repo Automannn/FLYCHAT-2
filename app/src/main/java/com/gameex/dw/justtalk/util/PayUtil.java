@@ -2,11 +2,13 @@ package com.gameex.dw.justtalk.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
 
 import com.alipay.sdk.app.PayTask;
+import com.gameex.dw.justtalk.activity.OrderConfirmActivity;
 import com.tencent.mm.opensdk.modelpay.PayReq;
 import com.tencent.mm.opensdk.openapi.IWXAPI;
 import com.tencent.mm.opensdk.openapi.WXAPIFactory;
@@ -21,13 +23,26 @@ import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
 
+import cn.jpush.im.android.api.JMessageClient;
+import es.dmoral.toasty.Toasty;
+import okhttp3.Call;
+
 import static com.gameex.dw.justtalk.FlayChatApplication.WE_CHAT_APP_ID;
+import static com.gameex.dw.justtalk.activity.PayOrderActivity.REQUEST_ATION_PAY_CODE;
 
 /**
  * 支付工具类
  */
 public class PayUtil {
     private static final String TAG = "PayUtil";
+    /**
+     * 天付宝支付申请接口（没有绑卡）
+     */
+    private static final String SKYPAY_PATH_WITHOUT_BANK = "tianfubao/signedOrderApply";
+    /**
+     * 天付宝支付申请接口（已帮卡）
+     */
+    private static final String CONTRACT_ORDER_APPLY_PATH = "tianfubao/contractOrderApply";
     /**
      * 银联
      */
@@ -110,6 +125,76 @@ public class PayUtil {
         };
         Thread payThread = new Thread(payRunnable);
         payThread.start();
+    }
+
+    /**
+     * 天付宝支付（没有绑定银行卡）
+     *
+     * @param context      上下文
+     * @param paramsMapStr 参数
+     */
+    public static void toSkyPayWithoutBank(Context context, String paramsMapStr) {
+        HashMap<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("map", paramsMapStr);
+        OkHttpUtil.okHttpPost(SKYPAY_PATH_WITHOUT_BANK, paramsMap, new CallBackUtil.CallBackString() {
+            @Override
+            public void onFailure(Call call, Exception e) {
+                e.printStackTrace();
+                Toasty.error(context, "网络连接错误").show();
+            }
+
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject object = new JSONObject(response);
+                    boolean success = object.getBoolean("success");
+                    if (success) {
+                        JSONObject data = object.getJSONObject("data");
+                        Intent intent = new Intent(context, OrderConfirmActivity.class);
+                        intent.putExtra("data", data.toString());
+                        context.startActivity(intent);
+                    } else {
+                        Toasty.normal(context, object.getString("data")).show();
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+    /**
+     * 天付宝支付（已绑定银行卡）
+     *
+     * @param activity   activity
+     * @param mapString 参数Map字符串
+     */
+    public static void toSkyPayWithBank(Activity activity, String mapString) {
+        HashMap<String, String> paramsMap = new HashMap<>();
+        paramsMap.put("map", mapString);
+        OkHttpUtil.okHttpPost(CONTRACT_ORDER_APPLY_PATH, paramsMap, new CallBackUtil.CallBackString() {
+            @Override
+            public void onFailure(Call call, Exception e) {
+                e.printStackTrace();
+                Toasty.error(activity, "网络连接异常").show();
+            }
+
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject object = new JSONObject(response);
+                    boolean success = object.getBoolean("success");
+                    if (success) {
+                        JSONObject data = object.getJSONObject("data");
+                        Intent intent = new Intent(activity, OrderConfirmActivity.class);
+                        intent.putExtra("data", data.toString());
+                        activity.startActivityForResult(intent,REQUEST_ATION_PAY_CODE);
+                    } else Toasty.normal(activity, object.getString("data"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     /**

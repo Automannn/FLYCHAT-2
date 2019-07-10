@@ -21,6 +21,7 @@ import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.fragment.ContactFragment;
+import com.gameex.dw.justtalk.fragment.FlySpaceFragment;
 import com.gameex.dw.justtalk.fragment.MsgInfoFragment;
 import com.gameex.dw.justtalk.fragment.MyInfoFragment;
 import com.gameex.dw.justtalk.manage.BaseActivity;
@@ -97,6 +98,10 @@ public class BottomBarActivity extends BaseActivity
      * 联系人页
      */
     private ContactFragment mContactFragment;
+    /**
+     * 飞聊空间
+     */
+    private FlySpaceFragment mSpaceFragment;
     /**
      * 我的页
      */
@@ -349,7 +354,7 @@ public class BottomBarActivity extends BaseActivity
 
         @Override
         public int getCount() {
-            return 3;
+            return mFragments.length;
         }
     }
 
@@ -376,8 +381,14 @@ public class BottomBarActivity extends BaseActivity
                     mTitleBarView.setRightIVVisible(View.VISIBLE);
                     mTitleBarView.setSearchIVVisible(View.GONE);
                     break;
-                case R.id.navigation_notifications:
+                case R.id.navigation_flyspace:
                     viewPager.setCurrentItem(2);
+                    mTitleBarView.setTitle("飞聊空间");
+                    mTitleBarView.setRightIVVisible(View.VISIBLE);
+                    mTitleBarView.setSearchIVVisible(View.GONE);
+                    break;
+                case R.id.navigation_notifications:
+                    viewPager.setCurrentItem(3);
                     mTitleBarView.setTitle("我");
                     mTitleBarView.setRightIVVisible(View.GONE);
                     mTitleBarView.setSearchIVVisible(View.GONE);
@@ -415,6 +426,11 @@ public class BottomBarActivity extends BaseActivity
                     mTitleBarView.setSearchIVVisible(View.GONE);
                     break;
                 case 2:
+                    mTitleBarView.setTitle("飞聊空间");
+                    mTitleBarView.setRightIVVisible(View.VISIBLE);
+                    mTitleBarView.setSearchIVVisible(View.GONE);
+                    break;
+                case 3:
                     mTitleBarView.setTitle("我");
                     mTitleBarView.setRightIVVisible(View.GONE);
                     mTitleBarView.setSearchIVVisible(View.GONE);
@@ -434,13 +450,15 @@ public class BottomBarActivity extends BaseActivity
      * @return fragment[]
      */
     private Fragment[] getFragment() {
-        Fragment[] fats = new Fragment[3];
+        Fragment[] fats = new Fragment[4];
         mMsgInfoFragment = new MsgInfoFragment();
         fats[0] = mMsgInfoFragment;
         mContactFragment = new ContactFragment();
         fats[1] = mContactFragment;
+        mSpaceFragment = FlySpaceFragment.newInstance();
+        fats[2] = mSpaceFragment;
         mMyInfoFragment = MyInfoFragment.getInstance(JMessageClient.getMyInfo().toJson());
-        fats[2] = mMyInfoFragment;
+        fats[3] = mMyInfoFragment;
         return fats;
     }
 

@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/white_bg"
+    android:orientation="vertical"
+    android:padding="@dimen/dp_5">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <ImageView
+            android:id="@+id/close"
+            android:layout_width="@dimen/dp_30"
+            android:layout_height="@dimen/dp_30"
+            android:layout_centerVertical="true"
+            android:background="@drawable/light_gray_rip_out"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/icon_close"
+            tools:ignore="ContentDescription"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/pay_str"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="@dimen/sp_20"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:background="@color/colorMineThemeText"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_10"
+        android:text="@string/pay_yuan_str"
+        android:textSize="@dimen/sp_16"/>
+
+    <TextView
+        android:id="@+id/yuan"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_marginBottom="@dimen/dp_5"
+        android:text="￥10.04"
+        android:textColor="@color/colorMineThemeText"
+        android:textSize="@dimen/sp_36"/>
+
+    <RelativeLayout
+        android:id="@+id/pay_bank"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/light_gray_white_rip"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingTop="@dimen/dp_5"
+        android:paddingBottom="@dimen/dp_5">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/pay_bank_str"
+            android:textSize="@dimen/sp_16"
+            tools:ignore="RelativeOverlap"/>
+
+        <ImageView
+            android:id="@+id/bank_icon"
+            android:layout_width="@dimen/dp_22"
+            android:layout_height="@dimen/dp_22"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="@dimen/dp_2"
+            android:layout_marginRight="@dimen/dp_2"
+            android:layout_toStartOf="@id/bank_name"
+            android:layout_toLeftOf="@id/bank_name"
+            android:src="@drawable/icon_construction"
+            tools:ignore="ContentDescription"/>
+
+        <TextView
+            android:id="@+id/bank_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toStartOf="@id/right_arrow"
+            android:layout_toLeftOf="@id/right_arrow"
+            android:text="建设银行(8233)"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="@dimen/sp_16"/>
+
+        <ImageView
+            android:id="@+id/right_arrow"
+            android:layout_width="@dimen/dp_24"
+            android:layout_height="@dimen/dp_24"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginBottom="@dimen/dp_2"
+            android:src="@drawable/icon_right_arrow"
+            tools:ignore="ContentDescription"/>
+    </RelativeLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:layout_marginBottom="@dimen/dp_4"
+        android:background="@color/colorMineThemeText"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/input_pay_pwd_str"
+        android:textSize="@dimen/sp_16"/>
+
+    <com.gameex.dw.justtalk.payPasswordView.PayPasswordView
+        android:id="@+id/pay_pwd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

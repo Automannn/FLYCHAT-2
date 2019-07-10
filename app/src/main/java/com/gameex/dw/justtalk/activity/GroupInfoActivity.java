@@ -14,6 +14,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.manage.BaseActivity;
 import com.gameex.dw.justtalk.util.DataUtil;
 import com.gameex.dw.justtalk.util.DialogUtil;
 import com.gameex.dw.justtalk.util.GroupInfoUtil;
@@ -51,7 +52,7 @@ import static com.gameex.dw.justtalk.util.DataUtil.TAKE_PHOTO;
 /**
  * 群组详细信息展示
  */
-public class GroupInfoActivity extends AppCompatActivity implements View.OnClickListener {
+public class GroupInfoActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "GroupInfoActivity";
     /**
      * 修改群昵称请求码
@@ -395,9 +396,9 @@ public class GroupInfoActivity extends AppCompatActivity implements View.OnClick
                 });
                 break;
             case R.id.group_manage: //操作群管理
-                List<GroupMemberInfo> keeperInfos = mGroupInfo.getGroupKeeperMemberInfos();
-                LogUtil.d(TAG, "onClick-group_manage: "
-                        + "keeperInfo = " + GroupMemberInfo.collectionToJson(keeperInfos));
+                intent.setClass(GroupInfoActivity.this, GroupManageActivity.class);
+                intent.putExtra("groupId", mGroupInfo.getGroupID());
+                startActivity(intent);
                 break;
             case R.id.group_push_layout:
                 final int block;

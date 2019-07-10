@@ -1,27 +1,28 @@
 package com.gameex.dw.justtalk.activity;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.entry.BankInfo;
 import com.gameex.dw.justtalk.manage.BaseActivity;
+import com.gameex.dw.justtalk.payPasswordView.PayPasswordView;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.gameex.dw.justtalk.util.PayResult;
 import com.gameex.dw.justtalk.util.PayUtil;
+import com.gameex.dw.justtalk.util.SharedPreferenceUtil;
+import com.rey.material.app.BottomSheetDialog;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -31,6 +32,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import androidx.annotation.Nullable;
+import cn.jpush.im.android.api.JMessageClient;
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 import okhttp3.Response;
@@ -56,6 +58,14 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
      * 微信支付
      */
     private static final String WE_PAY = "WEPAY";
+    /**
+     * 天付宝
+     */
+    private static final String SKY_PAY = "SKYPAY";
+    /**
+     * 天付宝支付回调
+     */
+    public static final int REQUEST_ATION_PAY_CODE = 412;
     private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
@@ -118,17 +128,6 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
     }
 
     /**
-     * 获取自己服务器上的用户id
-     *
-     * @return string
-     */
-    private String getUserId() {
-        SharedPreferences pref = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        return pref.getString("userId", null);
-    }
-
-    /**
      * 去支付
      *
      * @param data 支付参数
@@ -144,7 +143,63 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
             case WE_PAY:
                 PayUtil.toWXPay(this, data);
                 break;
+            default:
+                break;
         }
+    }
+
+    /**
+     * 天付宝支付弹窗
+     */
+    @SuppressLint("SetTextI18n")
+    private void showSkyPayDialog(BankInfo bankInfo) {
+        BottomSheetDialog dialog = new BottomSheetDialog(this);
+        dialog.contentView(R.layout.dialog_sky_pay)
+                .inDuration(300)
+                .outDuration(300)
+                .cancelable(false);
+        ImageView close = dialog.findViewById(R.id.close);
+        close.setOnClickListener(view -> dialog.dismiss());
+        RelativeLayout payBank = dialog.findViewById(R.id.pay_bank);
+        payBank.setOnClickListener(view -> Toasty.normal(PayOrderActivity.this, "选择银行卡").show());
+        TextView payYuan = dialog.findViewById(R.id.yuan);
+        payYuan.setText("￥" + mYuan);
+        ImageView bankIcon = dialog.findViewById(R.id.bank_icon);
+        TextView bankName = dialog.findViewById(R.id.bank_name);
+        switch (bankInfo.getBankName()) {
+            case "建设银行":
+                bankIcon.setImageDrawable(getResources().getDrawable(R.drawable.icon_construction));
+                break;
+            case "农业银行":
+                bankIcon.setImageDrawable(getResources().getDrawable(R.drawable.icon_agricultural));
+                break;
+            case "工商银行":
+                bankIcon.setImageDrawable(getResources().getDrawable(R.drawable.icon_icbc));
+                break;
+            case "中兴银行":
+                bankIcon.setImageDrawable(getResources().getDrawable(R.drawable.icon_zte));
+                break;
+            default:
+                break;
+        }
+        bankName.setText(bankInfo.getBankName() + "(" + bankInfo.getBankEndNum() + ")");
+        PayPasswordView passwordView = dialog.findViewById(R.id.pay_pwd);
+        passwordView.setOnFinishInput(() -> {
+            String password = passwordView.getStrPassword();
+            if (password.equals("flyxia.cn")) {
+                HashMap<String, String> params = new HashMap<>();
+                //用户本服id
+                params.put("userId", (String) SharedPreferenceUtil.getData("userId", ""));
+                params.put("productCode", "fly_coin_" + mYuan);  //产品id
+                params.put("number", 1 + "");  //产品数量
+                params.put("signSn", bankInfo.getSignSn());  //签约序列号
+                params.put("mobile", JMessageClient.getMyInfo().getUserName()); //用户手机号
+                PayUtil.toSkyPayWithBank(PayOrderActivity.this, params.toString());
+            } else {
+                Toasty.normal(PayOrderActivity.this, "密码错误").show();
+            }
+        });
+        dialog.show();
     }
 
     /**
@@ -152,7 +207,7 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
      */
     private void getReadyToPay() {
         HashMap<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("userId", getUserId());
+        paramsMap.put("userId", (String) SharedPreferenceUtil.getData("userId", ""));
         paramsMap.put("payType", mPayType);
         paramsMap.put("productCode", "fly_coin_" + mYuan);
         paramsMap.put("number", 1 + "");
@@ -199,6 +254,14 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
                 finish();
                 break;
             case R.id.pay:
+                if (mPayType.equals(SKY_PAY)) {
+                    BankInfo bankInfo = new BankInfo();
+                    bankInfo.setBankName("建设银行");
+                    bankInfo.setBankEndNum("9527");
+                    bankInfo.setSignSn("dashdhfeafsflijjlja");
+                    showSkyPayDialog(bankInfo);
+                    return;
+                }
                 new Handler().post(this::getReadyToPay);
                 break;
         }
@@ -216,11 +279,21 @@ public class PayOrderActivity extends BaseActivity implements View.OnClickListen
             case R.id.wepay:
                 mPayType = WE_PAY;
                 break;
+            case R.id.skypay:
+                mPayType = SKY_PAY;
+                break;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode==REQUEST_ATION_PAY_CODE&&resultCode==RESULT_OK){
+            Intent intent = new Intent();
+            intent.putExtra("pay_success", true);
+            setResult(RESULT_OK, intent);
+            finish();
+            return;
+        }
         if (data == null) {
             return;
         }

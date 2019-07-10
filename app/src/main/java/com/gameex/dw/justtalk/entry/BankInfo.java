@@ -15,6 +15,10 @@ public class BankInfo implements Serializable {
      * 银行卡尾号
      */
     private String bankEndNum;
+    /**
+     * 签约序列号
+     */
+    private String signSn;
 
     public BankInfo() {
     }
@@ -49,12 +53,21 @@ public class BankInfo implements Serializable {
         this.bankEndNum = bankEndNum;
     }
 
+    public String getSignSn() {
+        return signSn;
+    }
+
+    public void setSignSn(String signSn) {
+        this.signSn = signSn;
+    }
+
     @Override
     public String toString() {
         return "BankInfo{" +
                 "bankId='" + bankId + '\'' +
                 ", bankName='" + bankName + '\'' +
                 ", bankEndNum='" + bankEndNum + '\'' +
+                ", signSn='" + signSn + '\'' +
                 '}';
     }
 }

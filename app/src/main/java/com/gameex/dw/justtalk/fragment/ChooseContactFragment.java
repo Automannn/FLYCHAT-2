@@ -98,12 +98,6 @@ public class ChooseContactFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        LogUtil.d(TAG, "onResume");
-    }
-
     private void initData() {
         mSearchView.setOnCloseListener(() -> false);
         mSearchView.setOnQueryTextFocusChangeListener((view, b) -> {

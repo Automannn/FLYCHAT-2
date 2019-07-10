@@ -84,6 +84,8 @@
     <string name="group_qr_code_str">群二维码</string>
     <string name="group_notice_str">群公告</string>
     <string name="group_manage_str">群管理</string>
+    <string name="set_keepers_str">设置群管理员</string>
+    <string name="never_set_keeper_str">您未设置任何管理员</string>
     <string name="mine_group_nick_str">我在本群的昵称</string>
     <string name="set_mine_group_nick_str">设置本群昵称</string>
     <string name="money_gift_long_time_no_see_str">长时间未领取红包</string>
@@ -92,12 +94,15 @@
     <string name="invite_group_member_str">邀请群成员</string>
     <string name="group_member_str">群组成员</string>
     <string name="group_owner_str">群主</string>
+    <string name="change_owner_str">转让群主权限</string>
+    <string name="choose_owner_str">选择新群主</string>
     <string name="group_keeper_str">管理员</string>
     <string name="exit_group_str">退出群组</string>
     <string name="delete_member_str">移出群组</string>
     <string name="banned_member_str">禁言</string>
     <string name="cancel_banned_str">取消禁言</string>
     <string name="set_keeper_str">设为管理员</string>
+    <string name="add_keepers_str">添加管理员</string>
     <string name="remove_keeper_str">取消管理员</string>
     <string name="group_basic_info_str">群资料</string>
 
@@ -128,6 +133,7 @@
     <string name="charge_str">零钱</string>
     <string name="my_charge_str">我的零钱</string>
     <string name="recharge_str">充值</string>
+
     <string name="cash_withdrawal_str">提现</string>
     <string name="charge_withdraw_str">零钱提现</string>
     <string name="all_draw_str">全部提现</string>
@@ -147,6 +153,10 @@
     <string name="bind_bank_card_str">绑定银行卡</string>
     <string name="no_bank_card_notice_str">没用可用的银行卡 , 现在就去添加？</string>
     <string name="add_bank_str">添加银行卡</string>
+    <string name="bank_info_str">银行卡信息</string>
+    <string name="done_bank_info_str">请完善银行卡信息</string>
+    <string name="only_bank_verify_str">仅用于银行验证</string>
+    <string name="order_confirm_str">确认订单</string>
     <string name="please_add_yours_card_str">请绑定持卡人本人的银行卡</string>
     <string name="card_below_str">持卡人</string>
     <string name="input_name_str">请输入您的姓名</string>
@@ -158,11 +168,16 @@
     <string name="add_bank_card_notice_str">友情提示 ：仅支持绑定借记卡( 储蓄卡 ) ，不支持信用卡</string>
     <string name="verify_identity_str">身份验证</string>
     <string name="add_bank_input_pwd_str">添加银行卡\n请输入支付密码 ，以验证身份</string>
+    <string name="pay_str">支付</string>
     <string name="pay_pwd_str">支付密码</string>
     <string name="pay_order_str">支付订单</string>
-    <string name="pay_str">确认支付</string>
+    <string name="pay_confirm_str">确认支付</string>
+    <string name="pay_bank_str">支付银行卡</string>
+    <string name="pay_yuan_str">支付金额</string>
+    <string name="input_pay_pwd_str">输入支付密码</string>
     <string name="red_test_str">祝福语</string>
     <string name="bank_str">银行卡</string>
+    <string name="bank_phone_str">银行预留手机号</string>
     <string name="union_pay_yun_str">云闪付</string>
     <string name="suggestion_str">【推荐】</string>
     <string name="pay_result_str">支付成功</string>
@@ -216,4 +231,10 @@
     <string name="payBYJAR">JAR接入</string>
     <string name="add_str">添加</string>
     <string name="title_activity_group_basic_info">GroupBasicInfoActivity</string>
+    <string name="order_number_str">订单号</string>
+    <string name="pay_money_str">支付金额</string>
+    <string name="input_verification_code_str">请输入验证码</string>
+    <string name="hello_space_str">Hello Space!</string>
+    <string name="fly_space_str">飞聊空间</string>
+    <string name="unbind_str">解除绑定</string>
 </resources>

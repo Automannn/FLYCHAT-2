@@ -59,7 +59,7 @@ public class OkHttpUtil {
      */
     public static void okHttpGet(String path, Map<String, String> paramsMap
             , Map<String, String> headerMap, CallBackUtil callBack) {
-        new RequestUtil(METHOD_GET, REALM_NAME + path, paramsMap, headerMap, callBack).execute();
+        new RequestUtil(METHOD_GET, path, paramsMap, headerMap, callBack).execute();
     }
 
     /**

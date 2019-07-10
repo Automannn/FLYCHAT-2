@@ -28,7 +28,7 @@
             android:layout_marginLeft="@dimen/dp_10"
             android:layout_marginRight="@dimen/dp_10"
             android:src="@drawable/icon_user"
-            app:siBorderColor="@color/colorWhite"/>
+            app:siBorderAlpha="0"/>
 
         <LinearLayout
             android:layout_width="wrap_content"

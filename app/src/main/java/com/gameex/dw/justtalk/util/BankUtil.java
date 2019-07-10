@@ -24,7 +24,7 @@ public class BankUtil {
      *
      * @param userId 本地服务器的用户id
      */
-    public void queryBindCard(String userId) {
+    public static void queryBindCard(String userId) {
         if (userId == null) {
             return;
         }

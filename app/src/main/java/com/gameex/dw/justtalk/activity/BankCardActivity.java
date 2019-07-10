@@ -1,6 +1,9 @@
 package com.gameex.dw.justtalk.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -40,6 +43,11 @@ import okhttp3.Response;
 public class BankCardActivity extends AppCompatActivity implements View.OnClickListener {
     private static final String TAG = "BankCardActivity";
     /**
+     * 刷新银行卡action
+     */
+    public static final String UPDATE_BANK_ACTION =
+            "com.gameex.dw.justtalk.activity." + TAG + ".UPDATE_BANK_ACTION";
+    /**
      * 绑卡情况查询路径
      */
     public static final String ACCOUNT_CARD_BIND_QUERY = "unionpay/cardbind/query";
@@ -55,12 +63,24 @@ public class BankCardActivity extends AppCompatActivity implements View.OnClickL
      * 银行卡列表数据集合
      */
     private List<BankInfo> mBankInfos = new ArrayList<>();
+    private BankCardRceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initView();
         initData();
+
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(UPDATE_BANK_ACTION);
+        mReceiver = new BankCardRceiver();
+        registerReceiver(mReceiver, filter);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
     }
 
     /**
@@ -164,6 +184,12 @@ public class BankCardActivity extends AppCompatActivity implements View.OnClickL
                                             e.printStackTrace();
                                         }
                                         try {
+                                            bankInfo.setSignSn(bank.getString("signSn"));
+                                        } catch (JSONException jsone) {
+                                            bankInfo.setSignSn("");
+                                            jsone.printStackTrace();
+                                        }
+                                        try {
                                             String bankId = bank.getString("id");
                                             if (!TextUtils.isEmpty(bankId))
                                                 bankInfo.setBankId(bankId);
@@ -201,6 +227,24 @@ public class BankCardActivity extends AppCompatActivity implements View.OnClickL
                 intent.setClass(this, AddBankCardActivity.class);
                 startActivity(intent);
                 break;
+        }
+    }
+
+    /**
+     * 广播接收器，用于刷新银行卡列表
+     */
+    class BankCardRceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            if (action.equals(UPDATE_BANK_ACTION)) {
+                BankInfo bankInfo = (BankInfo) intent.getSerializableExtra("bank");
+                if (mBankInfos.contains(bankInfo)) {
+                    mBankInfos.remove(bankInfo);
+                    mAdapter.notifyDataSetChanged();
+                }
+            }
         }
     }
 }

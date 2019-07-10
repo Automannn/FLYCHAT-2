@@ -43,10 +43,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="@color/colorMineBack"
-        android:paddingStart="@dimen/dp_20"
+        android:paddingStart="@dimen/dp_10"
         android:paddingLeft="@dimen/dp_10"
-        android:paddingTop="@dimen/dp_10"
-        android:paddingBottom="@dimen/dp_5"
+        android:paddingTop="@dimen/dp_20"
+        android:paddingBottom="@dimen/dp_10"
         android:text="@string/please_add_yours_card_str"
         android:textColor="@color/colorGray"
         android:textSize="@dimen/sp_13"
@@ -168,35 +168,6 @@
         android:layout_height="@dimen/dp_1"
         android:background="@color/colorLightGray"/>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_margin="@dimen/dp_10"
-            android:text="@string/bank_belong_str"
-            android:textColor="@color/colorMineThemeText"
-            android:textSize="?smallFont"/>
-
-        <Spinner
-            android:id="@+id/belong"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:entries="@array/bank_name">
-
-        </Spinner>
-    </LinearLayout>
-
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="@dimen/dp_1"
-        android:background="@color/colorLightGray"/>
-
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -213,9 +184,10 @@
         android:layout_height="@dimen/dp_38"
         android:layout_gravity="center_horizontal"
         android:alpha="0.5"
-        android:background="@drawable/coffee_bg"
+        android:background="@drawable/dark_gray_light_blue_rip"
         android:enabled="false"
-        android:text="@string/done_str"
+        android:layout_marginTop="@dimen/dp_20"
+        android:text="@string/next_str"
         android:textColor="@color/colorWhite"/>
 
 </LinearLayout>

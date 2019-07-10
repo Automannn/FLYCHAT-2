@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.OrderConfirmActivity">
+
+    <LinearLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_74"
+        android:background="@color/colorPrimary"
+        android:gravity="bottom"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/dp_35"
+            android:layout_height="@dimen/dp_49"
+            android:layout_marginStart="@dimen/dp_3"
+            android:layout_marginLeft="@dimen/dp_3"
+            android:background="@drawable/light_gray_rip_out"
+            android:paddingStart="@dimen/dp_10"
+            android:paddingLeft="@dimen/dp_10"
+            android:src="@drawable/left_arrow"
+            tools:ignore="ContentDescription,RtlSymmetry"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_49"
+            android:layout_marginStart="@dimen/dp_12"
+            android:layout_marginLeft="@dimen/dp_12"
+            android:gravity="center"
+            android:text="@string/order_confirm_str"
+            android:textColor="@color/colorWhite"
+            android:textSize="@dimen/sp_20"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/order_number_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dp_30"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp_10"
+        app:layout_constraintTop_toBottomOf="@id/title_bar">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:text="@string/order_number_str"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="?smallFont"/>
+
+        <TextView
+            android:id="@+id/order_number"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="?smallFont"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/line1"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:background="@color/colorBlackAlpha11"
+        app:layout_constraintTop_toBottomOf="@id/order_number_layout"/>
+
+    <LinearLayout
+        android:id="@+id/money_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp_10"
+        app:layout_constraintTop_toBottomOf="@id/line1">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="@dimen/dp_10"
+            android:layout_marginRight="@dimen/dp_10"
+            android:text="@string/pay_money_str"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="?smallFont"/>
+
+        <TextView
+            android:id="@+id/money"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="@dimen/dp_10"
+            android:layout_marginLeft="@dimen/dp_10"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="?smallFont"/>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/line2"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_1"
+        android:background="@color/colorBlackAlpha11"
+        app:layout_constraintTop_toBottomOf="@id/money_layout"/>
+
+    <EditText
+        android:id="@+id/verify_code"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/line2"
+        android:layout_margin="@dimen/dp_30"
+        android:background="@drawable/login_et_bg"
+        android:textColor="@color/login_edit_text_selector_color"
+        android:textCursorDrawable="@drawable/cursor_dra"
+        android:gravity="center"
+        android:inputType="text"
+        android:textSize="?smallFont"
+        android:padding="@dimen/dp_8"
+        android:hint="@string/input_verification_code_str"
+        tools:ignore="Autofill"/>
+
+    <Button
+        android:id="@+id/confirm"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_38"
+        android:layout_gravity="center_horizontal"
+        android:layout_margin="@dimen/dp_40"
+        android:alpha="0.5"
+        android:background="@drawable/dark_gray_light_blue_rip"
+        android:enabled="false"
+        android:text="@string/pay_confirm_str"
+        android:textColor="@color/colorWhite"
+        app:layout_constraintTop_toBottomOf="@id/verify_code"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

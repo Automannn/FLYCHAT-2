@@ -2,13 +2,16 @@ package com.gameex.dw.justtalk.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.activity.BankInfoActivity;
 import com.gameex.dw.justtalk.entry.BankInfo;
 import com.github.siyamed.shapeimageview.CircularImageView;
 
@@ -73,6 +76,7 @@ public class AddBankAdapter extends RecyclerView.Adapter<AddBankAdapter.AddBankH
     }
 
     class AddBankHolder extends RecyclerView.ViewHolder {
+        LinearLayout bank;
         /**
          * 银行卡图标
          */
@@ -92,6 +96,12 @@ public class AddBankAdapter extends RecyclerView.Adapter<AddBankAdapter.AddBankH
 
         AddBankHolder(@NonNull View v) {
             super(v);
+            bank = v.findViewById(R.id.bank_layout);
+            bank.setOnClickListener(view -> {
+                Intent intent = new Intent(mContext, BankInfoActivity.class);
+                intent.putExtra("bank", mBankInfos.get(getAdapterPosition()));
+                mContext.startActivity(intent);
+            });
             icon = v.findViewById(R.id.icon);
             name = v.findViewById(R.id.name);
             type = v.findViewById(R.id.type);

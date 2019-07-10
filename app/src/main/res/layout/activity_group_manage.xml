@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/colorMineBack"
+    tools:context=".activity.GroupManageActivity">
+
+    <RelativeLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_74"
+        android:background="@color/colorPrimary"
+        android:paddingBottom="@dimen/dp_4"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:background="@drawable/light_gray_rip_out"
+            android:padding="@dimen/dp_8"
+            android:src="@drawable/left_arrow"
+            tools:ignore="ContentDescription"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:layout_toEndOf="@id/back"
+            android:layout_toRightOf="@id/back"
+            android:gravity="center"
+            android:text="@string/group_manage_str"
+            android:textColor="@color/colorMineBack"
+            android:textSize="@dimen/sp_15"
+            tools:ignore="RelativeOverlap"/>
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:id="@+id/set_keeper"
+        android:layout_width="match_parent"
+        android:layout_height="?heightI"
+        android:layout_marginTop="@dimen/dp_20"
+        android:background="@drawable/light_gray_white_rip"
+        android:clickable="true"
+        android:focusable="true"
+        android:paddingLeft="@dimen/dp_20"
+        android:paddingRight="@dimen/dp_20"
+        app:layout_constraintTop_toBottomOf="@id/title_bar">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/set_keepers_str"
+            android:textColor="@color/colorMineThemeText"
+            android:textSize="?smallFont"
+            tools:ignore="RelativeOverlap"/>
+
+        <TextView
+            android:id="@+id/keeper_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="0"
+            android:textColor="@color/colorLightGray"
+            android:textSize="?smallFont"
+            tools:ignore="RelativeOverlap"/>
+    </RelativeLayout>
+
+    <TextView
+        android:id="@+id/change_owner"
+        android:layout_width="match_parent"
+        android:layout_height="?heightI"
+        android:layout_centerVertical="true"
+        android:layout_marginTop="@dimen/dp_20"
+        android:background="@drawable/light_gray_white_rip"
+        android:gravity="center"
+        android:text="@string/change_owner_str"
+        android:textColor="@color/colorAccent"
+        android:textSize="?smallFont"
+        app:layout_constraintTop_toBottomOf="@id/set_keeper"/>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

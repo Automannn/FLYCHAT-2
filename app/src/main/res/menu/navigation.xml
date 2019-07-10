@@ -12,6 +12,11 @@
         android:title="@string/title_dashboard"/>
 
     <item
+        android:id="@+id/navigation_flyspace"
+        android:icon="@drawable/ic_dashboard_black_24dp"
+        android:title="@string/fly_space_str"/>
+
+    <item
         android:id="@+id/navigation_notifications"
         android:icon="@drawable/people"
         android:title="@string/title_notifications"/>

@@ -16,10 +16,12 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.R;
+import com.gameex.dw.justtalk.manage.BaseActivity;
 import com.gameex.dw.justtalk.util.BaseDialog;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
+import com.gameex.dw.justtalk.util.SharedPreferenceUtil;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,6 +29,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
@@ -34,15 +37,24 @@ import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 import okhttp3.Response;
 
+import static com.gameex.dw.justtalk.FlayChatApplication.bankNumMap;
+import static com.gameex.dw.justtalk.FlayChatApplication.bankTypeMap;
+
 /**
  * 添加银行卡界面
  */
-public class AddBankCardActivity extends AppCompatActivity implements View.OnClickListener {
+public class AddBankCardActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "AddBankCardActivity";
     /**
-     * 用户绑卡路径
+     * ali查询银行卡归属
      */
-    private static final String ACCOUNT_CARD_BIND = "account/cardbind";
+    private static final String QUERY_BANK_URL1 =
+            "https://ccdcapi.alipay.com/validateAndCacheCardInfo.json?_input_charset=utf-8&cardNo=";
+    private static final String QUERY_BANK_URL2 = "&cardBinCheck=true";
+    /**
+     * 绑卡成功回调
+     */
+    private static final int REQUEST_SMS_PHONE_CODE=431;
     /**
      * 返回
      */
@@ -60,22 +72,15 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
      */
     private EditText mCardNumber;
     /**
-     * 所属银行
-     */
-    private Spinner mBelong;
-    /**
      * 下一步
      */
     private Button mNext;
-
-    private BaseDialog mCirclePros;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         initView();
         initListener();
-        mCirclePros = new BaseDialog(this, R.style.CusVersionDialog, R.layout.dialog_progress);
     }
 
     /**
@@ -88,7 +93,6 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
         mIdNumber = findViewById(R.id.id_number);
         mCardNumber = findViewById(R.id.card_number);
         mNext = findViewById(R.id.next_step);
-        mBelong = findViewById(R.id.belong);
     }
 
     /**
@@ -153,73 +157,37 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
     }
 
     /**
-     * 获取自己服务器上的用户id
+     * 调用ali接口查询银行卡名称和类别
      *
-     * @return string
+     * @param cardNum 银行卡号
      */
-    private String getUserId() {
-        SharedPreferences pref = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        return pref.getString("userId", null);
-    }
+    private void getBankInfo(String cardNum, Intent intent) {
+        OkHttpUtil.okHttpGet(QUERY_BANK_URL1 + cardNum + QUERY_BANK_URL2, new CallBackUtil.CallBackString() {
+            @Override
+            public void onFailure(Call call, Exception e) {
+                e.printStackTrace();
+                Toasty.error(AddBankCardActivity.this, "网络连接失败").show();
+            }
 
-    /**
-     * 开始绑卡
-     */
-    private void goBindCard() {
-        mCirclePros.show();
-        UserInfo userInfo = JMessageClient.getMyInfo();
-        if (userInfo == null) {
-            Toast.makeText(this, "点击重试", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        HashMap<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("userId", getUserId());
-        paramsMap.put("IDcard", mIdNumber.getText().toString());
-        paramsMap.put("bankCard", mCardNumber.getText().toString());
-        paramsMap.put("userName", mName.getText().toString());
-        paramsMap.put("bankName", mBelong.getSelectedItem().toString());
-        new Handler().post(() -> bindCard(paramsMap));
-    }
-
-    /**
-     * 开始绑卡
-     *
-     * @param paramsMap 表单参数
-     */
-    private void bindCard(HashMap<String, String> paramsMap) {
-        OkHttpUtil.okHttpPost(ACCOUNT_CARD_BIND, paramsMap
-                , new CallBackUtil.CallBackDefault() {
-                    @Override
-                    public void onFailure(Call call, Exception e) {
-                        mCirclePros.dismiss();
-                        e.printStackTrace();
-                        Toast.makeText(AddBankCardActivity.this, "网络异常", Toast.LENGTH_SHORT).show();
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject object = new JSONObject(response);
+                    boolean validated = object.getBoolean("validated");
+                    if (validated) {
+                        String bank = bankNumMap.get(object.getString("bank"));
+                        String cardType = bankTypeMap.get(object.getString("cardType"));
+                        intent.putExtra("bank", bank);
+                        intent.putExtra("cardType", cardType);
+                        startActivityForResult(intent,REQUEST_SMS_PHONE_CODE);
+                    } else {
+                        Toasty.info(AddBankCardActivity.this, "不支持该类银行卡").show();
                     }
-
-                    @Override
-                    public void onResponse(Response response) {
-                        if (response.isSuccessful() && response.body() != null) {
-                            try {
-                                JSONObject json = new JSONObject(response.body().string());
-                                boolean success = json.getBoolean("success");
-                                String data = json.getString("data");
-                                if (success) finish();
-                                mCirclePros.dismiss();
-                                Toasty.info(AddBankCardActivity.this, data).show();
-                            } catch (JSONException e) {
-                                mCirclePros.dismiss();
-                                e.printStackTrace();
-                            } catch (IOException e) {
-                                mCirclePros.dismiss();
-                                e.printStackTrace();
-                            }
-                        } else {
-                            mCirclePros.dismiss();
-                            LogUtil.d(TAG, "bindCard-onResponse: " + "response = " + response);
-                        }
-                    }
-                });
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
     }
 
     @Override
@@ -230,10 +198,30 @@ public class AddBankCardActivity extends AppCompatActivity implements View.OnCli
                 finish();
                 break;
             case R.id.next_step:
-//                intent.setClass(this, VerifyIdentityActivity.class);
-//                startActivity(intent);
-                goBindCard();
+                intent.setClass(this, SMSPhoneActivity.class);
+                Intent skyPayIntent = getIntent();
+                if (skyPayIntent != null) {
+                    //是否调用天付宝支付
+                    intent.putExtra("goSkyPay", skyPayIntent.getBooleanExtra("goSkyPay", false));
+                    //产品id
+                    intent.putExtra("productCode", skyPayIntent.getStringExtra("productCode"));
+                    //产品数量
+                    intent.putExtra("number", skyPayIntent.getIntExtra("number",-1));
+                }
+                String cardNum = mCardNumber.getText().toString();
+                intent.putExtra("IDcard", mIdNumber.getText().toString());  //身份证
+                intent.putExtra("bankCard", cardNum);  //银行卡卡号
+                intent.putExtra("userName", mName.getText().toString());    //持卡人真实姓名
+                new Handler().post(() -> getBankInfo(cardNum, intent));
                 break;
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (requestCode==REQUEST_SMS_PHONE_CODE&&resultCode==RESULT_OK){
+            finish();
+        }
+        super.onActivityResult(requestCode, resultCode, data);
     }
 }

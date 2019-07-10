@@ -2,11 +2,9 @@ package com.gameex.dw.justtalk.activity;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
@@ -22,6 +20,7 @@ import com.gameex.dw.justtalk.manage.BaseActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
+import com.gameex.dw.justtalk.util.SharedPreferenceUtil;
 import com.gameex.dw.justtalk.util.WindowUtil;
 
 import org.json.JSONArray;
@@ -154,7 +153,7 @@ public class ChargeActivity extends BaseActivity implements View.OnClickListener
      */
     private void initBalance() {
         HashMap<String, String> paramsMap = new HashMap<>();
-        paramsMap.put("userId", getUserId());
+        paramsMap.put("userId", (String) SharedPreferenceUtil.getData("userId", ""));
         OkHttpUtil.okHttpPost(ACCOUNT_BALANCE, paramsMap, new CallBackUtil.CallBackDefault() {
             @Override
             public void onFailure(Call call, Exception e) {
@@ -187,17 +186,6 @@ public class ChargeActivity extends BaseActivity implements View.OnClickListener
                 }
             }
         });
-    }
-
-    /**
-     * 获取自己服务器上的用户id
-     *
-     * @return string
-     */
-    private String getUserId() {
-        SharedPreferences pref = PreferenceManager
-                .getDefaultSharedPreferences(this);
-        return pref.getString("userId", null);
     }
 
     /**
@@ -259,7 +247,7 @@ public class ChargeActivity extends BaseActivity implements View.OnClickListener
      */
     private void goChoosePayWay(List<BankInfo> data) {
         Intent intent = new Intent(this, WithdrawActivity.class);
-        intent.putExtra("userId", getUserId());
+        intent.putExtra("userId", (String) SharedPreferenceUtil.getData("userId", ""));
         intent.putExtra("balance", mMyCharge.getText());
         intent.putExtra("bankInfo", (Serializable) data);
         startActivityForResult(intent, RECHARGE_REQUEST_CODE);
@@ -382,7 +370,7 @@ public class ChargeActivity extends BaseActivity implements View.OnClickListener
                 startActivityForResult(intent, RECHARGE_REQUEST_CODE);
                 break;
             case R.id.cash_withdrawal:  //提现
-                queryBindCard(getUserId());
+                queryBindCard((String) SharedPreferenceUtil.getData("userId", ""));
 //                if (mNoBankCardPup != null) {
 //                    mNoBankCardPup.showAtLocation(mLayout, Gravity.CENTER, 0, 0);
 //                    WindowUtil.showBackgroundAnimator(this, 0.5f);
