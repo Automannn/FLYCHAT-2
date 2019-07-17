@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="@dimen/dp_30">
+
+    <com.rey.material.widget.EditText
+        android:id="@+id/nick_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/nick_str"
+        android:padding="@dimen/dp_8"
+        android:textColor="@color/login_edit_text_selector_color"
+        android:textSize="?smallFont"
+        app:et_inputId="@+id/edit_nick"
+        app:et_labelEnable="true"
+        app:et_supportMaxChars="10"
+        app:et_supportMode="charCounter"/>
+
+</LinearLayout>

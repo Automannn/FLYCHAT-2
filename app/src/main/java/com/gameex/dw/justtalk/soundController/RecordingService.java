@@ -13,6 +13,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
+import android.text.TextUtils;
 import android.widget.TextView;
 
 import com.gameex.dw.justtalk.R;
@@ -136,7 +137,9 @@ public class RecordingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mContext = BaseActivity.sBaseActivity;
-        startRecording();
+        String filePath = intent.getStringExtra("file_path");
+        String fileName = intent.getStringExtra("file_name");
+        startRecording(filePath, fileName);
         return START_STICKY;
     }
 
@@ -149,8 +152,8 @@ public class RecordingService extends Service {
     }
 
     // 开始录音
-    public void startRecording() {
-        setFileNameAndPath();
+    public void startRecording(String filePath, String fileName) {
+        setFileNameAndPath(filePath, fileName);
 //        new Thread(() -> {
 //            short[] buffer = new short[BUFFER_SIZE];
 //            while (isGetVoiceRun) {
@@ -199,15 +202,17 @@ public class RecordingService extends Service {
     }
 
     // 设置录音文件的名字和保存路径
-    public void setFileNameAndPath() {
+    public void setFileNameAndPath(String filePath, String fileName) {
         int count = 0;
         File f;
 
         do {
             count++;
-            mFileName = JMessageClient.getMyInfo().getUserName()
+            if (!TextUtils.isEmpty(fileName)) mFileName = fileName;
+            else mFileName = JMessageClient.getMyInfo().getUserName()
                     + "_" + System.currentTimeMillis() + "_" + count + ".mp3";
-            mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()
+            if (!TextUtils.isEmpty(filePath)) mFilePath = filePath;
+            else mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()
                     + "/FlyChat/recording/";
             File directory = new File(mFilePath);
             if (!directory.exists()) {

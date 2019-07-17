@@ -22,7 +22,7 @@ public class LogUtil {
 
     public static final int NOTHING = 6;
 
-    public static int level = NOTHING;
+    public static int level = VERBOSE;
 
     public static void v(String tag, String msg) {
         if (level <= VERBOSE) {

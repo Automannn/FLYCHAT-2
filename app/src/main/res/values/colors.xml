@@ -4,6 +4,8 @@
     <color name="colorPrimaryDark">#232937</color>
     <color name="colorAccent">#00BCD4</color>
     <color name="colorLightBlue">#00BCD4</color>
+    <color name="color_app_guid">#fffef0</color>
+    <color name="color_app_guid_text">#E59D3E</color>
 
     <color name="colorDarkGray">#46454B</color>
     <color name="colorWhite">#ffffff</color>
@@ -12,9 +14,11 @@
     <color name="colorBlue">#1296db</color>
     <color name="colorLightGreen">#37CDA8</color>
     <color name="lightGreen">#90EE90</color>
+    <color name="colorGreen">#1afa29</color>
     <color name="colorBlack">#000000</color>
     <color name="colorLightPrimary">#00B9AB</color>
     <color name="colorRed">#FF0000</color>
+    <color name="red">#d81e06</color>
 
     <color name="colorTabChecked">#04adfe</color>
     <color name="colorTabUnCheckedIcon">#a0a0a0</color>
@@ -28,8 +32,9 @@
     <color name="colorMineLine">#efefef</color>
     <color name="colorChatBack">#ececec</color>
     <color name="colorBlueBank">#13227A</color>
-    
+
     <color name="colorRedDeep">#D24F45</color>
+    <color name="origin">#FF6100</color>
 
     <color name="colorBlueDeep">#1874CD</color>
 

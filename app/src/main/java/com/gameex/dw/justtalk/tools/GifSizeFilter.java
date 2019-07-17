@@ -1,4 +1,4 @@
-package com.gameex.dw.justtalk.imagePicker;
+package com.gameex.dw.justtalk.tools;
 
 import android.content.Context;
 import android.graphics.Point;

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:orientation="vertical"
+              android:padding="@dimen/dp_10">
+
+    <CheckedTextView
+        android:id="@+id/male"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="@dimen/dp_10"
+        android:checkMark="?android:attr/listChoiceIndicatorSingle"
+        android:checked="true"
+        android:gravity="center"
+        android:padding="@dimen/dp_10"
+        android:text="@string/male_str"
+        android:textColor="@color/colorMineThemeText"
+        android:textSize="?normalFont"/>
+
+    <CheckedTextView
+        android:id="@+id/female"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:checkMark="?android:attr/listChoiceIndicatorSingle"
+        android:gravity="center"
+        android:padding="@dimen/dp_10"
+
+        android:text="@string/female_Str"
+        android:textColor="@color/colorMineThemeText"
+        android:textSize="?normalFont"/>
+
+</LinearLayout>

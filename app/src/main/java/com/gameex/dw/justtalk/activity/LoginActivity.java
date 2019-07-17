@@ -244,10 +244,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                 LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
                                         + "response" + resBody);
                                 JSONObject jsonObject = new JSONObject(resBody);
-                                JSONObject object = jsonObject.getJSONObject("data");
                                 boolean isSuccess = jsonObject.getBoolean("success");
+                                String data = jsonObject.getString("data");
                                 if (isSuccess) {
-                                    String userId = object.getString("id");
                                     mCirclePros.dismiss();
                                     JMessageClient.login(account, password, new RequestCallback<List<DeviceInfo>>() {
                                         @Override
@@ -263,7 +262,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                                     editor.putBoolean("remember_password", true);
                                                     editor.putString("account", account);
                                                     editor.putString("password", password);
-                                                    editor.putString("userId", userId);
+                                                    editor.putString("userId", data);
                                                 } else {
                                                     editor.clear();
                                                 }
@@ -281,23 +280,24 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
                                     });
                                 } else {
                                     mCirclePros.dismiss();
-                                    int code = object.getInt("code");
-                                    String message = object.getString("message");
-                                    if (code == 403) {
-                                        YoYo.with(Techniques.Shake)
-                                                .duration(700)
-                                                .playOn(findViewById(R.id.username_layout));
-                                        Toasty.warning(LoginActivity.this, message).show();
-                                    } else if (code == 404) {
-                                        YoYo.with(Techniques.Shake)
-                                                .duration(700)
-                                                .playOn(findViewById(R.id.password_layout));
-                                        Toasty.warning(LoginActivity.this, message).show();
-                                    } else {
+//                                    JSONObject data = jsonObject.getJSONObject("data");
+//                                    int code = data.getInt("code");
+//                                    String message = data.getString("message");
+//                                    if (code == 403) {
+//                                        YoYo.with(Techniques.Shake)
+//                                                .duration(700)
+//                                                .playOn(findViewById(R.id.username_layout));
+//                                        Toasty.warning(LoginActivity.this, message).show();
+//                                    } else if (code == 404) {
+//                                        YoYo.with(Techniques.Shake)
+//                                                .duration(700)
+//                                                .playOn(findViewById(R.id.password_layout));
+//                                        Toasty.warning(LoginActivity.this, message).show();
+//                                    } else {
                                         LogUtil.d(TAG, "checkToLogin-CallBackUtil-onResponse: "
-                                                + "code = " + code + " ;message = " + message);
-                                        Toasty.error(LoginActivity.this, message).show();
-                                    }
+                                                + "response = " + resBody);
+                                        Toasty.error(LoginActivity.this, data).show();
+//                                    }
                                 }
                             } catch (JSONException e) {
                                 mCirclePros.dismiss();

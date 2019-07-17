@@ -3,13 +3,16 @@ package com.gameex.dw.justtalk.activity;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.Toast;
 
 import com.gameex.dw.justtalk.util.LogUtil;
+import com.gameex.dw.justtalk.util.SharedPreferenceUtil;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -21,6 +24,7 @@ public class StartActivity extends AppCompatActivity {
     private static final String TAG = "StartActivity";
 
     private Handler mHandler = new Handler();
+    private boolean mIsFirstStart = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,21 +48,26 @@ public class StartActivity extends AppCompatActivity {
                 .subscribe(permission -> {
                     LogUtil.d(TAG, "requestPermission: " + "permission = " + permission.name);
                     //1s后前往主页
-                    mHandler.postDelayed(() -> gotoLogin(), 500);
+                    mHandler.postDelayed(() -> {
+//                        SharedPreferences pref= PreferenceManager.getDefaultSharedPreferences(this);
+                        mIsFirstStart= (boolean) SharedPreferenceUtil.getData("isFirstStart",true);
+                        Intent intent = new Intent();
+                        //若是第一次启动app则调用导航界面
+                        if (mIsFirstStart) {
+                            mIsFirstStart = false;
+                            SharedPreferenceUtil.putData("isFirstStart", mIsFirstStart);
+                            intent.setClass(this, FlyChatGuidActivity.class);
+                        } else {
+                            intent.setClass(this, LoginActivity.class);
+                        }
+                        startActivity(intent);
+                        finish();
+                    }, 500);
                     if (permission.shouldShowRequestPermissionRationale) {
                         Toast.makeText(StartActivity.this
                                 , "您禁止了此权限，可能会影响那您的正常使用", Toast.LENGTH_SHORT).show();
                     }
                 });
-    }
-
-    /**
-     * 启动结束，跳转到登陆界面
-     */
-    private void gotoLogin() {
-        Intent intent = new Intent(StartActivity.this, LoginActivity.class);
-        startActivity(intent);
-        finish();
     }
 
     /**

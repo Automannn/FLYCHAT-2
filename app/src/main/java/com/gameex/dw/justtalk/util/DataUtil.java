@@ -148,6 +148,17 @@ public class DataUtil {
      * @param milliSecond 毫秒数
      * @return 字符串date
      */
+    public static String msFormYYYY(long milliSecond) {
+        @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("YYYY");
+        return format.format(milliSecond);
+    }
+
+    /**
+     * 将毫秒数转化为-月-日格式的字符串
+     *
+     * @param milliSecond 毫秒数
+     * @return 字符串date
+     */
     public static String msFormMMDD(long milliSecond) {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat format = new SimpleDateFormat("MM-dd");
         return format.format(milliSecond).replaceAll("-", "月") + "日";

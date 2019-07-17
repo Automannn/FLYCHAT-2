@@ -1,0 +1,329 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.FlySpaceInfoActivity">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.youth.banner.Banner
+                android:id="@+id/banner"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_340"
+                app:is_auto_play="false"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/username"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_marginBottom="@dimen/dp_6"
+                    android:text="@string/username"
+                    android:textColor="@color/colorMineThemeText"
+                    android:textSize="?largeFont"
+                    tools:ignore="RtlSymmetry"/>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_marginBottom="@dimen/dp_6"
+                    android:gravity="start"
+                    android:orientation="horizontal"
+                    tools:ignore="RtlSymmetry">
+
+                    <TextView
+                        android:id="@+id/gender_age"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="@dimen/dp_6"
+                        android:layout_marginRight="@dimen/dp_6"
+                        android:background="@drawable/blue_bg"
+                        android:paddingStart="@dimen/dp_4"
+                        android:paddingTop="@dimen/dp_2"
+                        android:paddingEnd="@dimen/dp_4"
+                        android:paddingBottom="@dimen/dp_2"
+                        android:text="@string/unknow_str"
+                        android:textColor="@color/colorWhite"/>
+
+                    <TextView
+                        android:id="@+id/constellation"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:background="@drawable/chat_msg_data_bg"
+                        android:paddingStart="@dimen/dp_4"
+                        android:paddingTop="@dimen/dp_2"
+                        android:paddingEnd="@dimen/dp_4"
+                        android:paddingBottom="@dimen/dp_2"
+                        android:text="@string/unknow_str"
+                        android:textColor="@color/colorWhite"/>
+
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/career"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/dp_20"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_marginBottom="@dimen/dp_20"
+                    android:text="@string/unknow_str"
+                    android:textSize="@dimen/sp_14"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_1"
+                android:background="@color/colorBlackAlpha11"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="@dimen/dp_20"
+                    android:text="@string/description"
+                    android:textColor="@color/colorRedDeep"
+                    android:textSize="@dimen/sp_14"
+                    android:textStyle="bold"/>
+
+                <Button
+                    android:id="@+id/play"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/dp_40"
+                    android:layout_marginLeft="@dimen/dp_40"
+                    android:background="@drawable/blue_bg"
+                    android:text="@string/play_str"
+                    android:textColor="@color/colorWhite"
+                    app:rd_enable="true"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_1"
+                android:background="@color/colorBlackAlpha11"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp_20"
+                android:text="@string/fly_sign_str"
+                android:textColor="@color/colorRedDeep"
+                android:textSize="@dimen/sp_14"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/signature"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:padding="@dimen/dp_20"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="@dimen/sp_16"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_1"
+                android:background="@color/colorBlackAlpha11"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/dp_20"
+                android:text="@string/my_interest"
+                android:textColor="@color/colorRedDeep"
+                android:textSize="@dimen/sp_14"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:id="@+id/sport_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="@dimen/dp_20"
+                    android:src="@drawable/icon_sport"
+                    tools:ignore="ContentDescription"/>
+
+                <com.donkingliang.labels.LabelsView
+                    android:id="@+id/sport"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_marginBottom="@dimen/dp_10"
+                    app:labelBackground="@drawable/green_bg"
+                    app:labelTextColor="@color/colorWhite"
+                    app:labelTextPaddingBottom="5dp"
+                    app:labelTextPaddingLeft="10dp"
+                    app:labelTextPaddingRight="10dp"
+                    app:labelTextPaddingTop="5dp"
+                    app:labelTextSize="14sp"
+                    app:lineMargin="10dp"
+                    app:maxLines="-1"
+                    app:selectType="NONE"
+                    app:wordMargin="10dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/food_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="@dimen/dp_20"
+                    android:src="@drawable/icon_food"
+                    tools:ignore="ContentDescription"/>
+
+                <com.donkingliang.labels.LabelsView
+                    android:id="@+id/food"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_marginBottom="@dimen/dp_10"
+                    app:isIndicator="true"
+                    app:labelBackground="@drawable/origin_bg"
+                    app:labelTextColor="@color/colorWhite"
+                    app:labelTextPaddingBottom="5dp"
+                    app:labelTextPaddingLeft="10dp"
+                    app:labelTextPaddingRight="10dp"
+                    app:labelTextPaddingTop="5dp"
+                    app:labelTextSize="14sp"
+                    app:lineMargin="10dp"
+                    app:maxLines="-1"
+                    app:selectType="NONE"
+                    app:wordMargin="10dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/music_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="@dimen/dp_20"
+                    android:src="@drawable/icon_music"
+                    tools:ignore="ContentDescription"/>
+
+                <com.donkingliang.labels.LabelsView
+                    android:id="@+id/music"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_marginBottom="@dimen/dp_10"
+                    app:isIndicator="true"
+                    app:labelBackground="@drawable/red_bg"
+                    app:labelTextColor="@color/colorWhite"
+                    app:labelTextPaddingBottom="5dp"
+                    app:labelTextPaddingLeft="10dp"
+                    app:labelTextPaddingRight="10dp"
+                    app:labelTextPaddingTop="5dp"
+                    app:labelTextSize="14sp"
+                    app:lineMargin="10dp"
+                    app:maxLines="-1"
+                    app:selectType="NONE"
+                    app:wordMargin="10dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/movie_label"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/light_gray_white_rip"
+                android:clickable="true"
+                android:focusable="true"
+                android:orientation="horizontal"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:layout_width="@dimen/dp_20"
+                    android:layout_height="@dimen/dp_20"
+                    android:layout_gravity="center_vertical"
+                    android:layout_margin="@dimen/dp_20"
+                    android:src="@drawable/icon_movie"
+                    tools:ignore="ContentDescription"/>
+
+                <com.donkingliang.labels.LabelsView
+                    android:id="@+id/movies"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginTop="@dimen/dp_10"
+                    android:layout_marginBottom="@dimen/dp_10"
+                    app:isIndicator="true"
+                    app:labelTextPaddingBottom="5dp"
+                    app:labelTextPaddingLeft="10dp"
+                    app:labelTextPaddingRight="10dp"
+                    app:labelTextPaddingTop="5dp"
+                    app:labelTextSize="14sp"
+                    app:lineMargin="10dp"
+                    app:maxLines="-1"
+                    app:selectType="NONE"
+                    app:wordMargin="10dp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/dp_1"
+                android:layout_marginBottom="@dimen/dp_40"
+                android:background="@color/colorBlackAlpha11"/>
+        </LinearLayout>
+    </ScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

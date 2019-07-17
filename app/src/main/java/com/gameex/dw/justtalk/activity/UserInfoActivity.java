@@ -71,7 +71,7 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
     private TitleBarView mBarView;
     private RelativeLayout mIconInfo, mQRCode, mFlyCode, mFlySign, mNumInfo;
     private CircularImageView mIconImg;
-    private TextView mNickName, mFlyCodeText, mFlySignText, mNumText, mShareCard, mLoginOut;
+    private TextView mNickName, mFlyCodeText, mFlySignText, mNumText, mShareCard, mEditSpace, mLoginOut;
 
     private AlertDialog mDialog;
     private Uri mPhotoUri;
@@ -139,6 +139,8 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
         mNumText = findViewById(R.id.mine_num_info);
         mShareCard = findViewById(R.id.share_card_text);
         mShareCard.setOnClickListener(this);
+        mEditSpace = findViewById(R.id.space_info);
+        mEditSpace.setOnClickListener(this);
         mLoginOut = findViewById(R.id.login_out_text);
         mLoginOut.setOnClickListener(this);
 
@@ -208,6 +210,9 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
             case R.id.share_card_text:  //分享名片
                 Toast.makeText(this, "分享名片", Toast.LENGTH_SHORT).show();
                 break;
+            case R.id.space_info:   //编辑飞聊空间信息
+                intent.setClass(this, EditSpaceInfoActivity.class);
+                startActivity(intent);
             case R.id.login_out_text:   //退出登录
                 JMessageClient.logout();
                 intent.setAction("com.gameex.dw.justtalk.LOGIN_OUT");

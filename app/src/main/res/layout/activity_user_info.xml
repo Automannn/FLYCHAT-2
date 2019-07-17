@@ -45,11 +45,11 @@
                     android:layout_width="?widthF"
                     android:layout_height="?heightG"
                     android:layout_centerVertical="true"
+                    android:layout_marginLeft="@dimen/dp_20"
+                    android:layout_marginRight="@dimen/dp_20"
                     android:background="@drawable/light_gray_rip_out"
                     android:clickable="true"
                     android:focusable="true"
-                    android:layout_marginLeft="@dimen/dp_20"
-                    android:layout_marginRight="@dimen/dp_20"
                     android:src="@drawable/icon_user"
                     app:siBorderColor="@color/colorWhite"/>
 
@@ -188,12 +188,12 @@
                     android:id="@+id/fly_sign_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:maxWidth="@dimen/dp_200"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="@dimen/dp_5"
                     android:layout_marginRight="@dimen/dp_5"
                     android:layout_toStartOf="@id/fly_sign_edit_img"
                     android:layout_toLeftOf="@id/fly_sign_edit_img"
+                    android:maxWidth="@dimen/dp_200"
                     android:text="@string/not_set_str"
                     android:textColor="@color/colorLightGray"
                     android:textSize="?smallFont"
@@ -276,6 +276,24 @@
                 android:paddingLeft="@dimen/dp_20"
                 android:paddingRight="@dimen/dp_20"
                 android:text="@string/share_card_str"
+                android:textColor="@color/colorMineThemeText"
+                android:textSize="?smallFont"/>
+
+            <TextView
+                android:layout_width="@dimen/dp_350"
+                android:layout_height="@dimen/dp_1"
+                android:layout_gravity="center_horizontal"
+                android:background="@drawable/mine_line_bg"/>
+
+            <TextView
+                android:id="@+id/space_info"
+                android:layout_width="match_parent"
+                android:layout_height="?heightI"
+                android:background="@drawable/light_gray_white_rip"
+                android:gravity="center_vertical"
+                android:paddingLeft="@dimen/dp_20"
+                android:paddingRight="@dimen/dp_20"
+                android:text="@string/edit_space_info_str"
                 android:textColor="@color/colorMineThemeText"
                 android:textSize="?smallFont"/>
 

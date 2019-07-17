@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <RelativeLayout
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_74"
+        android:background="@color/colorPrimary"
+        android:paddingBottom="@dimen/dp_4"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageView
+            android:id="@+id/back"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:background="@drawable/light_gray_rip_out"
+            android:padding="@dimen/dp_8"
+            android:src="@drawable/left_arrow"
+            tools:ignore="ContentDescription"/>
+
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentBottom="true"
+            android:layout_marginStart="@dimen/dp_5"
+            android:layout_marginLeft="@dimen/dp_5"
+            android:layout_toEndOf="@id/back"
+            android:layout_toRightOf="@id/back"
+            android:gravity="center"
+            android:text="@string/fly_space_str"
+            android:textColor="@color/colorMineBack"
+            android:textSize="@dimen/sp_20"
+            tools:ignore="RelativeOverlap"/>
+
+        <ImageView
+            android:id="@+id/edit_myself"
+            android:layout_width="@dimen/dp_40"
+            android:layout_height="@dimen/dp_40"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginEnd="@dimen/dp_5"
+            android:layout_marginRight="@dimen/dp_5"
+            android:background="@drawable/light_gray_rip_out"
+            android:padding="@dimen/dp_8"
+            android:src="@drawable/edit"
+            tools:ignore="ContentDescription"/>
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/frame"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <link.fls.swipestack.SwipeStack
+            android:id="@+id/swipe_stack"
+            android:layout_width="@dimen/dp_320"
+            android:layout_height="@dimen/dp_422"
+            android:layout_gravity="center"
+            android:padding="@dimen/dp_32"/>
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="@dimen/dp_20"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+        <ImageView
+            android:id="@+id/left"
+            android:layout_width="@dimen/dp_66"
+            android:layout_height="@dimen/dp_66"
+            android:layout_marginEnd="@dimen/dp_20"
+            android:layout_marginRight="@dimen/dp_20"
+            android:background="@drawable/light_gray_rip_out"
+            android:padding="@dimen/dp_13"
+            android:src="@drawable/icon_unlike"
+            tools:ignore="ContentDescription"/>
+
+        <ImageView
+            android:id="@+id/add"
+            android:layout_width="@dimen/dp_66"
+            android:layout_height="@dimen/dp_66"
+            android:layout_marginEnd="@dimen/dp_20"
+            android:layout_marginRight="@dimen/dp_20"
+            android:background="@drawable/light_gray_rip_out"
+            android:padding="@dimen/dp_2"
+            android:src="@drawable/icon_chat_now"
+            tools:ignore="ContentDescription"/>
+
+        <ImageView
+            android:id="@+id/right"
+            android:layout_width="@dimen/dp_66"
+            android:layout_height="@dimen/dp_66"
+            android:background="@drawable/light_gray_rip_out"
+            android:padding="@dimen/dp_13"
+            android:src="@drawable/icon_like"
+            tools:ignore="ContentDescription"/>
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
