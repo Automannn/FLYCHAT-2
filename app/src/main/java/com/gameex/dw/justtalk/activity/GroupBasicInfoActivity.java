@@ -13,6 +13,9 @@ import android.view.View;
 
 import com.gameex.dw.justtalk.R;
 
+/**
+ * 群组基本信息界面，展示给群外用户的界面（有待完善）
+ */
 public class GroupBasicInfoActivity extends BaseActivity {
 
     @Override

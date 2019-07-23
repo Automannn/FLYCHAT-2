@@ -9,21 +9,26 @@ import butterknife.OnEditorAction;
 import butterknife.OnTouch;
 import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.UserInfo;
+import cn.jpush.im.api.BasicCallback;
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSON;
@@ -40,8 +45,6 @@ import com.gameex.dw.justtalk.util.FileUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
 import com.rey.material.app.Dialog;
-import com.rey.material.widget.Button;
-import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.zhihu.matisse.Matisse;
 import com.zhihu.matisse.MimeType;
 import com.zhihu.matisse.filter.Filter;
@@ -70,14 +73,10 @@ public class EditSpaceInfoActivity extends BaseActivity {
      */
     private static final String BREAK_POINT_UPLOAD_PATH = "upload/breakpointUpload";
     /**
-     * 录音文件存储路径
+     * 录制自述音频action
      */
-    private static final String VOICE_EXTERNAL_PATH =
-            Environment.getExternalStorageDirectory().getAbsolutePath() + "/FlyChat/recording/my_voice/";
-    /**
-     * 录音文件名
-     */
-    private static final String VOICE_EXTERNAL_NAME = "my_voice" + System.currentTimeMillis() + ".mp3";
+    public static final String RECORD_MY_VOICE_ACTION =
+            "com.gameex.dw.justtalk.activity." + TAG + ".RECORD_MY_VOICE_ACTION";
     /**
      * 编辑基本信息code
      */
@@ -99,10 +98,14 @@ public class EditSpaceInfoActivity extends BaseActivity {
      */
     private ArrayList<String> mMoviesLabels = new ArrayList<>();
 
+    @BindView(R.id.scroll)
+    ScrollView mScroll;
+
     /**
      * 用户名或昵称、性别和年龄、星座、职业或距离和最近在线时间
      */
-    @BindViews({R.id.username, R.id.gender_age, R.id.constellation, R.id.career})
+    @BindViews({R.id.username, R.id.gender_age, R.id.constellation, R.id.career
+            , R.id.sport_notice, R.id.food_notice, R.id.music_notice, R.id.movies_notice})
     TextView[] mTextViews;
     /**
      * 签名编辑框
@@ -117,8 +120,8 @@ public class EditSpaceInfoActivity extends BaseActivity {
      * @return true
      */
     @OnEditorAction(R.id.signature)
-    boolean onEditorAction(KeyEvent key) {
-        Toasty.normal(this, "点击回车，保存修改").show();
+    boolean onEditorAction(TextView text, KeyEvent key) {
+        mUserInfo.setSignature(text.getText().toString());
         return true;
     }
 
@@ -126,7 +129,7 @@ public class EditSpaceInfoActivity extends BaseActivity {
      * 语音录制按钮
      */
     @BindView(R.id.record)
-    Button mRecord;
+    TextView mRecord;
 
     /**
      * 图片集
@@ -144,21 +147,19 @@ public class EditSpaceInfoActivity extends BaseActivity {
      */
     @OnTouch(R.id.record)
     boolean onTouch(View view, MotionEvent event) {
-        File file = new File(VOICE_EXTERNAL_PATH + VOICE_EXTERNAL_NAME);
         switch (event.getAction()) {
             case MotionEvent.ACTION_DOWN:
-                requestPermission();
-                posY = event.getY();
+                startService(intentVoice);
+                posX = event.getX();
                 break;
             case MotionEvent.ACTION_MOVE:
-                curY = event.getY();
+                curX = event.getX();
                 break;
             case MotionEvent.ACTION_UP:
                 stopService(intentVoice);
-                if (posY > curY) {
-                    uploadBigFile(file);
+                if (posX < curX) {
+                    Toasty.normal(this, "保存").show();
                 } else {
-//                    if (file.exists()) file.delete();
                     Toasty.normal(EditSpaceInfoActivity.this, "取消").show();
                 }
                 break;
@@ -183,16 +184,16 @@ public class EditSpaceInfoActivity extends BaseActivity {
                 startActivityForResult(intent, REQUEST_EDIT_BASIC_CODE);
                 break;
             case R.id.sport_label:
-                showLabelsDialog("运动", mSportLabels, mLabelsViews[0]);
+                showLabelsDialog("运动", mSportLabels, 0);
                 break;
             case R.id.food_label:
-                showLabelsDialog("美食", mFoodLabels, mLabelsViews[1]);
+                showLabelsDialog("美食", mFoodLabels, 1);
                 break;
             case R.id.music_label:
-                showLabelsDialog("音乐", mMusicLabels, mLabelsViews[2]);
+                showLabelsDialog("音乐", mMusicLabels, 2);
                 break;
             case R.id.movie_label:
-                showLabelsDialog("电影", mMoviesLabels, mLabelsViews[3]);
+                showLabelsDialog("电影", mMoviesLabels, 3);
                 break;
             default:
                 Matisse.from(this)
@@ -216,21 +217,42 @@ public class EditSpaceInfoActivity extends BaseActivity {
      * 记录点击的imageView
      */
     private ImageView mImgView;
+    /**
+     * 录音服务intent
+     */
     private Intent intentVoice;
-    private boolean isRecord = false;
-    private float posY, curY;
+    /**
+     * 记录按下录音按钮时的x坐标、手指滑动时的x坐标
+     */
+    private float posX, curX;
+    /**
+     * 极光用户信息体
+     */
     private UserInfo mUserInfo;
+    /**
+     * 存储已选择的标签
+     */
     private List<String> mSelectLabels = new ArrayList<>();
+    /**
+     * 存储上传图片成功后返回的链接地址
+     */
+    private List<String> mImgUrl = new ArrayList<>();
+
+    private EditSpaceReceiver mReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_space_info);
         initLabels();
-        ButterKnife.bind(this);
+        ButterKnife.bind(this); //黄油刀，GitHub热门框架，快速绑定资源id，减少代码重复，提高效率
         initData();
         BarUtil.setStatusBarColor(this, getResources().getColor(R.color.colorPrimary));
         mUserInfo = JMessageClient.getMyInfo();
+        mReceiver = new EditSpaceReceiver();
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(RECORD_MY_VOICE_ACTION);
+        registerReceiver(mReceiver, filter);
     }
 
     @Override
@@ -245,19 +267,50 @@ public class EditSpaceInfoActivity extends BaseActivity {
         if (mUserInfo == null) JMessageClient.getMyInfo();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(mReceiver);
+    }
+
     /**
      * 初始化数据
      */
     @SuppressLint("SetTextI18n")
     private void initData() {
         intentVoice = new Intent(EditSpaceInfoActivity.this, RecordingService.class);
-        intentVoice.putExtra("file_path", VOICE_EXTERNAL_PATH);
-        intentVoice.putExtra("file_name", VOICE_EXTERNAL_NAME);
+        intentVoice.putExtra("isSelfVoice", true);
         UserInfo userInfo = JMessageClient.getMyInfo();
         if (userInfo == null) return;
         Map<String, String> extras = userInfo.getExtras();
+        initBasicInfo(userInfo, extras);
+        mSignature.setText(userInfo.getSignature()); //个性签名
+        //运动标签
+        List<String> sports = JSON.parseArray(extras.get("sports"), String.class);
+        mLabelsViews[0].setLabels(sports);
+        mLabelsViews[0].setTag("sports");
+        if (sports != null && sports.size() > 0) mTextViews[4].setVisibility(View.GONE);
+        //美食标签
+        List<String> foods = JSON.parseArray(extras.get("foods"), String.class);
+        mLabelsViews[1].setLabels(foods);
+        mLabelsViews[1].setTag("foods");
+        if (sports != null && sports.size() > 0) mTextViews[5].setVisibility(View.GONE);
+        //音乐标签
+        List<String> musics = JSON.parseArray(extras.get("musics"), String.class);
+        mLabelsViews[2].setLabels(musics);
+        mLabelsViews[2].setTag("musics");
+        if (sports != null && sports.size() > 0) mTextViews[6].setVisibility(View.GONE);
+        //电影标签
+        List<String> movies = JSON.parseArray(extras.get("movies"), String.class);
+        mLabelsViews[3].setLabels(movies);
+        mLabelsViews[3].setTag("movies");
+        if (sports != null && sports.size() > 0) mTextViews[7].setVisibility(View.GONE);
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void initBasicInfo(UserInfo userInfo, Map<String, String> extras) {
         //用户名或昵称
-        mTextViews[0].setText(userInfo.getNickname() == null ? userInfo.getUserName() : userInfo.getNickname());
+        mTextViews[0].setText(TextUtils.isEmpty(userInfo.getNickname()) ? userInfo.getUserName() : userInfo.getNickname());
         String gender;
         switch (userInfo.getGender()) {
             case male:
@@ -267,25 +320,12 @@ public class EditSpaceInfoActivity extends BaseActivity {
                 gender = "女 ";
                 break;
             default:
-                gender = "未知 ";
+                gender = "保密 ";
                 break;
         }
         mTextViews[1].setText(gender + extras.get("age"));  //性别和年龄
         mTextViews[2].setText(extras.get("constellation")); //星座
         mTextViews[3].setText(extras.get("career"));    //职业或距离和最近在线时间
-        mSignature.setText(userInfo.getSignature()); //个性签名
-        //运动标签
-        List<String> sports = JSON.parseArray(extras.get("sports"), String.class);
-        mLabelsViews[0].setLabels(sports);
-        //美食标签
-        List<String> foods = JSON.parseArray(extras.get("foods"), String.class);
-        mLabelsViews[1].setLabels(foods);
-        //音乐标签
-        List<String> musics = JSON.parseArray(extras.get("musics"), String.class);
-        mLabelsViews[2].setLabels(musics);
-        //电影标签
-        List<String> movies = JSON.parseArray(extras.get("movies"), String.class);
-        mLabelsViews[0].setLabels(movies);
     }
 
     /**
@@ -433,22 +473,12 @@ public class EditSpaceInfoActivity extends BaseActivity {
     }
 
     /**
-     * 申请录音权限
-     */
-    @SuppressLint("CheckResult")
-    private void requestPermission() {
-        new RxPermissions(this)
-                .request(Manifest.permission.RECORD_AUDIO)
-                .subscribe(this::accept);
-    }
-
-    /**
      * 选择标签弹窗
      *
      * @param title  弹窗标题
      * @param labels 弹窗标签
      */
-    private void showLabelsDialog(String title, ArrayList<String> labels, LabelsView labelView) {
+    private void showLabelsDialog(String title, ArrayList<String> labels, int index) {
         Dialog dialog = new Dialog(this);
         dialog.setContentView(R.layout.dialog_choose_labels);
         LabelsView labelsView = dialog.findViewById(R.id.labels);
@@ -457,8 +487,11 @@ public class EditSpaceInfoActivity extends BaseActivity {
                 .negativeAction("取消")
                 .positiveActionClickListener(view -> {
                     mSelectLabels = labelsView.getSelectLabelDatas();
-                    Toasty.normal(EditSpaceInfoActivity.this, mSelectLabels.toString()).show();
-                    labelView.setLabels(mSelectLabels);
+                    mLabelsViews[index].setLabels(mSelectLabels);
+                    if (mSelectLabels.size() > 0) mTextViews[index + 4].setVisibility(View.GONE);
+                    else mTextViews[index + 4].setVisibility(View.VISIBLE);
+                    mUserInfo.setUserExtras((String) mLabelsViews[index].getTag(), JSON.toJSONString(mSelectLabels));
+                    dialog.dismiss();
                 })
                 .negativeActionClickListener(view -> dialog.dismiss())
                 .cancelable(true)
@@ -468,10 +501,10 @@ public class EditSpaceInfoActivity extends BaseActivity {
     /**
      * 上传图片
      *
-     * @param file 图片文件
-     * @param uri  路径
+     * @param file   图片文件
+     * @param bitmap 裁剪后的图片
      */
-    private void upLoadImg(File file, Uri uri) {
+    private void upLoadImg(File file, Bitmap bitmap) {
         HashMap<String, String> paramsMap = new HashMap<>();
         OkHttpUtil.okHttpUploadFile(UPLOAD_IMG_PATH, file, "file", OkHttpUtil.FILE_TYPE_IMAGE, paramsMap, new CallBackUtil.CallBackString() {
             @Override
@@ -485,12 +518,14 @@ public class EditSpaceInfoActivity extends BaseActivity {
                 try {
                     JSONObject object = new JSONObject(response);
                     boolean success = object.getBoolean("success");
+                    String data = object.getString("data");
                     if (success) {
                         Glide.with(EditSpaceInfoActivity.this)
-                                .load(uri)
+                                .load(bitmap)
                                 .into(mImgView);
-                    }
-                    Toasty.normal(EditSpaceInfoActivity.this, object.getString("data")).show();
+                        mImgUrl.add(data);
+                    } else
+                        Toasty.normal(EditSpaceInfoActivity.this, data).show();
                     LogUtil.d(TAG, "upLoadImg-onResponse: " + "response = " + response);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -518,10 +553,12 @@ public class EditSpaceInfoActivity extends BaseActivity {
                 try {
                     JSONObject object = new JSONObject(response);
                     boolean success = object.getBoolean("success");
+                    String data = object.getString("data");
                     if (success) {
                         Toasty.success(EditSpaceInfoActivity.this, "上传成功").show();
+                        mUserInfo.setUserExtras("voice", data);
                     }
-                    Toasty.normal(EditSpaceInfoActivity.this, object.getString("data")).show();
+                    Toasty.normal(EditSpaceInfoActivity.this, data).show();
                     LogUtil.d(TAG, "uploadBigFile-onResponse: " + "response = " + response);
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -530,27 +567,82 @@ public class EditSpaceInfoActivity extends BaseActivity {
         });
     }
 
+    /**
+     * 调用系统图片裁剪
+     *
+     * @param uri uri
+     */
+    private void photoClip(Uri uri) {
+        // 调用系统中自带的图片剪裁
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.setDataAndType(uri, "image/*");
+        // 下面这个crop=true是设置在开启的Intent中设置显示的VIEW可裁剪
+        intent.putExtra("crop", "true");
+        // aspectX aspectY 是宽高的比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        // outputX outputY 是裁剪图片宽高
+        intent.putExtra("outputX", 240);
+        intent.putExtra("outputY", 250);
+        intent.putExtra("return-data", true);
+        startActivityForResult(intent, 3);
+    }
+
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    protected void onActivityResult(int requestCode, int resultCode
+            , @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_CHOOSE && resultCode == RESULT_OK) {
             assert data != null;
             List<Uri> path = Matisse.obtainResult(data);
-            upLoadImg(FileUtil.getFileByUri(EditSpaceInfoActivity.this
-                    , path.get(0)), path.get(0));
-//            new Handler().post(() -> FileUtil.uploadFile(FileUtil.getFileByUri(EditSpaceInfoActivity.this
-//                    , path.get(0)), REALM_NAME + UPLOAD_IMG_PATH));
+            photoClip(path.get(0));
         } else if (requestCode == REQUEST_EDIT_BASIC_CODE && resultCode == RESULT_OK) {
-            //TODO: 更新基本信息
+            UserInfo userInfo = JMessageClient.getMyInfo();
+            initBasicInfo(userInfo, userInfo.getExtras());
+        } else if (requestCode == 3 && resultCode == RESULT_OK) {
+            assert data != null;
+            Bundle bundle = data.getExtras();
+            if (bundle != null) {
+                //在这里获得了剪裁后的Bitmap对象，可以用于上传
+                Bitmap image = bundle.getParcelable("data");
+                assert image != null;
+                upLoadImg(FileUtil.saveBitmapFile(image), image);
+            }
         }
     }
 
-    private void accept(Boolean granted) {
-        if (granted) {
-            if (isRecord) startService(intentVoice);
-            if (!isRecord) isRecord = true;
-        } else {
-            Toasty.normal(EditSpaceInfoActivity.this, "授权失败").show();
+    @Override
+    public void onBackPressed() {
+        if (mImgUrl.size() > 0) {
+            mUserInfo.setUserExtras("images", JSON.toJSONString(mImgUrl));
+        }
+        JMessageClient.updateMyInfo(UserInfo.Field.all, mUserInfo, new BasicCallback() {
+            @Override
+            public void gotResult(int i, String s) {
+                if (i == 0) {
+                    Toasty.normal(EditSpaceInfoActivity.this, "更新成功").show();
+                    finish();
+                } else {
+                    Toasty.normal(EditSpaceInfoActivity.this, "desc = " + s).show();
+                }
+            }
+        });
+    }
+
+    /**
+     * 广播接收器，接收录音文件
+     */
+    class EditSpaceReceiver extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+            assert action != null;
+            if (action.equals(RECORD_MY_VOICE_ACTION)) {
+                String voicePath = intent.getStringExtra("audio_path");
+                if (!TextUtils.isEmpty(voicePath)) uploadBigFile(new File(voicePath));
+            }
         }
     }
 }

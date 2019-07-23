@@ -98,6 +98,9 @@ public class ChooseContactFragment extends Fragment {
         return view;
     }
 
+    /**
+     * 初始化数据
+     */
     private void initData() {
         mSearchView.setOnCloseListener(() -> false);
         mSearchView.setOnQueryTextFocusChangeListener((view, b) -> {

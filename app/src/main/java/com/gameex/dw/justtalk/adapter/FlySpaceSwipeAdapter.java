@@ -3,12 +3,14 @@ package com.gameex.dw.justtalk.adapter;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alibaba.fastjson.JSONArray;
@@ -28,6 +30,9 @@ import cn.jpush.im.android.api.callback.GetUserInfoCallback;
 import cn.jpush.im.android.api.model.UserInfo;
 import es.dmoral.toasty.Toasty;
 
+/**
+ * 飞聊空间适配器
+ */
 public class FlySpaceSwipeAdapter extends BaseAdapter {
     private static final String TAG = "FlySpaceSwipeAdapter";
 
@@ -62,8 +67,13 @@ public class FlySpaceSwipeAdapter extends BaseAdapter {
         if (view == null)
             view = LayoutInflater.from(mContext)
                     .inflate(R.layout.swipe_item_fly_space, viewGroup, false);
-        CardView card = view.findViewById(R.id.container);
         ImageView img = view.findViewById(R.id.picture);    //图片预览
+        img.setOnClickListener(view12 -> {
+            Intent intent = new Intent(mContext, FlySpaceInfoActivity.class);
+            intent.putExtra("userInfo_json", mUserInfos.get(i).toJson());
+            mContext.startActivity(intent);
+            Toasty.normal(mContext, "position = " + i).show();
+        });
         TextView username = view.findViewById(R.id.username);   //用户名或用户昵称
         TextView gender = view.findViewById(R.id.gender_age);   //用户年龄
         TextView constellation = view.findViewById(R.id.constellation); //星座
@@ -76,12 +86,6 @@ public class FlySpaceSwipeAdapter extends BaseAdapter {
             public void gotResult(int i, String s, UserInfo userInfo) {
                 if (i == 0) {
                     mUserInfos.add(userInfo);
-//                    card.setOnClickListener(view1 -> {
-//                        Intent intent = new Intent(mContext, FlySpaceInfoActivity.class);
-//                        intent.putExtra("userInfo_json", userInfo.toJson());
-//                        mContext.startActivity(intent);
-//                        Toasty.normal(mContext,"position = "+i).show();
-//                    });
                     Map<String, String> extras = userInfo.getExtras();
                     List<String> imgPath = JSONArray.parseArray(extras.get("picture"), String.class);
                     if (imgPath != null && imgPath.size() > 0)  //用户上传的图片的第一张
@@ -91,7 +95,7 @@ public class FlySpaceSwipeAdapter extends BaseAdapter {
                                 .load(mContext.getResources()
                                         .getDrawable(R.drawable.icon_img_load_fail))
                                 .into(img);
-                    username.setText(userInfo.getNickname() == null ? userInfo.getUserName()
+                    username.setText(TextUtils.isEmpty(userInfo.getNickname()) ? userInfo.getUserName()
                             : userInfo.getNickname());  //昵称或用户名
                     switch (userInfo.getGender()) { //性别和年龄
                         case male:
@@ -101,15 +105,11 @@ public class FlySpaceSwipeAdapter extends BaseAdapter {
                             gender.setText("♀" + " " + extras.get("age"));
                             break;
                         default:
-                            gender.setText("未知");
+                            gender.setText("保密");
                             break;
                     }
                     constellation.setText(extras.get("constellation")); //星座
                     career.setText(extras.get("career"));   //职业
-//                    play.setOnClickListener(view12 -> {
-//                        VoiceSpeaker.getInstance().speakSingle(extras.get("voice"));
-//                        Toasty.normal(mContext, "position = " + i).show();
-//                    });
                 } else LogUtil.d(TAG, "getView: " + "responseCode = " + i + " ;desc = " + s);
             }
         });

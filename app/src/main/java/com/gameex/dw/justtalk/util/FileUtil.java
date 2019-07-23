@@ -5,15 +5,18 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 
+import java.io.BufferedOutputStream;
 import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,8 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Objects;
 import java.util.UUID;
-
-import static android.provider.ContactsContract.CommonDataKinds.StructuredName.PREFIX;
 
 /**
  * 文件操作工具类
@@ -45,6 +46,27 @@ public class FileUtil {
         } else {
             return new File(getUriPath19(context, uri));
         }
+    }
+
+    /**
+     * bitmap转file
+     * @param bitmap bitmap
+     * @return file
+     */
+    public static File saveBitmapFile(Bitmap bitmap) {
+        File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath()
+                + "/FlyChat/recording/my_voice/" + System.currentTimeMillis()
+                + ".jpg");//将要保存图片的路径
+        try {
+            BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(file));
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, bos);
+            bos.flush();
+            bos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return file;
     }
 
     /**

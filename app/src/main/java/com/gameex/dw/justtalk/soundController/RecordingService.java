@@ -34,6 +34,7 @@ import es.dmoral.toasty.Toasty;
 import jaygoo.widget.wlv.WaveLineView;
 
 import static com.gameex.dw.justtalk.activity.ChattingActivity.RECORD_COMPLETE;
+import static com.gameex.dw.justtalk.activity.EditSpaceInfoActivity.RECORD_MY_VOICE_ACTION;
 import static com.tencent.wxop.stat.common.StatConstants.LOG_TAG;
 
 /**
@@ -101,6 +102,7 @@ public class RecordingService extends Service {
 
     private Timer mWaveTimer;
     private TimerTask mWaveTask;
+    private boolean isSelfVoice = false;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -108,7 +110,6 @@ public class RecordingService extends Service {
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
             if (mElapsedSeconds > 29) {
-                Toasty.warning(mContext, "时间太长").show();
                 stopSelf();
             } else {
                 mRecordTime.setText(mTimerFormat.format(mElapsedSeconds * 1000));
@@ -137,9 +138,8 @@ public class RecordingService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         mContext = BaseActivity.sBaseActivity;
-        String filePath = intent.getStringExtra("file_path");
-        String fileName = intent.getStringExtra("file_name");
-        startRecording(filePath, fileName);
+        isSelfVoice = intent.getBooleanExtra("isSelfVoice", false);
+        startRecording();
         return START_STICKY;
     }
 
@@ -152,8 +152,8 @@ public class RecordingService extends Service {
     }
 
     // 开始录音
-    public void startRecording(String filePath, String fileName) {
-        setFileNameAndPath(filePath, fileName);
+    public void startRecording() {
+        setFileNameAndPath();
 //        new Thread(() -> {
 //            short[] buffer = new short[BUFFER_SIZE];
 //            while (isGetVoiceRun) {
@@ -202,17 +202,15 @@ public class RecordingService extends Service {
     }
 
     // 设置录音文件的名字和保存路径
-    public void setFileNameAndPath(String filePath, String fileName) {
+    public void setFileNameAndPath() {
         int count = 0;
         File f;
 
         do {
             count++;
-            if (!TextUtils.isEmpty(fileName)) mFileName = fileName;
-            else mFileName = JMessageClient.getMyInfo().getUserName()
+            mFileName = JMessageClient.getMyInfo().getUserName()
                     + "_" + System.currentTimeMillis() + "_" + count + ".mp3";
-            if (!TextUtils.isEmpty(filePath)) mFilePath = filePath;
-            else mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()
+            mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath()
                     + "/FlyChat/recording/";
             File directory = new File(mFilePath);
             if (!directory.exists()) {
@@ -237,10 +235,18 @@ public class RecordingService extends Service {
 //                .putLong("elpased", mElapsedMillis)
 //                .apply();
         if ((int) (mElapsedMillis / 1000) > 2) {
-            Intent intent = new Intent(RECORD_COMPLETE);
+            Intent intent = new Intent();
+            if (!isSelfVoice) {
+                intent.setAction(RECORD_COMPLETE);
+            } else {
+                intent.setAction(RECORD_MY_VOICE_ACTION);
+            }
             intent.putExtra("audio_path", mFilePath);
             intent.putExtra("elpased", mElapsedMillis);
             mContext.sendBroadcast(intent);
+        } else if ((int) (mElapsedMillis / 1000) > 29) {
+            Toasty.normal(mContext, "时间太长").show();
+            new File(mFilePath).delete();
         } else {
             Toasty.error(mContext, "时间太短").show();
             new File(mFilePath).delete();

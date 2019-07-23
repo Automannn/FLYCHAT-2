@@ -265,4 +265,8 @@
     <string name="edit_space_info_str">编辑社交信息</string>
     <string name="male_str">男</string>
     <string name="female_Str">女</string>
+    <string name="movies_notice_str">+ 我喜欢的电影</string>
+    <string name="music_notice_str">+ 我喜欢的音乐</string>
+    <string name="food_notice_str">+ 我喜欢的美食</string>
+    <string name="sport_notice_str">+ 我喜欢的运动</string>
 </resources>

@@ -19,6 +19,9 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.model.UserInfo;
 
+/**
+ * 新的朋友列表适配器
+ */
 public class NewFriendsAdapter extends RecyclerView.Adapter<NewFriendsHolder> {
     private static final String TAG = "NewFriendsAdapter";
 

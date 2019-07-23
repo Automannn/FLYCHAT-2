@@ -26,6 +26,9 @@ import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 import es.dmoral.toasty.Toasty;
 
+/**
+ * 飞聊空间基本信息编辑界面
+ */
 public class EditBasicSpaceActivity extends BaseActivity {
     private static final String TAG = "EditBasicSpaceActivity";
     /**
@@ -37,27 +40,27 @@ public class EditBasicSpaceActivity extends BaseActivity {
     @OnClick({R.id.back, R.id.nick_name, R.id.gender, R.id.age, R.id.career, R.id.done})
     void doClick(View view) {
         switch (view.getId()) {
-            case R.id.back:
+            case R.id.back: //返回
                 finish();
                 break;
-            case R.id.nick_name:
+            case R.id.nick_name:    //昵称
                 showEditNick();
                 break;
-            case R.id.gender:
+            case R.id.gender:   //性别
                 showGenderDialog();
                 break;
-            case R.id.age:
+            case R.id.age:  //年龄
                 showDatePickDialog();
                 break;
-            case R.id.career:
+            case R.id.career:   //职业（距离/最近上线时间）
                 //TODO: 更新职业
                 break;
-            case R.id.done:
+            case R.id.done: //完成
                 JMessageClient.updateMyInfo(UserInfo.Field.all, mUserInfo, new BasicCallback() {
                     @Override
                     public void gotResult(int i, String s) {
                         if (i == 0) {
-                            Toasty.success(EditBasicSpaceActivity.this, "跟新成功").show();
+                            Toasty.success(EditBasicSpaceActivity.this, "更新成功").show();
                             setResult(RESULT_OK);
                             finish();
                         } else {
@@ -147,11 +150,9 @@ public class EditBasicSpaceActivity extends BaseActivity {
             }
         });
         dialog.setOnDismissListener(dialogInterface -> {
-            String gender;
-            if (male.isChecked()) gender = "男";
-            else if (female.isChecked()) gender = "女";
-            else gender = "保密";
-            Toasty.normal(EditBasicSpaceActivity.this, gender).show();
+            if (male.isChecked()) mUserInfo.setGender(UserInfo.Gender.male);
+            else if (female.isChecked()) mUserInfo.setGender(UserInfo.Gender.female);
+            else mUserInfo.setGender(UserInfo.Gender.unknown);
         });
         dialog.cancelable(true).show();
     }

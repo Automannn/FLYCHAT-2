@@ -29,6 +29,9 @@ import cn.jpush.im.android.api.model.GroupMemberInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 import cn.jpush.im.api.BasicCallback;
 
+/**
+ * 管理员列表界面，单独对管理员进行操作
+ */
 public class SetKeeperActivity extends BaseActivity {
     private static final String TAG = "SetKeeperActivity";
 

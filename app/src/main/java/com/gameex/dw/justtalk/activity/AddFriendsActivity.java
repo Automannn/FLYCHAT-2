@@ -34,12 +34,22 @@ import cn.jpush.im.android.api.model.UserInfo;
  */
 public class AddFriendsActivity extends BaseActivity {
     private static final String TAG = "ADD_FRIENDS_ACTIVITY";
-
+    /**
+     * 标题栏
+     */
     private Toolbar mToolbar;
-    private MaterialSearchView mSearchView;
+    private MaterialSearchView mSearchView; //第三方搜索组件
+    /**
+     * 列表
+     */
     private RecyclerView mView;
+    /**
+     * 列表适配器
+     */
     private AddFriendsAdapter mAdapter;
-
+    /**
+     * 容纳搜索到的用户（目前仅支持准确查询）
+     */
     private List<UserInfo> mUserInfos = new ArrayList<>();
 
     @Override
@@ -83,6 +93,7 @@ public class AddFriendsActivity extends BaseActivity {
         mSearchView.setSuggestions(getResources().getStringArray(R.array.query_suggestions));
         mSearchView.setOnItemClickListener((adapterView, view, i, l) -> LogUtil.d(TAG, "you click the item " +
                 "int=" + i + " long=" + l));
+        //监听搜索提交，调用极光查询用户接口
         mSearchView.setOnQueryTextListener(new MaterialSearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
@@ -90,11 +101,11 @@ public class AddFriendsActivity extends BaseActivity {
                 JMessageClient.getUserInfo(query, new GetUserInfoCallback() {
                     @Override
                     public void gotResult(int responseCode, String getInfoDesc, UserInfo userInfo) {
-                        if (responseCode == 0) {
+                        if (responseCode == 0) {    //成功
                             LogUtil.i(TAG, " ; userInfo = " + userInfo.toJson());
                             mUserInfos.add(userInfo);
-                            mAdapter.notifyItemInserted(0);
-                        } else {
+                            mAdapter.notifyItemInserted(0); //更新列表
+                        } else {    //失败
                             LogUtil.i(TAG, ", responseCode = " + responseCode +
                                     " ; registerDesc = " + getInfoDesc);
                             mSearchView.showSearch();

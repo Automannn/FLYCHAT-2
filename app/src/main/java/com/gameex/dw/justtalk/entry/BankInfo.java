@@ -2,6 +2,9 @@ package com.gameex.dw.justtalk.entry;
 
 import java.io.Serializable;
 
+/**
+ * 银行卡bean
+ */
 public class BankInfo implements Serializable {
     /**
      * 银行卡id

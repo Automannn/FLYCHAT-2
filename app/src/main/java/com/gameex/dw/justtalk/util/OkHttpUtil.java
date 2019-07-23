@@ -8,8 +8,8 @@ import java.util.Map;
  * 网络操作工具类
  */
 public class OkHttpUtil {
-    public static final String REALM_NAME = "http://ryhsk233.ticp.vip/";
-//    private static final String REALM_NAME = "http://flytalk.flyxia.cn:80/";
+//    public static final String REALM_NAME = "http://ryhsk233.ticp.vip/";
+    private static final String REALM_NAME = "http://flytalk.flyxia.cn:80/";
 
     public static final String METHOD_GET = "GET";
 

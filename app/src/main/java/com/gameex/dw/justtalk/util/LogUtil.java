@@ -21,7 +21,11 @@ public class LogUtil {
     public static final int ERROR = 5;
 
     public static final int NOTHING = 6;
-
+    /**
+     * 控制日志是否输出或仅输出某类日志
+     * level=VErBOSE 时表示打印所有日志
+     * level=NOTHING　时表示不打印日志
+     */
     public static int level = VERBOSE;
 
     public static void v(String tag, String msg) {

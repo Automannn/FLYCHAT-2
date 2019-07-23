@@ -190,6 +190,7 @@ public class ChargeActivity extends BaseActivity implements View.OnClickListener
 
     /**
      * 绑定支付包
+     * 此方法暂时无法使用，说是要等app正式上线了才可以用。不过我也不知道为什么要有这个方法
      */
     private void bindAli() {
         //支付宝沙盒模式
@@ -386,12 +387,12 @@ public class ChargeActivity extends BaseActivity implements View.OnClickListener
             case R.id.bind_alipay_layout:   //绑定支付宝
                 new Thread(this::bindAli).start();
                 break;
-            case R.id.cancel:
+            case R.id.cancel:   //取消
                 if (mNoBankCardPup.isShowing()) {
                     mNoBankCardPup.dismiss();
                 }
                 break;
-            case R.id.confirm:
+            case R.id.confirm:  //确认
                 if (mNoBankCardPup.isShowing()) {
                     mNoBankCardPup.dismiss();
                 }
@@ -408,6 +409,7 @@ public class ChargeActivity extends BaseActivity implements View.OnClickListener
                 return;
             }
             if (data.getBooleanExtra("order_success", false)) {
+                //订单完成，重新查询零钱并刷新界面
                 initBalance();
             }
         }

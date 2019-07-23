@@ -24,6 +24,9 @@ import com.gameex.dw.justtalk.util.LogUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 搜索用户界面
+ */
 public class SearchUserActivity extends BaseActivity {
 
     private static final String TAG = "SearchUserActivity";

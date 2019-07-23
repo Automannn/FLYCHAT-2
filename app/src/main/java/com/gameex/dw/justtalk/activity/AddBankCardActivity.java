@@ -87,12 +87,12 @@ public class AddBankCardActivity extends BaseActivity implements View.OnClickLis
      * 初始化布局
      */
     private void initView() {
-        setContentView(R.layout.activity_add_bank_card);
-        mBack = findViewById(R.id.back);
-        mName = findViewById(R.id.name);
-        mIdNumber = findViewById(R.id.id_number);
-        mCardNumber = findViewById(R.id.card_number);
-        mNext = findViewById(R.id.next_step);
+        setContentView(R.layout.activity_add_bank_card);    //绑定主布局
+        mBack = findViewById(R.id.back);    //绑定返回图标
+        mName = findViewById(R.id.name);    //真实姓名
+        mIdNumber = findViewById(R.id.id_number);   //身份证
+        mCardNumber = findViewById(R.id.card_number);   //银行卡号
+        mNext = findViewById(R.id.next_step);   //下一步
     }
 
     /**
@@ -100,7 +100,7 @@ public class AddBankCardActivity extends BaseActivity implements View.OnClickLis
      */
     private void initListener() {
         mBack.setOnClickListener(this);
-        mName.addTextChangedListener(new TextWatcher() {
+        mName.addTextChangedListener(new TextWatcher() {    //真实姓名输入监听
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -115,7 +115,7 @@ public class AddBankCardActivity extends BaseActivity implements View.OnClickLis
             public void afterTextChanged(Editable editable) {
             }
         });
-        mIdNumber.addTextChangedListener(new TextWatcher() {
+        mIdNumber.addTextChangedListener(new TextWatcher() {    //身份证号输入监听
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -131,7 +131,7 @@ public class AddBankCardActivity extends BaseActivity implements View.OnClickLis
 
             }
         });
-        mCardNumber.addTextChangedListener(new TextWatcher() {
+        mCardNumber.addTextChangedListener(new TextWatcher() {  //卡号输入监听
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -153,13 +153,14 @@ public class AddBankCardActivity extends BaseActivity implements View.OnClickLis
                 }
             }
         });
-        mNext.setOnClickListener(this);
+        mNext.setOnClickListener(this); //下一步点击监听
     }
 
     /**
      * 调用ali接口查询银行卡名称和类别
      *
      * @param cardNum 银行卡号
+     * @param intent 跳转
      */
     private void getBankInfo(String cardNum, Intent intent) {
         OkHttpUtil.okHttpGet(QUERY_BANK_URL1 + cardNum + QUERY_BANK_URL2, new CallBackUtil.CallBackString() {
@@ -177,8 +178,8 @@ public class AddBankCardActivity extends BaseActivity implements View.OnClickLis
                     if (validated) {
                         String bank = bankNumMap.get(object.getString("bank"));
                         String cardType = bankTypeMap.get(object.getString("cardType"));
-                        intent.putExtra("bank", bank);
-                        intent.putExtra("cardType", cardType);
+                        intent.putExtra("bank", bank);  //银行名称
+                        intent.putExtra("cardType", cardType);  //银行类型
                         startActivityForResult(intent,REQUEST_SMS_PHONE_CODE);
                     } else {
                         Toasty.info(AddBankCardActivity.this, "不支持该类银行卡").show();
@@ -194,10 +195,10 @@ public class AddBankCardActivity extends BaseActivity implements View.OnClickLis
     public void onClick(View view) {
         Intent intent = new Intent();
         switch (view.getId()) {
-            case R.id.back:
+            case R.id.back: //返回
                 finish();
                 break;
-            case R.id.next_step:
+            case R.id.next_step:    //下一步
                 intent.setClass(this, SMSPhoneActivity.class);
                 Intent skyPayIntent = getIntent();
                 if (skyPayIntent != null) {

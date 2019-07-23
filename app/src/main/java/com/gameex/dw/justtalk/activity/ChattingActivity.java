@@ -121,15 +121,30 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
     private CircularImageView mIcon;
     private RecyclerView mRecycler;
     private ChatRecAdapter mRecAdapter;
+    /**
+     * 底部编辑框layout
+     */
     private LinearLayout mSendLayout;
+    /**
+     * 文本信息编辑框
+     */
     private EmojiEditText mSendText;
+    /**
+     * 打开语音录制按钮、打开表情（twitter表情包）、发送
+     */
     private CircularImageView mVoiceCircle, mEmojiCircle, mCircleView;
     /**
      * 按住说话
      */
     private Button mRecord;
+    /**
+     * 表情包弹窗
+     */
     private EmojiPopup mEmojiPopup;
     private GridView mGridView;
+    /**
+     * 更多功能弹窗适配器
+     */
     private SimpleAdapter mSimpleAdapter;
 
     private List<Map<String, Object>> mGridList = new ArrayList<>();
@@ -137,10 +152,18 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
             , R.drawable.icon_voice_chat, R.drawable.icon_shock, R.drawable.icon_location
             , R.drawable.icon_business_card, R.drawable.icon_collection, R.drawable.icon_file};
     private String[] iconName = {"图片", "红包", "语音聊天", "震", "位置", "名片", "收藏", "文件"};
+    /**
+     * 消息列表的信息集合
+     */
     private List<Message> mMessages = new ArrayList<>();
     private MsgInfo mMsgInfo;
+    /**
+     * 非登录用户的信息
+     */
     private UserInfo mUserInfo;
-
+    /**
+     * 会话对象
+     */
     private Conversation mConversation;
     /**
      * 软键盘相关
@@ -154,6 +177,9 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
      * 用于点击按住录音时记录触点坐标
      */
     private float posY, curY;
+    /**
+     * 确认发送语音
+     */
     private boolean isSendVoice = false;
     private SingleReceiver mReceiver;
 
@@ -173,6 +199,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 .request(Manifest.permission.RECORD_AUDIO)
                 .subscribe(granted -> {
                     if (granted) {
+                        //判断发送录音按钮是否展示，是则播放动画隐藏发送录音按钮，展示文本发送框
                         if (mRecord.getVisibility() == View.VISIBLE) {
                             YoYo.with(Techniques.SlideOutDown)
                                     .duration(200)
@@ -183,9 +210,11 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                                     .duration(200)
                                     .playOn(mSendText);
                         } else {
+                            //判断软键盘是否收起，否则收起软键盘
                             if (mIMM != null && mKeyBoardHeight > 0) {
                                 mIMM.hideSoftInputFromWindow(mVoiceCircle.getWindowToken(), 0);
                             }
+                            //播放动画展示发送录音按钮和隐藏文本信息编辑框
                             mRecord.setVisibility(View.VISIBLE);
                             YoYo.with(Techniques.SlideInUp)
                                     .duration(200)
@@ -222,7 +251,8 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         mTitle.setText((TextUtils.isEmpty(mUserInfo.getNickname()) ? mUserInfo.getUserName()
                 : mUserInfo.getNickname()) + "\n" + DataUtil.getCurrentDateStr());
 
-        JMessageClient.registerEventReceiver(this);
+        JMessageClient.registerEventReceiver(this); //注册极光监听
+        //获取单聊会话实列
         mConversation = JMessageClient.getSingleConversation(mUserInfo.getUserName());
         DefaultItemAnimator animator = new DefaultItemAnimator();
         animator.setRemoveDuration(200);
@@ -277,7 +307,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
 
             @Override
             public void afterTextChanged(Editable editable) {
-                if (TextUtils.isEmpty(editable)) {
+                if (TextUtils.isEmpty(editable)) {  //判断文本输入框是否为空
                     mCircleView.setImageResource(R.drawable.more_send);
                 } else {
                     mCircleView.setImageResource(R.drawable.send);
@@ -300,6 +330,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
             Intent intent = new Intent();
             switch (position) {
                 case 0:
+                    //调用知乎图片选择框架
                     Matisse.from(this)
                             .choose(MimeType.ofImage())
                             .countable(true)
@@ -314,6 +345,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                             .forResult(REQUEST_CODE_CHOOSE);
                     break;
                 case 1:
+                    //跳转到红包配置界面
                     intent.setClass(ChattingActivity.this
                             , SingleRedActivity.class);
                     startActivityForResult(intent, REQUEST_SINGLE_RED_PACKAGE);
@@ -621,8 +653,11 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                     , path.get(0)));
         } else if (requestCode == REQUEST_SINGLE_RED_PACKAGE && resultCode == RESULT_OK) {
             if (data != null) {
+                //获取红包配置界面返回的金额并提取其中的数值字段
                 String[] yuan = data.getStringExtra("yuan").split("￥");
+                //本地服务器的红包标识
                 String token = data.getStringExtra("token");
+                //祝福语
                 String blessings = data.getStringExtra("blessings");
                 Map<String, String> map = new HashMap<>();
                 map.put("yuan", yuan[1]);
@@ -631,7 +666,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
                 map.put("blessings", TextUtils.isEmpty(blessings)
                         ? getString(R.string.red_package_message_str)
                         : blessings);
-                sendCustomMsg(map);
+                sendCustomMsg(map); //调用发送自定义信息的方法
                 LogUtil.d(TAG, "onActivityResult: " + "yuan.length = " + yuan.length
                         + " ;yuan[0] = " + yuan[0] + " ;yuan[1] = " + yuan[1]);
             }
@@ -647,6 +682,9 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
+    /**
+     * 广播接收器
+     */
     class SingleReceiver extends BroadcastReceiver {
 
         @Override
@@ -654,7 +692,7 @@ public class ChattingActivity extends BaseActivity implements View.OnClickListen
             String action = intent.getAction();
             assert action != null;
             switch (action) {
-                case RECORD_COMPLETE:
+                case RECORD_COMPLETE:   //录音完成,获取录音文件路径，调用语音发送方法
                     if (isSendVoice) {
                         String audioPath = intent.getStringExtra("audio_path");
                         long audioDuration = intent.getLongExtra("elpased", 0);

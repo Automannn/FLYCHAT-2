@@ -1,22 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    android:layout_height="match_parent">
 
-    <com.rey.material.widget.TextView
-        android:id="@+id/start_pitch"
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/multiple_pulse_ring"
+        style="@style/SpinKitView.Large.MultiplePulseRing"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:SpinKit_Color="@color/colorBlackAlpha44"
+        android:visibility="gone"/>
+
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/double_bounce"
+        style="@style/SpinKitView.Small.DoubleBounce"
+        android:layout_width="@dimen/dp_90"
+        android:layout_height="@dimen/dp_90"
+        app:SpinKit_Color="@color/colorBlackAlpha44"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"/>
+
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/pulse1"
+        style="@style/SpinKitView.Large.Pulse"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="?largeFont"
-        android:text="开始匹配"
-        android:padding="@dimen/dp_30"
-        android:textColor="@color/colorWhite"
-        android:background="@drawable/blue_bg"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:SpinKit_Color="@color/colorAccent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintTop_toTopOf="@id/multiple_pulse_ring"
+        android:layout_marginTop="@dimen/dp_100"
+        android:layout_marginStart="@dimen/dp_30"
+        android:layout_marginLeft="@dimen/dp_30"
+        android:visibility="gone"/>
+
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/pulse2"
+        style="@style/SpinKitView.Large.Pulse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:SpinKit_Color="@color/color_app_guid_text"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/multiple_pulse_ring"
+        android:layout_marginTop="@dimen/dp_150"
+        android:layout_marginStart="@dimen/dp_50"
+        android:layout_marginLeft="@dimen/dp_50"
+        android:visibility="gone"/>
+
+    <com.github.ybq.android.spinkit.SpinKitView
+        android:id="@+id/pulse3"
+        style="@style/SpinKitView.Large.Pulse"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:SpinKit_Color="@color/yellow"
+        app:layout_constraintStart_toEndOf="@id/double_bounce"
+        app:layout_constraintTop_toTopOf="@id/multiple_pulse_ring"
+        android:layout_marginTop="@dimen/dp_250"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginLeft="@dimen/dp_10"
+        android:visibility="gone"/>
+
+    <ImageView
+        android:id="@+id/start_pitch"
+        android:layout_width="@dimen/dp_60"
+        android:layout_height="@dimen/dp_60"
+        android:background="@drawable/light_gray_rip_out"
+        android:src="@drawable/icon_circle_switch"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

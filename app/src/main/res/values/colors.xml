@@ -40,6 +40,7 @@
 
     <color name="colorCoffee">#965617</color>
     <color name="colorBlackAlpha11">#11000000</color>
+    <color name="colorBlackAlpha44">#44000000</color>
     <color name="colorBlackAlpha77">#77000000</color>
     <color name="gray">#999999</color>
 

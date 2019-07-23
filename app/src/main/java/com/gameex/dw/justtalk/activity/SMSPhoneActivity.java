@@ -36,6 +36,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
 
+/**
+ * 绑卡界面分支，用于完善手机号信息
+ */
 public class SMSPhoneActivity extends BaseActivity {
     private static final String TAG = "SMSPhoneActivity";
     /**

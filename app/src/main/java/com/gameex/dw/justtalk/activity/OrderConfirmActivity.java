@@ -28,6 +28,9 @@ import org.json.JSONObject;
 import java.util.HashMap;
 import java.util.List;
 
+/**
+ * 订单确认界面
+ */
 public class OrderConfirmActivity extends BaseActivity {
     private static final String TAG = "OrderConfirmActivity";
     /**

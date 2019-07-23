@@ -69,19 +69,34 @@ public class UserInfoActivity extends BaseActivity implements View.OnClickListen
      * 标题栏
      */
     private TitleBarView mBarView;
+    /**
+     * 头像栏、二维码、飞聊号、签名、
+     */
     private RelativeLayout mIconInfo, mQRCode, mFlyCode, mFlySign, mNumInfo;
+    /**
+     * 头像
+     */
     private CircularImageView mIconImg;
+    /**
+     * 昵称、飞聊号、签名、、分享我的名片、编辑飞聊空间信息、退出登录
+     */
     private TextView mNickName, mFlyCodeText, mFlySignText, mNumText, mShareCard, mEditSpace, mLoginOut;
-
+    /**
+     * 二维码弹窗
+     */
     private AlertDialog mDialog;
     private Uri mPhotoUri;
     /**
      * 修剪后的图片
      */
     private Bitmap mIcon;
-
+    /**
+     * 飞聊号编辑弹窗
+     */
     private PopupWindow mEditPup;
-
+    /**
+     * 用户信息对象
+     */
     private UserInfo mUserInfo;
 
     private boolean flag = false;

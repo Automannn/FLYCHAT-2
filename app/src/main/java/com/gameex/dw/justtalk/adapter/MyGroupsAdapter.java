@@ -23,7 +23,7 @@ import cn.jpush.im.android.api.JMessageClient;
 import cn.jpush.im.android.api.model.GroupInfo;
 
 /**
- * 我的群组fragment
+ * 我的群组fragment适配器
  */
 public class MyGroupsAdapter extends RecyclerView.Adapter<MyGroupsAdapter.MyGroupsHolder> {
     private static final String TAG = "MyGroupsAdapter";

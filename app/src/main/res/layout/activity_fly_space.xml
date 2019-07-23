@@ -4,7 +4,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorWhite">
 
     <RelativeLayout
         android:id="@+id/title_bar"
@@ -85,36 +86,35 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-        <ImageView
+        <com.rey.material.widget.FloatingActionButton
             android:id="@+id/left"
-            android:layout_width="@dimen/dp_66"
-            android:layout_height="@dimen/dp_66"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_20"
             android:layout_marginRight="@dimen/dp_20"
-            android:background="@drawable/light_gray_rip_out"
-            android:padding="@dimen/dp_13"
-            android:src="@drawable/icon_unlike"
-            tools:ignore="ContentDescription"/>
+            app:fab_backgroundColor="@color/colorWhite"
+            app:fab_iconSrc="@drawable/icon_unlike"
+            app:rippleColor="@color/colorLightGray"/>
 
-        <ImageView
+        <com.rey.material.widget.FloatingActionButton
             android:id="@+id/add"
-            android:layout_width="@dimen/dp_66"
-            android:layout_height="@dimen/dp_66"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="@dimen/dp_20"
             android:layout_marginRight="@dimen/dp_20"
-            android:background="@drawable/light_gray_rip_out"
-            android:padding="@dimen/dp_2"
-            android:src="@drawable/icon_chat_now"
-            tools:ignore="ContentDescription"/>
+            app:fab_backgroundColor="@color/colorWhite"
+            app:fab_iconSize="@dimen/dp_50"
+            app:fab_iconSrc="@drawable/icon_chat_now"
+            app:rippleColor="@color/colorLightGray"/>
 
-        <ImageView
+        <com.rey.material.widget.FloatingActionButton
             android:id="@+id/right"
-            android:layout_width="@dimen/dp_66"
-            android:layout_height="@dimen/dp_66"
-            android:background="@drawable/light_gray_rip_out"
-            android:padding="@dimen/dp_13"
-            android:src="@drawable/icon_like"
-            tools:ignore="ContentDescription"/>
+            android:layout_width="@dimen/dp_80"
+            android:layout_height="@dimen/dp_80"
+            app:fab_backgroundColor="@color/colorWhite"
+            app:fab_iconSize="@dimen/dp_50"
+            app:fab_iconSrc="@drawable/icon_like"
+            app:rippleColor="@color/colorLightGray"/>
 
     </LinearLayout>
 

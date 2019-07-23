@@ -31,6 +31,9 @@ import cn.jpush.im.android.api.model.Message;
 import cn.jpush.im.android.api.model.UserInfo;
 import es.dmoral.toasty.Toasty;
 
+/**
+ * 群成员列表界面
+ */
 public class GroupMemberActivity extends BaseActivity {
     private static final String TAG = "GroupMemberActivity";
 

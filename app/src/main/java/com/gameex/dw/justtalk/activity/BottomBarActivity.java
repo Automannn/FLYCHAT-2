@@ -368,26 +368,26 @@ public class BottomBarActivity extends BaseActivity
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
             int itemId = item.getItemId();
             switch (itemId) {
-                case R.id.navigation_home:
+                case R.id.navigation_home:  //飞聊fragment
                     viewPager.setCurrentItem(0);
                     mTitleBarView.setTitle("飞聊");
                     mTitleBarView.setRightIVVisible(View.VISIBLE);
                     mTitleBarView.setSearchIVVisible(View.VISIBLE);
                     break;
-                case R.id.navigation_dashboard:
+                case R.id.navigation_dashboard: //联系人fragment
                     mBadge2.hide(false);
                     viewPager.setCurrentItem(1);
                     mTitleBarView.setTitle("联系人");
                     mTitleBarView.setRightIVVisible(View.VISIBLE);
                     mTitleBarView.setSearchIVVisible(View.GONE);
                     break;
-                case R.id.navigation_flyspace:
+                case R.id.navigation_flyspace:  //飞聊空间fragment
                     viewPager.setCurrentItem(2);
                     mTitleBarView.setTitle("飞聊空间");
                     mTitleBarView.setRightIVVisible(View.VISIBLE);
                     mTitleBarView.setSearchIVVisible(View.GONE);
                     break;
-                case R.id.navigation_notifications:
+                case R.id.navigation_notifications: //我的fragment
                     viewPager.setCurrentItem(3);
                     mTitleBarView.setTitle("我");
                     mTitleBarView.setRightIVVisible(View.GONE);
@@ -451,12 +451,13 @@ public class BottomBarActivity extends BaseActivity
      */
     private Fragment[] getFragment() {
         Fragment[] fats = new Fragment[4];
-        mMsgInfoFragment = new MsgInfoFragment();
+        mMsgInfoFragment = new MsgInfoFragment();   //飞聊fragment
         fats[0] = mMsgInfoFragment;
-        mContactFragment = new ContactFragment();
+        mContactFragment = new ContactFragment();   //联系人fragment
         fats[1] = mContactFragment;
-        mSpaceFragment = FlySpaceFragment.newInstance();
+        mSpaceFragment = FlySpaceFragment.newInstance();    //飞聊空间fragment
         fats[2] = mSpaceFragment;
+        //我的fragment，传入激光服务器中登录用户的信息
         mMyInfoFragment = MyInfoFragment.getInstance(JMessageClient.getMyInfo().toJson());
         fats[3] = mMyInfoFragment;
         return fats;

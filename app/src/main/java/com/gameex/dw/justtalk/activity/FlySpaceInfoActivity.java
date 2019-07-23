@@ -19,12 +19,17 @@ import com.donkingliang.labels.LabelsView;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.manage.BaseActivity;
 import com.gameex.dw.justtalk.soundController.VoiceSpeaker;
+import com.gameex.dw.justtalk.tools.GlideImageLoader;
 import com.gameex.dw.justtalk.util.BarUtil;
 import com.youth.banner.Banner;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 飞聊空间信息展示界面
+ */
 public class FlySpaceInfoActivity extends BaseActivity {
     private static final String TAG = "FlySpaceInfoActivity";
 
@@ -55,6 +60,7 @@ public class FlySpaceInfoActivity extends BaseActivity {
     }
 
     private Map<String, String> extras;
+    private List<String> mImgUrl = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,8 +76,11 @@ public class FlySpaceInfoActivity extends BaseActivity {
         Intent intent = getIntent();
         UserInfo userInfo = UserInfo.fromJson(intent.getStringExtra("userInfo_json"));
         extras = userInfo.getExtras();
+        mImgUrl = JSON.parseArray(extras.get("images"), String.class);
+        mBanner.setImageLoader(new GlideImageLoader());
+        mBanner.setImages(mImgUrl);
         //用户名或昵称
-        mTextViews[0].setText(userInfo.getNickname() == null ? userInfo.getUserName() : userInfo.getNickname());
+        mTextViews[0].setText(TextUtils.isEmpty(userInfo.getNickname()) ? userInfo.getUserName() : userInfo.getNickname());
         String gender;
         switch (userInfo.getGender()) {
             case male:
@@ -81,7 +90,7 @@ public class FlySpaceInfoActivity extends BaseActivity {
                 gender = "女 ";
                 break;
             default:
-                gender = "未知 ";
+                gender = "保密 ";
                 break;
         }
         mTextViews[1].setText(gender + extras.get("age"));  //性别和年龄

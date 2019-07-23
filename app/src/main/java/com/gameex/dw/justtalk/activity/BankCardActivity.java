@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.adapter.AddBankAdapter;
 import com.gameex.dw.justtalk.entry.BankInfo;
+import com.gameex.dw.justtalk.manage.BaseActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
@@ -40,7 +41,7 @@ import okhttp3.Response;
 /**
  * 已绑定的银行卡列表
  */
-public class BankCardActivity extends AppCompatActivity implements View.OnClickListener {
+public class BankCardActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "BankCardActivity";
     /**
      * 刷新银行卡action

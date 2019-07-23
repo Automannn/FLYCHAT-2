@@ -2,19 +2,25 @@ package com.gameex.dw.justtalk.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.alibaba.fastjson.JSONArray;
+import com.daimajia.androidanimations.library.Techniques;
+import com.daimajia.androidanimations.library.YoYo;
 import com.gameex.dw.justtalk.R;
 import com.gameex.dw.justtalk.activity.FlySpaceActivity;
 import com.gameex.dw.justtalk.util.CallBackUtil;
 import com.gameex.dw.justtalk.util.LocationUtil;
-import com.gameex.dw.justtalk.util.LogUtil;
 import com.gameex.dw.justtalk.util.OkHttpUtil;
+import com.github.ybq.android.spinkit.SpinKitView;
+import com.github.ybq.android.spinkit.sprite.Sprite;
+import com.github.ybq.android.spinkit.style.DoubleBounce;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -27,14 +33,17 @@ import java.util.Objects;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import butterknife.BindView;
+import butterknife.BindViews;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.jpush.im.android.api.JMessageClient;
-import cn.jpush.im.android.api.callback.GetUserInfoCallback;
-import cn.jpush.im.android.api.model.UserInfo;
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 
+/**
+ * 飞聊空间界面fragment
+ */
 public class FlySpaceFragment extends Fragment {
     private static final String TAG = "FlySpaceFragment";
     /**
@@ -44,8 +53,23 @@ public class FlySpaceFragment extends Fragment {
 
     private DecimalFormat format = new DecimalFormat("#.000000");
 
+    @BindViews({R.id.multiple_pulse_ring,R.id.double_bounce
+            ,R.id.pulse1,R.id.pulse2,R.id.pulse3})
+    SpinKitView[] mKitViews;
+
+    @BindView(R.id.start_pitch)
+    ImageView mStart;
+
     @OnClick(R.id.start_pitch)
     void onClick() {
+        YoYo.with(Techniques.TakingOff).duration(700).onEnd(animator -> {
+            mStart.setImageDrawable(doubleBounce);
+            doubleBounce.start();
+            mKitViews[0].setVisibility(View.VISIBLE);
+            mKitViews[2].setVisibility(View.VISIBLE);
+            mKitViews[3].setVisibility(View.VISIBLE);
+            mKitViews[4].setVisibility(View.VISIBLE);
+        }).playOn(mStart);
         LocationUtil.getInstance(getContext()).getLngAndLat(new LocationUtil.OnLocationResultListener() {
             @Override
             public void onLocationResult(Location location) {
@@ -71,6 +95,8 @@ public class FlySpaceFragment extends Fragment {
         });
     }
 
+    private Sprite doubleBounce;
+
     public static FlySpaceFragment newInstance() {
         FlySpaceFragment fragment = new FlySpaceFragment();
         return fragment;
@@ -88,11 +114,20 @@ public class FlySpaceFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container
+            , @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_fly_space, container, false);
         ButterKnife.bind(this, view);
-
+        doubleBounce = new DoubleBounce();
+        doubleBounce.setBounds(0,0,100,100);
+        doubleBounce.setColor(Color.WHITE);
         return view;
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        doubleBounce.stop();
     }
 
     private void searchUser(JSONObject paramsMap) {

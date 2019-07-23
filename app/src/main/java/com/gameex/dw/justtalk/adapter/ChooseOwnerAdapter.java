@@ -16,6 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.model.GroupMemberInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 
+/**
+ * 群管理中群主权限转让功能的群成员列表适配器
+ */
 public class ChooseOwnerAdapter extends RecyclerView.Adapter<ChooseOwnerHolder> {
 
     Context mContext;

@@ -15,6 +15,9 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * 提现界面选择银行卡的底部弹窗的列表适配器
+ */
 public class BottomBankDialogAdapter extends RecyclerView.Adapter<BottomBankDialogHolder> {
     private Context mContext;
     private List<BankInfo> mBankInfos;

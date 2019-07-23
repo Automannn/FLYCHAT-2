@@ -26,6 +26,9 @@ import com.gameex.dw.justtalk.util.LogUtil;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 设置管理员
+ */
 public class ChooseToKeeperActivity extends BaseActivity {
     private static final String TAG = "ChooseToKeeperActivity";
 

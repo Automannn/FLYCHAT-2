@@ -80,7 +80,7 @@ import static com.gameex.dw.justtalk.activity.ChattingActivity.RECORD_COMPLETE;
 import static com.gameex.dw.justtalk.fragment.MsgInfoFragment.UPDATE_MSG_INFO;
 
 /**
- * 群聊界面
+ * 群聊界面，基本和单聊界面一致，多了群成员头像展示recyclerView和更多功能的红包配置界面
  */
 public class GroupChatActivity extends BaseActivity implements View.OnClickListener {
     @SuppressLint("StaticFieldLeak")
@@ -303,7 +303,7 @@ public class GroupChatActivity extends BaseActivity implements View.OnClickListe
                     break;
                 case MotionEvent.ACTION_UP:
                     stopService(intent);
-                    if (posY > curY) {
+                    if (posY > curY) {  //手指上滑，发送录音
                         isSendVoice = true;
                     } else {
                         Toasty.normal(GroupChatActivity.this, "取消发送", Toasty.LENGTH_SHORT).show();

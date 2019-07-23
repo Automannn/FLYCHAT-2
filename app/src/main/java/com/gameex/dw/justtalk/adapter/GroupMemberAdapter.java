@@ -20,6 +20,9 @@ import cn.jpush.im.android.api.model.GroupInfo;
 import cn.jpush.im.android.api.model.GroupMemberInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 
+/**
+ * 群成员列表适配器
+ */
 public class GroupMemberAdapter extends RecyclerView.Adapter<GroupMemberHolder>
         /*implements onMoveAndSwipedListener //手指移动监听接口*/ {
 

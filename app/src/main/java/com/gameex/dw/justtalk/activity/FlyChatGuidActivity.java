@@ -37,15 +37,16 @@ public class FlyChatGuidActivity extends AppCompatActivity {
     void doClick(View view) {
         Intent intent = new Intent();
         switch (view.getId()) {
-            case R.id.login:
+            case R.id.login:    //立即登录
                 intent.setClass(this, LoginActivity.class);
+                startActivity(intent);
+                finish();
                 break;
-            case R.id.sign_up:
+            case R.id.sign_up:  //快速注册
                 intent.setClass(this, SignUpActivity.class);
+                startActivity(intent);
                 break;
         }
-        startActivity(intent);
-        finish();
     }
 
     /**

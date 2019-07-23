@@ -32,6 +32,9 @@ import okhttp3.Response;
 
 import static com.gameex.dw.justtalk.activity.BankCardActivity.ACCOUNT_CARD_BIND_QUERY;
 
+/**
+ * 天付宝支付线程
+ */
 public class SkyPayTask extends AsyncTask {
     private static final String TAG = "SkyPayTask";
 

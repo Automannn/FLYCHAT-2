@@ -100,7 +100,7 @@ public class ChatRecAdapter extends RecyclerView.Adapter<ChatRecAdapter.ChatRecH
         long milliSecond = message.getCreateTime();
         String date = DataUtil.msFormMMDD(milliSecond);
         String time = DataUtil.msFormHHmmTime(milliSecond);
-        if (position == 0 || DataUtil.isMoreThanOneDay(DataUtil.msFormMMDD(
+        if (position == 0 || DataUtil.isMoreThanOneDay(DataUtil.msFormMMDD( //判断是否超过一天
                 mMessages.get(position - 1).getCreateTime()), date)) {
             if (currentDate.equals(date)) {
                 holder.receiveTime.setText("今天  " + time);

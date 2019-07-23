@@ -123,12 +123,13 @@ public class NewFriendsActivity extends BaseActivity {
         IntentFilter filter = new IntentFilter();
         filter.addAction(ADD_RECEIVE);
         filter.addAction(DELETE_RECEIVE);
-        registerReceiver(mReceiver, filter);
+        registerReceiver(mReceiver, filter);    //注册广播接收器
     }
 
     @Override
     protected void onDestroy() {
         unregisterReceiver(mReceiver);
+        //调用sharedPreference缓存工具类，存储收到的好友请求
         SharedPreferenceUtil.putList("new_friends_receive_list", mDatas);
         super.onDestroy();
     }
@@ -163,7 +164,7 @@ public class NewFriendsActivity extends BaseActivity {
             String action = intent.getAction();
             assert action != null;
             switch (action) {
-                case ADD_RECEIVE:
+                case ADD_RECEIVE:   //增加收到的好友请求
                     Map<String, String> map = new HashMap<>();
                     map.put("username", intent.getStringExtra("contact_username"));
                     map.put("date", intent.getStringExtra("contact_date"));
@@ -172,7 +173,7 @@ public class NewFriendsActivity extends BaseActivity {
                     mDatas.add(map);
                     mAdapter.notifyItemInserted(mDatas.size() - 1);
                     break;
-                case DELETE_RECEIVE:
+                case DELETE_RECEIVE:    //删除收到的好友请求
                     UserInfo userInfo = UserInfo.fromJson(intent.getStringExtra("userInfo"));
                     for (int i = 0; i < mDatas.size(); i++) {
                         UserInfo user = UserInfo.fromJson(mDatas.get(i).get("userInfo"));

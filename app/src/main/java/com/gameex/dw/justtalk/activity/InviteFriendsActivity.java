@@ -91,34 +91,30 @@ public class InviteFriendsActivity extends BaseActivity
 
     @Override
     public void onClick(View view) {
+        //调用极光社会化分享sdk（详情请参考极光文档）
         ShareParams params = new ShareParams();
         params.setShareType(Platform.SHARE_TEXT);
         params.setText("分享文本：嗨，我正在使用飞聊嗨/聊，来和我一起聊天吧~");
         switch (view.getId()) {
-            case R.id.invite_by_msg_layout:
+            case R.id.invite_by_msg_layout: //通过短信分享
                 doSendSMSTo("18180027763","嗨，我正在使用飞聊嗨/聊，来和我一起聊天吧~");
-                Toasty.info(this, "发送短信", Toasty.LENGTH_SHORT).show();
                 break;
-            case R.id.invite_by_wechat_layout:
+            case R.id.invite_by_wechat_layout:  //分享给微信好友
                 JShareInterface.share(Wechat.Name, params,this);
-                Toasty.info(this, "分享给微信好友", Toasty.LENGTH_SHORT).show();
                 break;
-            case R.id.invite_by_wezone_layout:
+            case R.id.invite_by_wezone_layout:  //分享到微信朋友圈
                 JShareInterface.share(WechatMoments.Name, params,this);
-                Toasty.info(this, "分享到朋友圈", Toasty.LENGTH_SHORT).show();
                 break;
-            case R.id.invite_by_qq_layout:
+            case R.id.invite_by_qq_layout:  //分享给qq好友
                 ShareParams paramsQQ=new ShareParams();
                 paramsQQ.setShareType(Platform.SHARE_WEBPAGE);
                 paramsQQ.setUrl("https://www.baidu.com");
                 paramsQQ.setTitle("分享给QQ好友");
                 paramsQQ.setText("嗨，我正在使用飞聊嗨/聊，来和我一起聊天吧~");
                 JShareInterface.share(QQ.Name, paramsQQ,this);
-                Toasty.info(this, "分享给QQ好友", Toasty.LENGTH_SHORT).show();
                 break;
-            case R.id.invite_by_qzone_layout:
+            case R.id.invite_by_qzone_layout:   //分享到qq空间
                 JShareInterface.share(QZone.Name, params,this);
-                Toasty.info(this, "分享到qq空间", Toasty.LENGTH_SHORT).show();
                 break;
             default:
                 break;

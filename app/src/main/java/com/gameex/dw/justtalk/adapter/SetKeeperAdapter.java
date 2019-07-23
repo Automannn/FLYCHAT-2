@@ -16,6 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 import cn.jpush.im.android.api.model.GroupMemberInfo;
 import cn.jpush.im.android.api.model.UserInfo;
 
+/**
+ * 设置群管理时，群成员列表适配器
+ */
 public class SetKeeperAdapter extends RecyclerView.Adapter<SetKeeperHolder> {
 
     private Context mContext;

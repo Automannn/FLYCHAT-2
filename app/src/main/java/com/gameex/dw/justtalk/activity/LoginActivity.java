@@ -53,14 +53,29 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener,
     private static final String TAG = "LoginActivity";
     public static final String LOGIN_PATH = "user/login";
     private static final int SIGN_UP_REQUEST_CODE = 201;
-
+    /**
+     * 缓存读取必要参数
+     */
     private SharedPreferences pref;
+    /**
+     * 缓存写入必要参数
+     */
     private SharedPreferences.Editor editor;
-
+    /**
+     * 用户头像，在有过登陆记录，并且未使用过“退出登录”功能的情况下，可以根据用户输入的完整手机号查询到头像，并加载
+     */
     private CircularImageView mCircularImg;
+    /**
+     * 用户名、密码
+     */
     private EditText mUsername, mPassword;
+    /**
+     * 记住密码（用户不可见，默认记住）
+     */
     private CheckBox mAutoLogin;
-
+    /**
+     * 登录进度弹窗
+     */
     private BaseDialog mCirclePros;
 
     @Override

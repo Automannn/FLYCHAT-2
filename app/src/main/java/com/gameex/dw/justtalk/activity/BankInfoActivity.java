@@ -103,7 +103,7 @@ public class BankInfoActivity extends BaseActivity {
     private void unbind(String signSn) {
         HashMap<String, String> paramsMap = new HashMap<>();
         paramsMap.put("signSn", signSn);
-        paramsMap.put("mobile", JMessageClient.getMyInfo().getUserName());
+        paramsMap.put("mobile", JMessageClient.getMyInfo().getUserName());  //手机号，此处为用户的极光账号，即用于app注册的手机号
         OkHttpUtil.okHttpPost(TERMINATION_PATH, paramsMap, new CallBackUtil.CallBackString() {
             @Override
             public void onFailure(Call call, Exception e) {

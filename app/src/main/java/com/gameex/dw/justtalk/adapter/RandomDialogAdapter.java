@@ -14,6 +14,9 @@ import java.util.List;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+/**
+ * 特殊红包弹窗适配器
+ */
 public class RandomDialogAdapter extends RecyclerView.Adapter<RandomDialogHolder> {
 
     private Context mContext;

@@ -7,6 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
 
+/**
+ * 可折叠的layout组件
+ */
 public class UMExpandLayout extends RelativeLayout {
 
     public UMExpandLayout(Context context) {

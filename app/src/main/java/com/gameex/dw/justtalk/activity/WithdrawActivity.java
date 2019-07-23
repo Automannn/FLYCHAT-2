@@ -44,6 +44,9 @@ import butterknife.ButterKnife;
 import es.dmoral.toasty.Toasty;
 import okhttp3.Call;
 
+/**
+ * 提现界面
+ */
 public class WithdrawActivity extends BaseActivity implements View.OnClickListener {
     private static final String TAG = "WithdrawActivity";
     /**

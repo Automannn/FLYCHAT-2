@@ -57,11 +57,21 @@ public class SignUpActivity extends BaseActivity implements View.OnClickListener
      * 验证码验证接口
      */
     private static final String CHECK_SMS = "validate/mobile";
-
+    /**
+     * 手机号、验证码、密码
+     */
     private EditText mPhone, mVerifyCode, mPwd;
+    /**
+     * 获取验证码
+     */
     private TextView mVerifyCodeText;
+    /**
+     * 注册线程
+     */
     private Intent postJsonSer;
-
+    /**
+     * 记录请求头
+     */
     private Map<String, String> header = new HashMap<>();
 
     @Override

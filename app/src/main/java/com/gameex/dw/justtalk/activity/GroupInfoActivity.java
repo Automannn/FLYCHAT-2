@@ -166,7 +166,7 @@ public class GroupInfoActivity extends BaseActivity implements View.OnClickListe
     }
 
     /**
-     * 初始化布局
+     * 初始化布局，笨拙的绑定id，只怪缺少经验
      */
     private void initView() {
         setContentView(R.layout.activity_group);
